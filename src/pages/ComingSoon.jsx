@@ -3,12 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Rocket } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-interface ComingSoonProps {
-  title: string;
-  description: string;
-}
-
-export default function ComingSoon({ title, description }: ComingSoonProps) {
+export default function ComingSoon({ title, description }) {
   const navigate = useNavigate();
 
   return (

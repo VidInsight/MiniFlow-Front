@@ -44,7 +44,7 @@ const navigation = [
     href: "/executions",
     icon: Play,
     badge: "Active",
-    badgeVariant: "success" as const,
+    badgeVariant: "success",
   },
   {
     name: "Analytics",

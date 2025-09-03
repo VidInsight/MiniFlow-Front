@@ -7,9 +7,6 @@ import {
   Background,
   useNodesState,
   useEdgesState,
-  Node,
-  Edge,
-  Connection,
   BackgroundVariant,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
@@ -40,7 +37,7 @@ import {
 } from "lucide-react";
 
 // Initial nodes and edges for the workflow builder
-const initialNodes: Node[] = [
+const initialNodes = [
   {
     id: '1',
     type: 'input',
@@ -105,7 +102,7 @@ const initialNodes: Node[] = [
   },
 ];
 
-const initialEdges: Edge[] = [
+const initialEdges = [
   {
     id: 'e1-2',
     source: '1',
@@ -166,7 +163,7 @@ const workflows = [
   },
 ];
 
-const getStatusBadge = (status: string) => {
+const getStatusBadge = (status) => {
   switch (status) {
     case "running":
       return <Badge variant="success">Running</Badge>;
@@ -181,7 +178,7 @@ const getStatusBadge = (status: string) => {
   }
 };
 
-const getCategoryIcon = (category: string) => {
+const getCategoryIcon = (category) => {
   switch (category) {
     case "data_processing":
       return <Database className="w-4 h-4" />;
@@ -194,7 +191,7 @@ const getCategoryIcon = (category: string) => {
   }
 };
 
-const formatDate = (dateString: string) => {
+const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString() + " " + new Date(dateString).toLocaleTimeString();
 };
 
@@ -206,7 +203,7 @@ export default function Workflows() {
   const [showBuilder, setShowBuilder] = useState(false);
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+    (params) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
 

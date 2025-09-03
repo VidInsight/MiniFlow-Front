@@ -99,39 +99,39 @@ const scripts = [
   },
 ];
 
-const getCategoryBadge = (category: string) => {
+const getCategoryBadge = (category) => {
   const variants = {
     "data_processing": "success",
     "communication": "secondary",
     "maintenance": "warning",
     "validation": "outline"
-  } as const;
+  };
   
-  return <Badge variant={variants[category as keyof typeof variants] || "outline"}>
+  return <Badge variant={variants[category] || "outline"}>
     {category.replace('_', ' ')}
   </Badge>;
 };
 
-const getExtensionBadge = (extension: string) => {
+const getExtensionBadge = (extension) => {
   const colors = {
     "py": "success",
     "js": "warning", 
     "sh": "secondary",
     "sql": "outline"
-  } as const;
+  };
   
-  return <Badge variant={colors[extension as keyof typeof colors] || "outline"}>
+  return <Badge variant={colors[extension] || "outline"}>
     {extension.toUpperCase()}
   </Badge>;
 };
 
-const formatFileSize = (bytes: number) => {
+const formatFileSize = (bytes) => {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
-const formatDate = (dateString: string) => {
+const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString();
 };
 

@@ -83,7 +83,7 @@ const environmentVariables = [
   },
 ];
 
-const getScopeIcon = (scope: string) => {
+const getScopeIcon = (scope) => {
   switch (scope) {
     case "GLOBAL":
       return <Globe className="w-4 h-4" />;
@@ -94,7 +94,7 @@ const getScopeIcon = (scope: string) => {
   }
 };
 
-const getScopeBadge = (scope: string) => {
+const getScopeBadge = (scope) => {
   switch (scope) {
     case "GLOBAL":
       return <Badge variant="success">Global</Badge>;
@@ -105,28 +105,28 @@ const getScopeBadge = (scope: string) => {
   }
 };
 
-const getTypeBadge = (type: string) => {
+const getTypeBadge = (type) => {
   const variants = {
     "STRING": "outline",
     "INTEGER": "secondary", 
     "URL": "success",
     "BOOLEAN": "warning"
-  } as const;
+  };
   
-  return <Badge variant={variants[type as keyof typeof variants] || "outline"}>{type}</Badge>;
+  return <Badge variant={variants[type] || "outline"}>{type}</Badge>;
 };
 
-const formatDate = (dateString: string) => {
+const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString() + " " + new Date(dateString).toLocaleTimeString();
 };
 
 export default function Environment() {
   const [searchTerm, setSearchTerm] = useState("");
   const [scopeFilter, setScopeFilter] = useState("all");
-  const [showValues, setShowValues] = useState<Record<string, boolean>>({});
+  const [showValues, setShowValues] = useState({});
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const toggleValueVisibility = (id: string) => {
+  const toggleValueVisibility = (id) => {
     setShowValues(prev => ({ ...prev, [id]: !prev[id] }));
   };
 

@@ -20,28 +20,28 @@ const stats = [
     title: "Active Workflows",
     value: "12",
     change: "+2",
-    changeType: "positive" as const,
+    changeType: "positive",
     icon: Workflow,
   },
   {
     title: "Scripts Running",
     value: "28",
     change: "+5",
-    changeType: "positive" as const,
+    changeType: "positive",
     icon: Code2,
   },
   {
     title: "Success Rate",
     value: "98.2%",
     change: "+0.3%",
-    changeType: "positive" as const,
+    changeType: "positive",
     icon: CheckCircle2,
   },
   {
     title: "Avg Response Time",
     value: "1.2s",
     change: "-0.2s",
-    changeType: "positive" as const,
+    changeType: "positive",
     icon: Clock,
   },
 ];
@@ -81,7 +81,7 @@ const recentActivities = [
   },
 ];
 
-const getStatusBadge = (status: string) => {
+const getStatusBadge = (status) => {
   switch (status) {
     case "completed":
       return <Badge variant="success">Completed</Badge>;
@@ -94,7 +94,7 @@ const getStatusBadge = (status: string) => {
   }
 };
 
-const getStatusIcon = (status: string) => {
+const getStatusIcon = (status) => {
   switch (status) {
     case "completed":
       return <CheckCircle2 className="w-4 h-4 text-success" />;
