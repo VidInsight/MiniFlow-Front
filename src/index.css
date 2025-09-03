@@ -9,14 +9,14 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Core brand colors - Professional automation platform */
-    --background: 248 252 254;
-    --foreground: 224 228 240;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 224 233 247;
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 233 247;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 95%;
 
     /* Primary - Deep automation blue */
     --primary: 238 77% 58%;
@@ -42,32 +42,32 @@ All colors MUST be HSL.
     --destructive-foreground: 0 0% 100%;
 
     /* Neutral colors */
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 90%;
 
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
+    --border: 0 0% 20%;
+    --input: 0 0% 15%;
     --ring: 238 77% 58%;
 
     --radius: 0.75rem;
 
     /* Sidebar colors */
-    --sidebar-background: 244 247 254;
-    --sidebar-foreground: 224 233 247;
+    --sidebar-background: 0 0% 3%;
+    --sidebar-foreground: 0 0% 90%;
     --sidebar-primary: 238 77% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 240 5.9% 90%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 15%;
     --sidebar-ring: 238 77% 58%;
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(238 77% 58%), hsl(267 57% 78%));
     --gradient-hero: linear-gradient(135deg, hsl(238 77% 58% / 0.1), hsl(267 57% 78% / 0.1));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(240 4.8% 98%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 5%), hsl(0 0% 8%));
 
     /* Shadows */
     --shadow-soft: 0 2px 8px hsl(238 77% 58% / 0.08);
