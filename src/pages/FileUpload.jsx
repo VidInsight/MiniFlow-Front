@@ -77,6 +77,19 @@ export default function FileUpload() {
     return iconMap[extension] || '📎';
   };
 
+  const getFileTypeVariant = (extension) => {
+    const variantMap = {
+      '.pdf': 'destructive',
+      '.json': 'default',
+      '.txt': 'secondary',
+      '.csv': 'success',
+      '.jpg': 'warning',
+      '.jpeg': 'warning',
+      '.png': 'warning'
+    };
+    return variantMap[extension] || 'outline';
+  };
+
   const handleDrag = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -147,55 +160,65 @@ export default function FileUpload() {
   const temporaryFiles = files.filter(file => file.is_temporary).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-6">
       {/* Page Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">File Management</h1>
-          <p className="text-muted-foreground">
-            Upload, manage and organize your workflow files
-          </p>
+      <div className="flex flex-col space-y-4">
+        <div className="flex justify-between items-start">
+          <div className="space-y-1">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+              File Management
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Upload, manage and organize your workflow files with ease
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
+        <Card className="border-0 bg-gradient-to-br from-card to-card/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Files</CardTitle>
-            <File className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Files</CardTitle>
+            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <File className="h-4 w-4 text-primary" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalFiles}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-3xl font-bold text-foreground">{totalFiles}</div>
+            <p className="text-sm text-muted-foreground mt-1">
               {temporaryFiles} temporary files
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-0 bg-gradient-to-br from-card to-card/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Storage Used</CardTitle>
-            <Upload className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Storage Used</CardTitle>
+            <div className="h-8 w-8 rounded-full bg-success/10 flex items-center justify-center">
+              <Upload className="h-4 w-4 text-success" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatFileSize(totalSize)}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-3xl font-bold text-foreground">{formatFileSize(totalSize)}</div>
+            <p className="text-sm text-muted-foreground mt-1">
               Across all uploads
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-0 bg-gradient-to-br from-card to-card/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">File Types</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">File Types</CardTitle>
+            <div className="h-8 w-8 rounded-full bg-warning/10 flex items-center justify-center">
+              <CheckCircle2 className="h-4 w-4 text-warning" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-3xl font-bold text-foreground">
               {[...new Set(files.map(f => f.file_extension))].length}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground mt-1">
               Different formats
             </p>
           </CardContent>
@@ -203,171 +226,218 @@ export default function FileUpload() {
       </div>
 
       {/* Upload Area */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
+      <Card className="border-0 shadow-xl bg-gradient-to-br from-card via-card to-muted/5">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-3 text-xl">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <Upload className="h-5 w-5 text-primary" />
+            </div>
             Upload Files
           </CardTitle>
-          <CardDescription>
-            Drag and drop files here or click to browse
+          <CardDescription className="text-base">
+            Drag and drop files here or click to browse your files
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              dragActive ? 'border-primary bg-primary/10' : 'border-muted-foreground/25'
-            }`}
+            className={`
+              border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 cursor-pointer
+              ${dragActive 
+                ? 'border-primary bg-primary/5 shadow-lg scale-[1.02] shadow-primary/20' 
+                : 'border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/30'
+              }
+            `}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
           >
-            <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-lg font-medium mb-2">Drop files here</p>
-            <p className="text-sm text-muted-foreground mb-4">
-              Supports PDF, JSON, TXT, CSV, JPG, PNG files up to 50MB
-            </p>
-            <Label htmlFor="file-upload" className="cursor-pointer">
-              <Button variant="outline">
-                Choose Files
-              </Button>
-              <Input
-                id="file-upload"
-                type="file"
-                multiple
-                className="hidden"
-                onChange={(e) => handleFileUpload(e.target.files)}
-                accept=".pdf,.json,.txt,.csv,.jpg,.jpeg,.png"
-              />
-            </Label>
+            <div className={`transition-all duration-300 ${dragActive ? 'scale-110' : ''}`}>
+              <Upload className={`mx-auto h-16 w-16 mb-4 transition-colors ${
+                dragActive ? 'text-primary' : 'text-muted-foreground'
+              }`} />
+              <p className="text-xl font-semibold mb-2 text-foreground">
+                {dragActive ? 'Drop files here!' : 'Drop files here'}
+              </p>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Supports PDF, JSON, TXT, CSV, JPG, PNG files up to 50MB each
+              </p>
+              <Label htmlFor="file-upload" className="cursor-pointer">
+                <Button 
+                  variant="default" 
+                  size="lg"
+                  className="bg-primary hover:bg-primary-hover text-white font-medium px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  Choose Files
+                </Button>
+                <Input
+                  id="file-upload"
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => handleFileUpload(e.target.files)}
+                  accept=".pdf,.json,.txt,.csv,.jpg,.jpeg,.png"
+                />
+              </Label>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Files Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Uploaded Files</CardTitle>
-          <CardDescription>
+      <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-card/50">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl">Uploaded Files</CardTitle>
+          <CardDescription className="text-base">
             Manage your uploaded files and their properties
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>File</TableHead>
-                <TableHead>Size</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Uploaded</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {files.map((file) => (
-                <TableRow key={file.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">{getFileIcon(file.file_extension)}</span>
-                      <div>
-                        <div className="font-medium">{file.name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          ID: {file.id}
+        <CardContent className="px-0">
+          <div className="rounded-lg overflow-hidden border border-border/50">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/30 border-b border-border/50">
+                  <TableHead className="font-semibold text-foreground px-6 py-4">File</TableHead>
+                  <TableHead className="font-semibold text-foreground">Size</TableHead>
+                  <TableHead className="font-semibold text-foreground">Type</TableHead>
+                  <TableHead className="font-semibold text-foreground">Status</TableHead>
+                  <TableHead className="font-semibold text-foreground">Uploaded</TableHead>
+                  <TableHead className="text-right font-semibold text-foreground pr-6">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {files.map((file) => (
+                  <TableRow key={file.id} className="hover:bg-muted/20 transition-colors border-b border-border/30">
+                    <TableCell className="font-medium px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="text-2xl p-2 rounded-lg bg-muted/50">
+                          {getFileIcon(file.file_extension)}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-foreground">{file.name}</div>
+                          <div className="text-xs text-muted-foreground font-mono">
+                            ID: {file.id}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{formatFileSize(file.file_size)}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{file.file_extension}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge 
-                      variant={file.is_temporary ? "secondary" : "default"}
-                      className="cursor-pointer"
-                      onClick={() => toggleTemporary(file.id)}
-                    >
-                      {file.is_temporary ? (
-                        <>
-                          <XCircle className="w-3 h-3 mr-1" />
-                          Temporary
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle2 className="w-3 h-3 mr-1" />
-                          Permanent
-                        </>
-                      )}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(file.created_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="ghost" size="sm" onClick={() => setSelectedFile(file)}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>{selectedFile?.name}</DialogTitle>
-                            <DialogDescription>File details and properties</DialogDescription>
-                          </DialogHeader>
-                          {selectedFile && (
-                            <div className="space-y-4">
-                              <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                  <Label className="font-medium">File Name</Label>
-                                  <p className="text-muted-foreground">{selectedFile.name}</p>
-                                </div>
-                                <div>
-                                  <Label className="font-medium">Size</Label>
-                                  <p className="text-muted-foreground">{formatFileSize(selectedFile.file_size)}</p>
-                                </div>
-                                <div>
-                                  <Label className="font-medium">Type</Label>
-                                  <p className="text-muted-foreground">{selectedFile.mime_type}</p>
-                                </div>
-                                <div>
-                                  <Label className="font-medium">Checksum</Label>
-                                  <p className="text-muted-foreground font-mono text-xs">{selectedFile.checksum}</p>
-                                </div>
-                                <div>
-                                  <Label className="font-medium">Path</Label>
-                                  <p className="text-muted-foreground font-mono text-xs">{selectedFile.file_path}</p>
-                                </div>
-                                <div>
-                                  <Label className="font-medium">Created</Label>
-                                  <p className="text-muted-foreground">{new Date(selectedFile.created_at).toLocaleString()}</p>
+                    </TableCell>
+                    <TableCell className="text-foreground font-medium">{formatFileSize(file.file_size)}</TableCell>
+                    <TableCell>
+                      <Badge variant={getFileTypeVariant(file.file_extension)} className="font-medium">
+                        {file.file_extension}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant={file.is_temporary ? "secondary" : "success"}
+                        className="cursor-pointer hover:scale-105 transition-transform font-medium"
+                        onClick={() => toggleTemporary(file.id)}
+                      >
+                        {file.is_temporary ? (
+                          <>
+                            <XCircle className="w-3 h-3 mr-1" />
+                            Temporary
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                            Permanent
+                          </>
+                        )}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(file.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-right pr-6">
+                      <div className="flex justify-end gap-1">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="hover:bg-primary/10 hover:text-primary transition-colors"
+                              onClick={() => setSelectedFile(file)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl bg-background border border-border shadow-2xl">
+                            <DialogHeader>
+                              <DialogTitle className="text-xl flex items-center gap-2">
+                                <div className="text-2xl">{getFileIcon(file.file_extension)}</div>
+                                {selectedFile?.name}
+                              </DialogTitle>
+                              <DialogDescription className="text-muted-foreground">
+                                File details and properties
+                              </DialogDescription>
+                            </DialogHeader>
+                            {selectedFile && (
+                              <div className="space-y-6">
+                                <div className="grid grid-cols-2 gap-6 text-sm">
+                                  <div className="space-y-2">
+                                    <Label className="font-semibold text-foreground">File Name</Label>
+                                    <p className="text-muted-foreground bg-muted/30 p-2 rounded">{selectedFile.name}</p>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label className="font-semibold text-foreground">Size</Label>
+                                    <p className="text-muted-foreground bg-muted/30 p-2 rounded">{formatFileSize(selectedFile.file_size)}</p>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label className="font-semibold text-foreground">Type</Label>
+                                    <p className="text-muted-foreground bg-muted/30 p-2 rounded">{selectedFile.mime_type}</p>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label className="font-semibold text-foreground">Status</Label>
+                                    <Badge variant={selectedFile.is_temporary ? "secondary" : "success"}>
+                                      {selectedFile.is_temporary ? "Temporary" : "Permanent"}
+                                    </Badge>
+                                  </div>
+                                  <div className="space-y-2 col-span-2">
+                                    <Label className="font-semibold text-foreground">Checksum</Label>
+                                    <p className="text-muted-foreground font-mono text-xs bg-muted/30 p-2 rounded break-all">{selectedFile.checksum}</p>
+                                  </div>
+                                  <div className="space-y-2 col-span-2">
+                                    <Label className="font-semibold text-foreground">Path</Label>
+                                    <p className="text-muted-foreground font-mono text-xs bg-muted/30 p-2 rounded break-all">{selectedFile.file_path}</p>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label className="font-semibold text-foreground">Created</Label>
+                                    <p className="text-muted-foreground bg-muted/30 p-2 rounded">{new Date(selectedFile.created_at).toLocaleString()}</p>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label className="font-semibold text-foreground">Modified</Label>
+                                    <p className="text-muted-foreground bg-muted/30 p-2 rounded">{new Date(selectedFile.updated_at).toLocaleString()}</p>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          )}
-                        </DialogContent>
-                      </Dialog>
-                      
-                      <Button variant="ghost" size="sm">
-                        <Download className="h-4 w-4" />
-                      </Button>
-                      
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => deleteFile(file.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                            )}
+                          </DialogContent>
+                        </Dialog>
+                        
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="hover:bg-success/10 hover:text-success transition-colors"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                        
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="hover:bg-destructive/10 hover:text-destructive transition-colors"
+                          onClick={() => deleteFile(file.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
