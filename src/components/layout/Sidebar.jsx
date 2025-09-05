@@ -9,7 +9,8 @@ import {
   BarChart3,
   Zap,
   FileText,
-  GitBranch
+  GitBranch,
+  Upload
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +39,13 @@ const navigation = [
     href: "/environment",
     icon: Settings2,
     badge: null,
+  },
+  {
+    name: "Files",
+    href: "/files",
+    icon: Upload,
+    badge: "New",
+    badgeVariant: "default",
   },
   {
     name: "Executions",
