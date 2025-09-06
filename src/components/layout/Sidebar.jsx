@@ -26,13 +26,13 @@ const navigation = [
     name: "Workflows",
     href: "/workflows",
     icon: Workflow,
-    badge: "12",
+    badge: null,
   },
   {
     name: "Scripts",
     href: "/scripts",
     icon: Code2,
-    badge: "28",
+    badge: null,
   },
   {
     name: "Environment",
@@ -44,15 +44,13 @@ const navigation = [
     name: "Files",
     href: "/files",
     icon: Upload,
-    badge: "New",
-    badgeVariant: "default",
+    badge: null,
   },
   {
     name: "Executions",
     href: "/executions",
     icon: Play,
-    badge: "Active",
-    badgeVariant: "success",
+    badge: null,
   },
   {
     name: "Analytics",
