@@ -33,7 +33,11 @@ import {
   Mail,
   FileText,
   Clock,
-  Zap
+  Zap,
+  Info,
+  Edit,
+  Trash2,
+  BarChart3
 } from "lucide-react";
 
 // Initial nodes and edges for the workflow builder
@@ -128,53 +132,84 @@ const workflows = [
   {
     id: "WF-001",
     name: "Data Processing Pipeline",
-    description: "Automated CSV processing with email notifications",
-    status: "running",
+    description: "Automated CSV processing with email notifications and data transformation",
+    status: "active",
     created_at: "2024-01-15T10:00:00Z",
     last_run: "2024-01-15T14:30:00Z",
     success_rate: 96.7,
     total_runs: 150,
     nodes_count: 5,
-    category: "data_processing"
+    category: "data_processing",
+    avg_duration: "2m 15s"
   },
   {
     id: "WF-002", 
     name: "Email Campaign",
-    description: "Automated email marketing workflow with analytics",
+    description: "Automated email marketing workflow with analytics and customer segmentation",
     status: "active",
     created_at: "2024-01-12T09:15:00Z",
     last_run: "2024-01-15T12:45:00Z",
     success_rate: 98.2,
     total_runs: 89,
     nodes_count: 8,
-    category: "communication"
+    category: "communication",
+    avg_duration: "1m 30s"
   },
   {
     id: "WF-003",
     name: "Database Maintenance",
-    description: "Scheduled database cleanup and optimization",
-    status: "paused",
+    description: "Scheduled database cleanup and optimization tasks",
+    status: "deactivated",
     created_at: "2024-01-10T11:45:00Z",
     last_run: "2024-01-14T02:00:00Z",
     success_rate: 100.0,
     total_runs: 12,
     nodes_count: 3,
-    category: "maintenance"
+    category: "maintenance",
+    avg_duration: "5m 45s"
   },
+  {
+    id: "WF-004",
+    name: "Report Generation",
+    description: "Daily analytics reports with automated distribution to stakeholders",
+    status: "draft",
+    created_at: "2024-01-20T15:30:00Z",
+    last_run: null,
+    success_rate: 0,
+    total_runs: 0,
+    nodes_count: 6,
+    category: "reporting",
+    avg_duration: "N/A"
+  },
+  {
+    id: "WF-005",
+    name: "User Onboarding",
+    description: "Welcome email sequence and account setup automation for new users",
+    status: "active", 
+    created_at: "2024-01-18T11:20:00Z",
+    last_run: "2024-01-20T09:15:00Z",
+    success_rate: 94.5,
+    total_runs: 67,
+    nodes_count: 4,
+    category: "communication",
+    avg_duration: "45s"
+  }
 ];
 
 const getStatusBadge = (status) => {
   switch (status) {
-    case "running":
-      return <Badge variant="success">Running</Badge>;
     case "active":
-      return <Badge variant="secondary">Active</Badge>;
+      return <Badge variant="success" className="font-medium">Active</Badge>;
+    case "draft":
+      return <Badge variant="secondary" className="font-medium">Draft</Badge>;
+    case "deactivated":
+      return <Badge variant="destructive" className="font-medium">Deactivated</Badge>;
     case "paused":
-      return <Badge variant="warning">Paused</Badge>;
+      return <Badge variant="warning" className="font-medium">Paused</Badge>;
     case "failed":
-      return <Badge variant="destructive">Failed</Badge>;
+      return <Badge variant="destructive" className="font-medium">Failed</Badge>;
     default:
-      return <Badge variant="outline">{status}</Badge>;
+      return <Badge variant="outline" className="font-medium">{status}</Badge>;
   }
 };
 
@@ -312,8 +347,9 @@ export default function Workflows() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="running">Running</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="deactivated">Deactivated</SelectItem>
                 <SelectItem value="paused">Paused</SelectItem>
                 <SelectItem value="failed">Failed</SelectItem>
               </SelectContent>
@@ -322,55 +358,131 @@ export default function Workflows() {
         </CardContent>
       </Card>
 
-      {/* Workflows Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredWorkflows.map((workflow) => (
-          <Card key={workflow.id} className="shadow-soft hover:shadow-medium transition-all cursor-pointer">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2">
-                  {getCategoryIcon(workflow.category)}
-                  <CardTitle className="text-lg">{workflow.name}</CardTitle>
+      {/* Workflows List */}
+      <Card className="shadow-xl border-0 bg-gradient-to-br from-card via-card/90 to-muted/20">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-primary/10">
+              <Workflow className="w-6 h-6 text-primary" />
+            </div>
+            Workflows ({filteredWorkflows.length})
+          </CardTitle>
+          <CardDescription className="text-lg">
+            Manage your automation workflows with detailed insights and controls
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {filteredWorkflows.map((workflow) => (
+            <div 
+              key={workflow.id} 
+              className="group p-6 rounded-xl bg-gradient-to-r from-background via-background/95 to-background/90 border border-border/50 hover:border-primary/30 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+            >
+              <div className="flex items-center justify-between">
+                {/* Left Section - Main Info */}
+                <div className="flex items-center gap-6 flex-1 min-w-0">
+                  {/* Category Icon */}
+                  <div className="flex-shrink-0 p-3 rounded-xl bg-gradient-to-br from-muted/50 to-muted/30 group-hover:from-primary/10 group-hover:to-primary/5 transition-all duration-300">
+                    {getCategoryIcon(workflow.category)}
+                  </div>
+                  
+                  {/* Name and Description */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300 truncate">
+                        {workflow.name}
+                      </h3>
+                      {getStatusBadge(workflow.status)}
+                    </div>
+                    <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                      {workflow.description}
+                    </p>
+                  </div>
                 </div>
-                {getStatusBadge(workflow.status)}
+
+                {/* Middle Section - Stats */}
+                <div className="hidden lg:flex items-center gap-8 px-6">
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-success">{workflow.success_rate}%</div>
+                    <div className="text-xs text-muted-foreground">Success Rate</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-primary">{workflow.total_runs}</div>
+                    <div className="text-xs text-muted-foreground">Total Runs</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-warning">{workflow.nodes_count}</div>
+                    <div className="text-xs text-muted-foreground">Nodes</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-secondary">{workflow.avg_duration}</div>
+                    <div className="text-xs text-muted-foreground">Avg Duration</div>
+                  </div>
+                </div>
+
+                {/* Right Section - Actions */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-10 w-10 p-0 rounded-xl hover:bg-primary/10 hover:scale-110 transition-all duration-300"
+                    title="View Info"
+                  >
+                    <Info className="w-4 h-4 text-primary" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-10 w-10 p-0 rounded-xl hover:bg-success/10 hover:scale-110 transition-all duration-300"
+                    onClick={() => setShowBuilder(true)}
+                    title="Edit Workflow"
+                  >
+                    <Edit className="w-4 h-4 text-success" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-10 w-10 p-0 rounded-xl hover:bg-warning/10 hover:scale-110 transition-all duration-300"
+                    disabled={workflow.status === 'draft' || workflow.status === 'deactivated'}
+                    title="Run Workflow"
+                  >
+                    <Play className="w-4 h-4 text-warning" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-10 w-10 p-0 rounded-xl hover:bg-destructive/10 hover:scale-110 transition-all duration-300"
+                    title="Delete Workflow"
+                  >
+                    <Trash2 className="w-4 h-4 text-destructive" />
+                  </Button>
+                </div>
               </div>
-              <CardDescription className="line-clamp-2">
-                {workflow.description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Success Rate</p>
-                  <p className="font-medium">{workflow.success_rate}%</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Total Runs</p>
-                  <p className="font-medium">{workflow.total_runs}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Nodes</p>
-                  <p className="font-medium">{workflow.nodes_count}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Last Run</p>
-                  <p className="font-medium text-xs">{formatDate(workflow.last_run)}</p>
+
+              {/* Mobile Stats - Visible only on smaller screens */}
+              <div className="lg:hidden mt-4 pt-4 border-t border-border/30">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                  <div>
+                    <div className="text-sm font-bold text-success">{workflow.success_rate}%</div>
+                    <div className="text-xs text-muted-foreground">Success Rate</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-primary">{workflow.total_runs}</div>
+                    <div className="text-xs text-muted-foreground">Total Runs</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-warning">{workflow.nodes_count}</div>
+                    <div className="text-xs text-muted-foreground">Nodes</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-secondary">{workflow.avg_duration}</div>
+                    <div className="text-xs text-muted-foreground">Avg Duration</div>
+                  </div>
                 </div>
               </div>
-              <div className="flex gap-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1">
-                  <Play className="w-3 h-3 mr-1" />
-                  Run
-                </Button>
-                <Button variant="outline" size="sm" className="flex-1" onClick={() => setShowBuilder(true)}>
-                  <Settings className="w-3 h-3 mr-1" />
-                  Edit
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
     </div>
   );
 }
