@@ -253,9 +253,6 @@ export default function Dashboard() {
               <div className="flex-1 min-w-0 space-y-1">
                 <div className="flex items-center justify-between">
                   <h4 className="font-semibold text-foreground truncate">{workflow.title}</h4>
-                  <div className="flex items-center gap-2">
-                    {getStatusBadge(workflow.status)}
-                  </div>
                 </div>
                 <p className="text-sm text-muted-foreground line-clamp-1">
                   {workflow.description || `Automated ${workflow.type} execution with monitoring and notifications`}
@@ -274,11 +271,6 @@ export default function Dashboard() {
                     <span>ID: WF-{Math.random().toString(36).substring(2, 8).toUpperCase()}</span>
                   </div>
                 </div>
-              </div>
-              <div className="flex-shrink-0">
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <Settings2 className="w-4 h-4" />
-                </Button>
               </div>
             </div>
           ))}
