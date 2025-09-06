@@ -291,53 +291,6 @@ export default function Workflows() {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-card shadow-soft border-0">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Workflows</p>
-                <p className="text-2xl font-bold">{workflows.length}</p>
-              </div>
-              <Workflow className="h-8 w-8 text-primary" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-card shadow-soft border-0">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Running Now</p>
-                <p className="text-2xl font-bold">2</p>
-              </div>
-              <Play className="h-8 w-8 text-success" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-card shadow-soft border-0">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Success Rate</p>
-                <p className="text-2xl font-bold">98.3%</p>
-              </div>
-              <Zap className="h-8 w-8 text-warning" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-card shadow-soft border-0">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Executions</p>
-                <p className="text-2xl font-bold">251</p>
-              </div>
-              <Clock className="h-8 w-8 text-secondary" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Filters and Search */}
       <Card className="shadow-soft">
