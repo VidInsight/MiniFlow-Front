@@ -22,9 +22,9 @@ export const Header = () => {
 
   return (
     <header className="border-b border-border/50 bg-gradient-to-r from-background/95 via-background to-background/95 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
-      <div className="flex h-16 items-center px-6 gap-6">
+      <div className="flex h-16 items-center justify-end px-6 gap-6">
         {/* Search */}
-        <div className="flex-1 max-w-xl">
+        <div className="w-80">
           <div className="relative group">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
             <Input
