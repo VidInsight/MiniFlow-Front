@@ -51,33 +51,51 @@ const recentActivities = [
     id: 1,
     type: "workflow",
     title: "Data Processing Pipeline",
+    description: "Automated CSV processing with data validation and transformation",
     status: "completed",
     time: "2 minutes ago",
-    duration: "45s"
+    duration: "45s",
+    priority: "high"
   },
   {
     id: 2,
     type: "script",
     title: "CSV Validator",
+    description: "Validates CSV file structure and data integrity checks",
     status: "running",
     time: "5 minutes ago",
-    duration: "30s"
+    duration: "30s",
+    priority: "medium"
   },
   {
     id: 3,
     type: "workflow",
     title: "Email Automation",
+    description: "Sends automated email notifications with template processing",
     status: "failed",
     time: "12 minutes ago",
-    duration: "15s"
+    duration: "15s",
+    priority: "high"
   },
   {
     id: 4,
     type: "script",
     title: "Database Backup",
+    description: "Creates automated database backups with compression and archiving",
     status: "completed",
     time: "1 hour ago",
-    duration: "2m 30s"
+    duration: "2m 30s",
+    priority: "low"
+  },
+  {
+    id: 5,
+    type: "workflow",
+    title: "Report Generation",
+    description: "Generates daily analytics reports and distributes to stakeholders",
+    status: "completed",
+    time: "2 hours ago",
+    duration: "1m 15s",
+    priority: "medium"
   },
 ];
 
@@ -212,6 +230,61 @@ export default function Dashboard() {
               <span>Upload File</span>
             </Button>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Latest Executed Workflows */}
+      <Card className="shadow-soft">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="w-5 h-5" />
+            Latest Executions
+          </CardTitle>
+          <CardDescription>
+            Recent workflow executions and their status
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {recentActivities.map((workflow) => (
+            <div key={workflow.id} className="flex items-center gap-4 p-4 rounded-lg bg-muted/30 hover:bg-muted/40 transition-colors">
+              <div className="flex-shrink-0">
+                {getStatusIcon(workflow.status)}
+              </div>
+              <div className="flex-1 min-w-0 space-y-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold text-foreground truncate">{workflow.title}</h4>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={workflow.priority === 'high' ? 'destructive' : workflow.priority === 'medium' ? 'warning' : 'secondary'}>
+                      {workflow.priority || 'low'} priority
+                    </Badge>
+                    {getStatusBadge(workflow.status)}
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground line-clamp-1">
+                  {workflow.description || `Automated ${workflow.type} execution with monitoring and notifications`}
+                </p>
+                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    <span>Executed {workflow.time}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <TrendingUp className="w-3 h-3" />
+                    <span>Duration: {workflow.duration}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Play className="w-3 h-3" />
+                    <span>ID: WF-{Math.random().toString(36).substring(2, 8).toUpperCase()}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex-shrink-0">
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <Settings2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
         </CardContent>
       </Card>
 
