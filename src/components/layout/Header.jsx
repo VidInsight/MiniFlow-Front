@@ -50,11 +50,8 @@ export const Header = () => {
             {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
 
-          <Button variant="ghost" size="sm" className="relative">
+          <Button variant="ghost" size="sm">
             <Bell className="w-4 h-4" />
-            <Badge className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 text-xs">
-              3
-            </Badge>
           </Button>
 
           <DropdownMenu>
