@@ -254,9 +254,6 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <h4 className="font-semibold text-foreground truncate">{workflow.title}</h4>
                   <div className="flex items-center gap-2">
-                    <Badge variant={workflow.priority === 'high' ? 'destructive' : workflow.priority === 'medium' ? 'warning' : 'secondary'}>
-                      {workflow.priority || 'low'} priority
-                    </Badge>
                     {getStatusBadge(workflow.status)}
                   </div>
                 </div>
