@@ -247,9 +247,6 @@ export default function Dashboard() {
         <CardContent className="space-y-4">
           {recentActivities.map((workflow) => (
             <div key={workflow.id} className="flex items-center gap-4 p-4 rounded-lg bg-muted/30 hover:bg-muted/40 transition-colors">
-              <div className="flex-shrink-0">
-                {getStatusIcon(workflow.status)}
-              </div>
               <div className="flex-1 min-w-0 space-y-1">
                 <div className="flex items-center justify-between">
                   <h4 className="font-semibold text-foreground truncate">{workflow.title}</h4>
