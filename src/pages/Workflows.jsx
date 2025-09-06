@@ -305,58 +305,78 @@ export default function Workflows() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold">Workflows</h1>
-          <p className="text-muted-foreground mt-2">
-            Create, manage, and monitor your automation workflows
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <FileText className="w-4 h-4 mr-2" />
-            Templates
-          </Button>
-          <Button onClick={() => setShowBuilder(true)} className="shadow-soft">
-            <Plus className="w-4 h-4 mr-2" />
-            New Workflow
-          </Button>
-        </div>
-      </div>
-
-
-      {/* Filters and Search */}
-      <Card className="shadow-soft">
-        <CardContent className="pt-6">
-          <div className="flex gap-4 items-center">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search workflows..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/5 to-accent/5 -m-6 p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-card/80 via-card/60 to-card/40 backdrop-blur-sm border border-border/50 shadow-xl">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5"></div>
+          <div className="relative p-8">
+            <div className="flex justify-between items-start">
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 shadow-glow">
+                    <Workflow className="w-8 h-8 text-primary" />
+                  </div>
+                  <div>
+                    <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                      Workflows
+                    </h1>
+                    <p className="text-muted-foreground text-lg mt-2">
+                      Create, manage, and monitor your automation workflows
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Button 
+                  variant="outline" 
+                  className="bg-background/50 backdrop-blur-sm hover:bg-background/80 hover:scale-105 transition-all duration-300 shadow-soft"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Templates
+                </Button>
+                <Button 
+                  onClick={() => setShowBuilder(true)} 
+                  className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-glow hover:shadow-strong transition-all duration-300 hover:scale-105"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Workflow
+                </Button>
+              </div>
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-40">
-                <Filter className="w-4 h-4 mr-2" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
-                <SelectItem value="deactivated">Deactivated</SelectItem>
-                <SelectItem value="paused">Paused</SelectItem>
-                <SelectItem value="failed">Failed</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Filters and Search */}
+        <Card className="shadow-xl bg-gradient-to-r from-card/90 via-card/80 to-card/70 backdrop-blur-sm border-border/50">
+          <CardContent className="pt-6">
+            <div className="flex gap-4 items-center">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search workflows..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/50 focus:border-primary transition-all duration-300"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-40 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/50 transition-all duration-300">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="deactivated">Deactivated</SelectItem>
+                  <SelectItem value="paused">Paused</SelectItem>
+                  <SelectItem value="failed">Failed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
 
       {/* Workflows List */}
       <Card className="shadow-xl border-0 bg-gradient-to-br from-card via-card/90 to-muted/20">
