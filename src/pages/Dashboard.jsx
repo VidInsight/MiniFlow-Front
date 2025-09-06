@@ -14,7 +14,8 @@ import {
   Code2,
   Settings2,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Eye
 } from "lucide-react";
 import {
   Collapsible,
@@ -364,6 +365,19 @@ export default function Dashboard() {
                             </div>
                             <Progress value={execution.progress} className="h-2" />
                           </div>
+                        </div>
+                        <div className="flex-shrink-0 ml-3">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-8 w-8 p-0"
+                            onClick={() => {
+                              // Navigate to execution details page
+                              window.location.href = `/executions/${execution.id}`;
+                            }}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
                         </div>
                       </div>
                     ))}
