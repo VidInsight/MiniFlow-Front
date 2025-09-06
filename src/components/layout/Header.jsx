@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Bell, Search, Settings, User, Moon, Sun } from "lucide-react";
+import { NavLink, useLocation } from "react-router-dom";
+import { Bell, Settings, User, Moon, Sun, LayoutDashboard, Workflow, Code2, Settings2, Upload, Play, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,28 +10,95 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+
+const navigation = [
+  {
+    name: "Dashboard",
+    href: "/",
+    icon: LayoutDashboard,
+  },
+  {
+    name: "Workflows",
+    href: "/workflows",
+    icon: Workflow,
+  },
+  {
+    name: "Scripts",
+    href: "/scripts",
+    icon: Code2,
+  },
+  {
+    name: "Environment",
+    href: "/environment",
+    icon: Settings2,
+  },
+  {
+    name: "Files",
+    href: "/files",
+    icon: Upload,
+  },
+  {
+    name: "Executions",
+    href: "/executions",
+    icon: Play,
+  },
+  {
+    name: "Analytics",
+    href: "/analytics",
+    icon: BarChart3,
+  },
+];
 
 export const Header = () => {
   const [isDark, setIsDark] = useState(false);
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   const toggleTheme = () => {
     setIsDark(!isDark);
     document.documentElement.classList.toggle('dark');
   };
 
+  const isActive = (path) => {
+    if (path === "/") {
+      return currentPath === "/";
+    }
+    return currentPath.startsWith(path);
+  };
+
   return (
     <header className="border-b border-border/50 bg-gradient-to-r from-background/95 via-background to-background/95 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
-      <div className="flex h-16 items-center justify-end px-6 gap-6">
-        {/* Search */}
-        <div className="w-80">
-          <div className="relative group">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-            <Input
-              placeholder="Search workflows, scripts, variables..."
-              className="pl-12 h-10 bg-background/60 border-border/50 rounded-xl hover:border-primary/30 focus:border-primary/50 transition-all duration-300 shadow-sm"
-            />
-          </div>
+      <div className="flex h-16 items-center justify-between px-6">
+        {/* Animated Navigation Tabs */}
+        <div className="flex items-center gap-1 bg-muted/30 rounded-xl p-1 backdrop-blur-sm">
+          {navigation.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.href);
+            
+            return (
+              <NavLink
+                key={item.name}
+                to={item.href}
+                end={item.href === "/"}
+                className={cn(
+                  "relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105",
+                  active 
+                    ? "text-primary-foreground bg-primary shadow-lg shadow-primary/20" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                )}
+              >
+                <Icon className={cn(
+                  "w-4 h-4 transition-all duration-300",
+                  active && "animate-pulse"
+                )} />
+                <span className="hidden sm:inline-block">{item.name}</span>
+                {active && (
+                  <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 animate-pulse" />
+                )}
+              </NavLink>
+            );
+          })}
         </div>
 
         {/* Actions */}
