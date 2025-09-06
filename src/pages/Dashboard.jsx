@@ -374,66 +374,6 @@ export default function Dashboard() {
           ))}
         </CardContent>
       </Card>
-
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Activity */}
-        <Card className="shadow-soft">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="w-5 h-5" />
-              Recent Activity
-            </CardTitle>
-            <CardDescription>
-              Latest workflow and script executions
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {recentActivities.map((activity) => (
-              <div key={activity.id} className="flex items-center gap-4 p-3 rounded-lg bg-muted/50">
-                {getStatusIcon(activity.status)}
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{activity.title}</p>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span>{activity.time}</span>
-                    <span>•</span>
-                    <span>{activity.duration}</span>
-                  </div>
-                </div>
-                {getStatusBadge(activity.status)}
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Quick Actions */}
-        <Card className="shadow-soft">
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Common tasks and shortcuts
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full justify-start" size="lg">
-              <Workflow className="w-4 h-4 mr-3" />
-              Create New Workflow
-            </Button>
-            <Button variant="outline" className="w-full justify-start" size="lg">
-              <Code2 className="w-4 h-4 mr-3" />
-              Upload Script
-            </Button>
-            <Button variant="outline" className="w-full justify-start" size="lg">
-              <Settings2 className="w-4 h-4 mr-3" />
-              Manage Environment Variables
-            </Button>
-            <Button variant="outline" className="w-full justify-start" size="lg">
-              <Play className="w-4 h-4 mr-3" />
-              View Execution Queue
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }
