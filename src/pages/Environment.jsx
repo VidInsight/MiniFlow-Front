@@ -29,6 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PageHeader } from "@/components/ui/page-header";
 import { 
   Plus, 
   Search, 
@@ -138,127 +139,128 @@ export default function Environment() {
   });
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold">Environment Variables</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage secure configuration variables for your workflows and scripts
-          </p>
-        </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="shadow-soft">
-              <Plus className="w-4 h-4 mr-2" />
-              New Variable
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Create Environment Variable</DialogTitle>
-              <DialogDescription>
-                Add a new environment variable to your MiniFlow workspace
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Variable Name</Label>
-                  <Input id="name" placeholder="DATABASE_URL" />
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/5 to-accent/5 -m-6 p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <PageHeader
+          title="Environment Variables"
+          description="Manage secure configuration variables for your workflows and scripts"
+          icon={Shield}
+          actions={[
+            <Dialog key="create-dialog" open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-glow hover:shadow-strong transition-all duration-300 hover:scale-105">
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Variable
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Create Environment Variable</DialogTitle>
+                  <DialogDescription>
+                    Add a new environment variable to your MiniFlow workspace
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Variable Name</Label>
+                      <Input id="name" placeholder="DATABASE_URL" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="type">Type</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="STRING">String</SelectItem>
+                          <SelectItem value="INTEGER">Integer</SelectItem>
+                          <SelectItem value="FLOAT">Float</SelectItem>
+                          <SelectItem value="BOOLEAN">Boolean</SelectItem>
+                          <SelectItem value="URL">URL</SelectItem>
+                          <SelectItem value="JSON">JSON</SelectItem>
+                          <SelectItem value="FILE_PATH">File Path</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="value">Value</Label>
+                    <Input id="value" type="password" placeholder="Enter value" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea id="description" placeholder="Describe this variable's purpose" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="scope">Scope</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select scope" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="GLOBAL">Global</SelectItem>
+                        <SelectItem value="USER">User</SelectItem>
+                        <SelectItem value="SESSION">Session</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="type">Type</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="STRING">String</SelectItem>
-                      <SelectItem value="INTEGER">Integer</SelectItem>
-                      <SelectItem value="FLOAT">Float</SelectItem>
-                      <SelectItem value="BOOLEAN">Boolean</SelectItem>
-                      <SelectItem value="URL">URL</SelectItem>
-                      <SelectItem value="JSON">JSON</SelectItem>
-                      <SelectItem value="FILE_PATH">File Path</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="value">Value</Label>
-                <Input id="value" type="password" placeholder="Enter value" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea id="description" placeholder="Describe this variable's purpose" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="scope">Scope</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select scope" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="GLOBAL">Global</SelectItem>
-                    <SelectItem value="USER">User</SelectItem>
-                    <SelectItem value="SESSION">Session</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={() => setIsCreateDialogOpen(false)}>
-                Create Variable
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => setIsCreateDialogOpen(false)}>
+                    Create Variable
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          ]}
+        />
 
-      {/* Filters and Search */}
-      <Card className="shadow-soft">
-        <CardContent className="pt-6">
-          <div className="flex gap-4 items-center">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search variables..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+        {/* Filters and Search */}
+        <Card className="shadow-xl bg-gradient-to-r from-card/90 via-card/80 to-card/70 backdrop-blur-sm border-border/50">
+          <CardContent className="pt-6">
+            <div className="flex gap-4 items-center">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search variables..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/50 focus:border-primary transition-all duration-300"
+                />
+              </div>
+              <Select value={scopeFilter} onValueChange={setScopeFilter}>
+                <SelectTrigger className="w-40 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/50 transition-all duration-300">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Scopes</SelectItem>
+                  <SelectItem value="GLOBAL">Global</SelectItem>
+                  <SelectItem value="USER">User</SelectItem>
+                  <SelectItem value="SESSION">Session</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <Select value={scopeFilter} onValueChange={setScopeFilter}>
-              <SelectTrigger className="w-40">
-                <Filter className="w-4 h-4 mr-2" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Scopes</SelectItem>
-                <SelectItem value="GLOBAL">Global</SelectItem>
-                <SelectItem value="USER">User</SelectItem>
-                <SelectItem value="SESSION">Session</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Variables Table */}
-      <Card className="shadow-soft">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5" />
-            Environment Variables ({filteredVariables.length})
-          </CardTitle>
-          <CardDescription>
-            Secure storage for configuration data and secrets
-          </CardDescription>
-        </CardHeader>
+        {/* Variables Table */}
+        <Card className="shadow-xl border-0 bg-gradient-to-br from-card via-card/90 to-muted/20">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-primary/10">
+                <Shield className="w-6 h-6 text-primary" />
+              </div>
+              Environment Variables ({filteredVariables.length})
+            </CardTitle>
+            <CardDescription className="text-lg">
+              Secure storage for configuration data and secrets
+            </CardDescription>
+          </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
@@ -335,5 +337,6 @@ export default function Environment() {
         </CardContent>
       </Card>
     </div>
+  </div>
   );
 }

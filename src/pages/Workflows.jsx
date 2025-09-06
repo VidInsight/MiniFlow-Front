@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/ui/page-header";
 import { 
   Plus, 
   Search, 
@@ -307,45 +308,29 @@ export default function Workflows() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/5 to-accent/5 -m-6 p-6">
       <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-card/80 via-card/60 to-card/40 backdrop-blur-sm border border-border/50 shadow-xl">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5"></div>
-          <div className="relative p-8">
-            <div className="flex justify-between items-start">
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 shadow-glow">
-                    <Workflow className="w-8 h-8 text-primary" />
-                  </div>
-                  <div>
-                    <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                      Workflows
-                    </h1>
-                    <p className="text-muted-foreground text-lg mt-2">
-                      Create, manage, and monitor your automation workflows
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <Button 
-                  variant="outline" 
-                  className="bg-background/50 backdrop-blur-sm hover:bg-background/80 hover:scale-105 transition-all duration-300 shadow-soft"
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Templates
-                </Button>
-                <Button 
-                  onClick={() => setShowBuilder(true)} 
-                  className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-glow hover:shadow-strong transition-all duration-300 hover:scale-105"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Workflow
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PageHeader
+          title="Workflows"
+          description="Create, manage, and monitor your automation workflows"
+          icon={Workflow}
+          actions={[
+            <Button 
+              key="templates"
+              variant="outline" 
+              className="bg-background/50 backdrop-blur-sm hover:bg-background/80 hover:scale-105 transition-all duration-300 shadow-soft"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Templates
+            </Button>,
+            <Button 
+              key="new-workflow"
+              onClick={() => setShowBuilder(true)} 
+              className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-glow hover:shadow-strong transition-all duration-300 hover:scale-105"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              New Workflow
+            </Button>
+          ]}
+        />
 
         {/* Filters and Search */}
         <Card className="shadow-xl bg-gradient-to-r from-card/90 via-card/80 to-card/70 backdrop-blur-sm border-border/50">

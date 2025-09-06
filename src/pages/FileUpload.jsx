@@ -21,6 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PageHeader } from "@/components/ui/page-header";
 import { useToast } from "@/hooks/use-toast";
 
 export default function FileUpload() {
@@ -160,24 +161,16 @@ export default function FileUpload() {
   const temporaryFiles = files.filter(file => file.is_temporary).length;
 
   return (
-    <div className="space-y-8 p-6">
-      {/* Page Header */}
-      <div className="flex flex-col space-y-4">
-        <div className="flex justify-between items-start">
-          <div className="space-y-1">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-              File Management
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              Upload, manage and organize your workflow files with ease
-            </p>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/5 to-accent/5 -m-6 p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <PageHeader
+          title="File Management"
+          description="Upload, manage and organize your workflow files with ease"
+          icon={Upload}
+        />
 
-
-      {/* Upload Area */}
-      <Card className="border-0 shadow-xl bg-gradient-to-br from-card via-card to-muted/5">
+        {/* Upload Area */}
+        <Card className="border-0 shadow-xl bg-gradient-to-br from-card via-card to-muted/5">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-3 text-xl">
             <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -235,8 +228,8 @@ export default function FileUpload() {
         </CardContent>
       </Card>
 
-      {/* Files Table */}
-      <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-card/50">
+        {/* Files Table */}
+        <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-card/50">
         <CardHeader className="pb-4">
           <CardTitle className="text-xl">Uploaded Files</CardTitle>
           <CardDescription className="text-base">
@@ -387,10 +380,11 @@ export default function FileUpload() {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+</div>
+);
 }

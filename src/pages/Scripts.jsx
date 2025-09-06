@@ -29,6 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PageHeader } from "@/components/ui/page-header";
 import { 
   Plus, 
   Search, 
@@ -149,138 +150,140 @@ export default function Scripts() {
   });
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold">Scripts Library</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage and execute your automation scripts with performance monitoring
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <FileText className="w-4 h-4 mr-2" />
-            Import Script
-          </Button>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="shadow-soft">
-                <Plus className="w-4 h-4 mr-2" />
-                New Script
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl">
-              <DialogHeader>
-                <DialogTitle>Create New Script</DialogTitle>
-                <DialogDescription>
-                  Add a new automation script to your library
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="script-name">Script Name</Label>
-                    <Input id="script-name" placeholder="csv_processor" />
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/5 to-accent/5 -m-6 p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <PageHeader
+          title="Scripts Library"
+          description="Manage and execute your automation scripts with performance monitoring"
+          icon={Code2}
+          actions={[
+            <Button 
+              key="import"
+              variant="outline"
+              className="bg-background/50 backdrop-blur-sm hover:bg-background/80 hover:scale-105 transition-all duration-300 shadow-soft"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Import Script
+            </Button>,
+            <Dialog key="create-dialog" open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-glow hover:shadow-strong transition-all duration-300 hover:scale-105">
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Script
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-3xl">
+                <DialogHeader>
+                  <DialogTitle>Create New Script</DialogTitle>
+                  <DialogDescription>
+                    Add a new automation script to your library
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="script-name">Script Name</Label>
+                      <Input id="script-name" placeholder="csv_processor" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="version">Version</Label>
+                      <Input id="version" placeholder="1.0.0" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="category">Category</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="data_processing">Data Processing</SelectItem>
+                          <SelectItem value="communication">Communication</SelectItem>
+                          <SelectItem value="maintenance">Maintenance</SelectItem>
+                          <SelectItem value="validation">Validation</SelectItem>
+                          <SelectItem value="integration">Integration</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="subcategory">Subcategory</Label>
+                      <Input id="subcategory" placeholder="etl" />
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="version">Version</Label>
-                    <Input id="version" placeholder="1.0.0" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="data_processing">Data Processing</SelectItem>
-                        <SelectItem value="communication">Communication</SelectItem>
-                        <SelectItem value="maintenance">Maintenance</SelectItem>
-                        <SelectItem value="validation">Validation</SelectItem>
-                        <SelectItem value="integration">Integration</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea id="description" placeholder="Describe what this script does..." />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="subcategory">Subcategory</Label>
-                    <Input id="subcategory" placeholder="etl" />
+                    <Label htmlFor="tags">Tags (comma separated)</Label>
+                    <Input id="tags" placeholder="csv, data, processing" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="code">Script Content</Label>
+                    <Textarea 
+                      id="code" 
+                      placeholder="def main():\n    # Your script code here\n    pass"
+                      className="font-mono text-sm min-h-48"
+                    />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea id="description" placeholder="Describe what this script does..." />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="tags">Tags (comma separated)</Label>
-                  <Input id="tags" placeholder="csv, data, processing" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="code">Script Content</Label>
-                  <Textarea 
-                    id="code" 
-                    placeholder="def main():\n    # Your script code here\n    pass"
-                    className="font-mono text-sm min-h-48"
-                  />
-                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => setIsCreateDialogOpen(false)}>
+                    Create Script
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          ]}
+        />
+
+        {/* Filters and Search */}
+        <Card className="shadow-xl bg-gradient-to-r from-card/90 via-card/80 to-card/70 backdrop-blur-sm border-border/50">
+          <CardContent className="pt-6">
+            <div className="flex gap-4 items-center">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search scripts by name, description, or tags..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/50 focus:border-primary transition-all duration-300"
+                />
               </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={() => setIsCreateDialogOpen(false)}>
-                  Create Script
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
-
-
-      {/* Filters and Search */}
-      <Card className="shadow-soft">
-        <CardContent className="pt-6">
-          <div className="flex gap-4 items-center">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search scripts by name, description, or tags..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-48 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/50 transition-all duration-300">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="data_processing">Data Processing</SelectItem>
+                  <SelectItem value="communication">Communication</SelectItem>
+                  <SelectItem value="maintenance">Maintenance</SelectItem>
+                  <SelectItem value="validation">Validation</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-48">
-                <Filter className="w-4 h-4 mr-2" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="data_processing">Data Processing</SelectItem>
-                <SelectItem value="communication">Communication</SelectItem>
-                <SelectItem value="maintenance">Maintenance</SelectItem>
-                <SelectItem value="validation">Validation</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Scripts Table */}
-      <Card className="shadow-soft">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Code2 className="w-5 h-5" />
-            Scripts ({filteredScripts.length})
-          </CardTitle>
-          <CardDescription>
-            Automation scripts with performance metrics and execution history
-          </CardDescription>
-        </CardHeader>
+        {/* Scripts Table */}
+        <Card className="shadow-xl border-0 bg-gradient-to-br from-card via-card/90 to-muted/20">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-primary/10">
+                <Code2 className="w-6 h-6 text-primary" />
+              </div>
+              Scripts ({filteredScripts.length})
+            </CardTitle>
+            <CardDescription className="text-lg">
+              Automation scripts with performance metrics and execution history
+            </CardDescription>
+          </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
@@ -373,5 +376,6 @@ export default function Scripts() {
         </CardContent>
       </Card>
     </div>
+  </div>
   );
 }
