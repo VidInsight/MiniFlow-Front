@@ -70,7 +70,17 @@ export const Header = () => {
   return (
     <header className="border-b border-border/50 bg-gradient-to-r from-background/95 via-background to-background/95 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
       <div className="flex h-16 items-center justify-between px-6">
-        {/* Animated Navigation Tabs */}
+        {/* Logo */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+            <div className="w-4 h-4 bg-primary-foreground rounded-sm" />
+          </div>
+          <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            MiniFlow
+          </h1>
+        </div>
+
+        {/* Animated Navigation Tabs - Center */}
         <div className="flex items-center gap-1 bg-muted/30 rounded-xl p-1 backdrop-blur-sm">
           {navigation.map((item) => {
             const Icon = item.icon;
@@ -101,8 +111,8 @@ export const Header = () => {
           })}
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-2">
+        {/* Actions - Right */}
+        <div className="flex items-center gap-2 flex-shrink-0">
           <Button 
             variant="ghost" 
             size="sm" 
