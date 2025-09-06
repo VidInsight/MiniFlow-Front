@@ -197,197 +197,249 @@ export default function Dashboard() {
   };
   
   return (
-    <div className="space-y-8">
-      {/* Personalized Greeting */}
-      <div className="text-center space-y-2">
-        <h1 className="text-4xl font-bold">
-          Welcome back, <span className="bg-gradient-primary bg-clip-text text-transparent">{userName}</span>
-        </h1>
-        <p className="text-xl text-muted-foreground">
-          Here's what's happening with your workflows today
-        </p>
-      </div>
-
-      {/* Daily Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="bg-gradient-card shadow-soft border-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Execution Count
-            </CardTitle>
-            <Activity className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">47</div>
-            <p className="text-xs text-muted-foreground">
-              +12 from yesterday
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-card shadow-soft border-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Successful
-            </CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-success" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">42</div>
-            <p className="text-xs text-muted-foreground">
-              89.4% success rate
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-card shadow-soft border-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Failed
-            </CardTitle>
-            <AlertCircle className="h-4 w-4 text-destructive" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">3</div>
-            <p className="text-xs text-muted-foreground">
-              -2 from yesterday
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-card shadow-soft border-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Canceled
-            </CardTitle>
-            <Clock className="h-4 w-4 text-warning" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-warning">2</div>
-            <p className="text-xs text-muted-foreground">
-              Same as yesterday
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Action Bar */}
-      <Card className="shadow-soft">
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>
-            Get started with these common tasks
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Button size="lg" className="h-16 flex-col gap-2 shadow-soft">
-              <Workflow className="w-6 h-6" />
-              <span>Create Workflow</span>
-            </Button>
-            <Button variant="outline" size="lg" className="h-16 flex-col gap-2">
-              <Settings2 className="w-6 h-6" />
-              <span>Create Environment Variable</span>
-            </Button>
-            <Button variant="outline" size="lg" className="h-16 flex-col gap-2">
-              <Code2 className="w-6 h-6" />
-              <span>Create Script</span>
-            </Button>
-            <Button variant="outline" size="lg" className="h-16 flex-col gap-2">
-              <Plus className="w-6 h-6" />
-              <span>Upload File</span>
-            </Button>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="container max-w-7xl mx-auto space-y-8 p-6">
+        {/* Personalized Greeting */}
+        <div className="text-center space-y-4 py-8">
+          <div className="animate-fade-in">
+            <h1 className="text-6xl font-bold tracking-tight">
+              Welcome back, 
+              <span className="block mt-2 bg-gradient-to-r from-primary via-primary-glow to-success bg-clip-text text-transparent animate-pulse">
+                {userName}
+              </span>
+            </h1>
           </div>
-        </CardContent>
-      </Card>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Here's what's happening with your workflows today
+          </p>
+          <div className="w-24 h-1 bg-gradient-to-r from-primary to-primary-glow mx-auto rounded-full"></div>
+        </div>
 
-      {/* Latest Executed Workflows */}
-      <Card className="shadow-soft">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="w-5 h-5" />
-            Latest Executions
-          </CardTitle>
-          <CardDescription>
-            Recent workflow executions and their status
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {recentActivities.map((workflow) => (
-            <Collapsible key={workflow.id} open={openDropdowns[workflow.id]} onOpenChange={() => toggleDropdown(workflow.id)}>
-              <div className="flex items-center gap-4 p-4 rounded-lg bg-muted/30 hover:bg-muted/40 transition-colors">
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0 flex-shrink-0">
-                    {openDropdowns[workflow.id] ? 
-                      <ChevronDown className="w-4 h-4" /> : 
-                      <ChevronRight className="w-4 h-4" />
-                    }
-                  </Button>
-                </CollapsibleTrigger>
-                <div className="flex-1 min-w-0 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-semibold text-foreground truncate">{workflow.title}</h4>
-                  </div>
-                  <p className="text-sm text-muted-foreground line-clamp-1">
-                    {workflow.description || `Automated ${workflow.type} execution with monitoring and notifications`}
-                  </p>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      <span>Executed {workflow.time}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <TrendingUp className="w-3 h-3" />
-                      <span>Duration: {workflow.duration}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Play className="w-3 h-3" />
-                      <span>ID: WF-{Math.random().toString(36).substring(2, 8).toUpperCase()}</span>
-                    </div>
-                  </div>
-                </div>
+        {/* Daily Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="group relative overflow-hidden bg-gradient-to-br from-card via-card to-primary/5 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                Execution Count
+              </CardTitle>
+              <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                <Activity className="h-5 w-5 text-primary" />
               </div>
-              <CollapsibleContent className="space-y-2 mt-2 ml-12">
-                <div className="bg-background border rounded-lg p-4 shadow-sm">
-                  <h5 className="font-medium text-sm mb-3 text-muted-foreground">Latest Executions</h5>
-                  <div className="space-y-3">
-                    {workflow.executions.map((execution) => (
-                      <div key={execution.id} className="flex items-center justify-between p-3 bg-muted/20 rounded-md">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium text-sm">{execution.name}</span>
-                            {getExecutionStatusBadge(execution.status)}
+            </CardHeader>
+            <CardContent className="relative">
+              <div className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">47</div>
+              <div className="flex items-center mt-2 text-xs">
+                <TrendingUp className="w-3 h-3 text-success mr-1" />
+                <span className="text-success font-medium">+12</span>
+                <span className="text-muted-foreground ml-1">from yesterday</span>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="group relative overflow-hidden bg-gradient-to-br from-card via-card to-success/5 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+            <div className="absolute inset-0 bg-gradient-to-br from-success/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                Successful
+              </CardTitle>
+              <div className="p-2 rounded-lg bg-success/10 group-hover:bg-success/20 transition-colors">
+                <CheckCircle2 className="h-5 w-5 text-success" />
+              </div>
+            </CardHeader>
+            <CardContent className="relative">
+              <div className="text-3xl font-bold text-success">42</div>
+              <div className="flex items-center mt-2 text-xs">
+                <div className="w-2 h-2 bg-success rounded-full mr-2 animate-pulse"></div>
+                <span className="text-success font-medium">89.4%</span>
+                <span className="text-muted-foreground ml-1">success rate</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="group relative overflow-hidden bg-gradient-to-br from-card via-card to-destructive/5 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+            <div className="absolute inset-0 bg-gradient-to-br from-destructive/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                Failed
+              </CardTitle>
+              <div className="p-2 rounded-lg bg-destructive/10 group-hover:bg-destructive/20 transition-colors">
+                <AlertCircle className="h-5 w-5 text-destructive" />
+              </div>
+            </CardHeader>
+            <CardContent className="relative">
+              <div className="text-3xl font-bold text-destructive">3</div>
+              <div className="flex items-center mt-2 text-xs">
+                <TrendingUp className="w-3 h-3 text-success mr-1 rotate-180" />
+                <span className="text-success font-medium">-2</span>
+                <span className="text-muted-foreground ml-1">from yesterday</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="group relative overflow-hidden bg-gradient-to-br from-card via-card to-warning/5 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+            <div className="absolute inset-0 bg-gradient-to-br from-warning/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                Canceled
+              </CardTitle>
+              <div className="p-2 rounded-lg bg-warning/10 group-hover:bg-warning/20 transition-colors">
+                <Clock className="h-5 w-5 text-warning" />
+              </div>
+            </CardHeader>
+            <CardContent className="relative">
+              <div className="text-3xl font-bold text-warning">2</div>
+              <div className="flex items-center mt-2 text-xs">
+                <div className="w-2 h-2 bg-muted-foreground rounded-full mr-2"></div>
+                <span className="text-muted-foreground font-medium">Same as yesterday</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Action Bar */}
+        <Card className="relative overflow-hidden border-0 bg-gradient-to-r from-card via-card/50 to-card shadow-xl">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-success/5"></div>
+          <CardHeader className="relative">
+            <CardTitle className="text-2xl font-bold flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-primary/10">
+                <Plus className="w-6 h-6 text-primary" />
+              </div>
+              Quick Actions
+            </CardTitle>
+            <CardDescription className="text-lg">
+              Get started with these common tasks
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="relative">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Button size="lg" className="h-20 flex-col gap-3 bg-gradient-to-r from-primary to-primary-hover hover:from-primary-hover hover:to-primary shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group">
+                <Workflow className="w-8 h-8 group-hover:rotate-12 transition-transform duration-300" />
+                <span className="font-semibold">Create Workflow</span>
+              </Button>
+              <Button variant="outline" size="lg" className="h-20 flex-col gap-3 border-2 hover:border-primary hover:bg-primary/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+                <Settings2 className="w-8 h-8 group-hover:rotate-90 transition-transform duration-300" />
+                <span className="font-semibold">Environment Variable</span>
+              </Button>
+              <Button variant="outline" size="lg" className="h-20 flex-col gap-3 border-2 hover:border-success hover:bg-success/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+                <Code2 className="w-8 h-8 group-hover:scale-110 transition-transform duration-300" />
+                <span className="font-semibold">Create Script</span>
+              </Button>
+              <Button variant="outline" size="lg" className="h-20 flex-col gap-3 border-2 hover:border-warning hover:bg-warning/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+                <Plus className="w-8 h-8 group-hover:rotate-180 transition-transform duration-300" />
+                <span className="font-semibold">Upload File</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Latest Executed Workflows */}
+        <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-card via-card/90 to-muted/20 shadow-xl">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-success/5 opacity-50"></div>
+          <CardHeader className="relative">
+            <CardTitle className="text-2xl font-bold flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-gradient-to-r from-primary/10 to-success/10">
+                <Activity className="w-6 h-6 text-primary" />
+              </div>
+              Latest Executions
+            </CardTitle>
+            <CardDescription className="text-lg">
+              Recent workflow executions and their status
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="relative space-y-6">
+            {recentActivities.map((workflow) => (
+              <Collapsible key={workflow.id} open={openDropdowns[workflow.id]} onOpenChange={() => toggleDropdown(workflow.id)}>
+                <div className="group p-6 rounded-xl bg-gradient-to-r from-background via-background/90 to-background/80 border border-border/50 hover:border-primary/30 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                  <div className="flex items-center gap-4">
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-10 w-10 p-0 flex-shrink-0 rounded-xl hover:bg-primary/10 transition-colors group-hover:scale-110">
+                        {openDropdowns[workflow.id] ? 
+                          <ChevronDown className="w-5 h-5 text-primary transition-transform duration-300" /> : 
+                          <ChevronRight className="w-5 h-5 text-primary transition-transform duration-300" />
+                        }
+                      </Button>
+                    </CollapsibleTrigger>
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-lg font-bold text-foreground truncate group-hover:text-primary transition-colors duration-300">{workflow.title}</h4>
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                        {workflow.description || `Automated ${workflow.type} execution with monitoring and notifications`}
+                      </p>
+                      <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <div className="p-1 rounded-md bg-primary/10">
+                            <Clock className="w-3 h-3 text-primary" />
                           </div>
-                          <div className="space-y-1">
-                            <div className="flex items-center justify-between text-xs text-muted-foreground">
-                              <span>Progress: {execution.executedNodes}/{execution.totalNodes} nodes</span>
-                              <span>{execution.progress}%</span>
-                            </div>
-                            <Progress value={execution.progress} className="h-2" />
-                          </div>
+                          <span>Executed {workflow.time}</span>
                         </div>
-                        <div className="flex-shrink-0 ml-3">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-8 w-8 p-0"
-                            onClick={() => {
-                              // Navigate to execution details page
-                              window.location.href = `/executions/${execution.id}`;
-                            }}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
+                        <div className="flex items-center gap-2">
+                          <div className="p-1 rounded-md bg-success/10">
+                            <TrendingUp className="w-3 h-3 text-success" />
+                          </div>
+                          <span>Duration: {workflow.duration}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="p-1 rounded-md bg-warning/10">
+                            <Play className="w-3 h-3 text-warning" />
+                          </div>
+                          <span className="font-mono text-xs">ID: WF-{Math.random().toString(36).substring(2, 8).toUpperCase()}</span>
                         </div>
                       </div>
-                    ))}
+                    </div>
                   </div>
                 </div>
-              </CollapsibleContent>
-            </Collapsible>
-          ))}
-        </CardContent>
-      </Card>
+                <CollapsibleContent className="space-y-2 mt-4 ml-14">
+                  <div className="bg-gradient-to-br from-background to-muted/20 border border-border/50 rounded-xl p-6 shadow-inner">
+                    <h5 className="font-bold text-base mb-4 text-foreground flex items-center gap-2">
+                      <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                      Latest Executions
+                    </h5>
+                    <div className="space-y-4">
+                      {workflow.executions.map((execution) => (
+                        <div key={execution.id} className="group/execution p-4 bg-gradient-to-r from-card to-card/80 border border-border/30 rounded-lg hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-3">
+                                <span className="font-semibold text-sm text-foreground group-hover/execution:text-primary transition-colors duration-300">{execution.name}</span>
+                                {getExecutionStatusBadge(execution.status)}
+                              </div>
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                  <span className="font-medium">Progress: {execution.executedNodes}/{execution.totalNodes} nodes</span>
+                                  <span className="font-bold text-primary">{execution.progress}%</span>
+                                </div>
+                                <div className="relative">
+                                  <Progress value={execution.progress} className="h-2 bg-muted/50 rounded-full overflow-hidden" />
+                                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-success/20 rounded-full"></div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex-shrink-0 ml-4">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-10 w-10 p-0 rounded-xl hover:bg-primary/10 hover:scale-110 transition-all duration-300 group-hover/execution:border-primary/30"
+                                onClick={() => {
+                                  // Navigate to execution details page
+                                  window.location.href = `/executions/${execution.id}`;
+                                }}
+                              >
+                                <Eye className="w-4 h-4 text-primary" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
