@@ -108,37 +108,112 @@ const getStatusIcon = (status) => {
 };
 
 export default function Dashboard() {
+  const userName = "John Doe"; // This would come from user context/auth
+  
   return (
     <div className="space-y-8">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-hero p-8 text-center">
-        <div 
-          className="absolute inset-0 opacity-20"
-          style={{
-            backgroundImage: `url(${heroImage})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-        <div className="relative z-10">
-          <h1 className="text-4xl font-bold mb-4">
-            Welcome to <span className="bg-gradient-primary bg-clip-text text-transparent">MiniFlow</span>
-          </h1>
-          <p className="text-xl text-muted-foreground mb-6">
-            Automate your workflows with powerful visual tools and intelligent execution
-          </p>
-          <div className="flex gap-4 justify-center">
-            <Button size="lg" className="shadow-soft">
-              <Plus className="w-4 h-4 mr-2" />
-              Create Workflow
+      {/* Personalized Greeting */}
+      <div className="text-center space-y-2">
+        <h1 className="text-4xl font-bold">
+          Welcome back, <span className="bg-gradient-primary bg-clip-text text-transparent">{userName}</span>
+        </h1>
+        <p className="text-xl text-muted-foreground">
+          Here's what's happening with your workflows today
+        </p>
+      </div>
+
+      {/* Daily Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card className="bg-gradient-card shadow-soft border-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Execution Count
+            </CardTitle>
+            <Activity className="h-4 w-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">47</div>
+            <p className="text-xs text-muted-foreground">
+              +12 from yesterday
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-card shadow-soft border-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Successful
+            </CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-success" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-success">42</div>
+            <p className="text-xs text-muted-foreground">
+              89.4% success rate
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-card shadow-soft border-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Failed
+            </CardTitle>
+            <AlertCircle className="h-4 w-4 text-destructive" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-destructive">3</div>
+            <p className="text-xs text-muted-foreground">
+              -2 from yesterday
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-card shadow-soft border-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Canceled
+            </CardTitle>
+            <Clock className="h-4 w-4 text-warning" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-warning">2</div>
+            <p className="text-xs text-muted-foreground">
+              Same as yesterday
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Action Bar */}
+      <Card className="shadow-soft">
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>
+            Get started with these common tasks
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Button size="lg" className="h-16 flex-col gap-2 shadow-soft">
+              <Workflow className="w-6 h-6" />
+              <span>Create Workflow</span>
             </Button>
-            <Button variant="outline" size="lg">
-              <Code2 className="w-4 h-4 mr-2" />
-              New Script
+            <Button variant="outline" size="lg" className="h-16 flex-col gap-2">
+              <Settings2 className="w-6 h-6" />
+              <span>Create Environment Variable</span>
+            </Button>
+            <Button variant="outline" size="lg" className="h-16 flex-col gap-2">
+              <Code2 className="w-6 h-6" />
+              <span>Create Script</span>
+            </Button>
+            <Button variant="outline" size="lg" className="h-16 flex-col gap-2">
+              <Plus className="w-6 h-6" />
+              <span>Upload File</span>
             </Button>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
