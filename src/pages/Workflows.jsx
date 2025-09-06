@@ -504,5 +504,6 @@ export default function Workflows() {
         </CardContent>
       </Card>
     </div>
+  </div>
   );
 }
