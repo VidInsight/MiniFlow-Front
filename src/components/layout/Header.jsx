@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Bell, Settings, User, Moon, Sun, LayoutDashboard, Workflow, Code2, Settings2, Upload, Play, BarChart3 } from "lucide-react";
+import { Bell, Settings, User, LayoutDashboard, Workflow, Code2, Settings2, Upload, Play, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const navigation = [
   {
@@ -51,14 +51,8 @@ const navigation = [
 ];
 
 export const Header = () => {
-  const [isDark, setIsDark] = useState(false);
   const location = useLocation();
   const currentPath = location.pathname;
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle('dark');
-  };
 
   const isActive = (path) => {
     if (path === "/") {
@@ -113,14 +107,7 @@ export const Header = () => {
 
         {/* Actions - Right */}
         <div className="flex items-center gap-2 flex-shrink-0">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={toggleTheme}
-            className="h-10 w-10 rounded-xl hover:bg-primary/10 transition-all duration-300"
-          >
-            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </Button>
+          <ThemeToggle />
 
           <Button 
             variant="ghost" 
