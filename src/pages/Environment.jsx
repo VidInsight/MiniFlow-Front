@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { helpContent } from "@/data/help-content";
 import {
   Select,
   SelectContent,
@@ -267,34 +265,13 @@ export default function Environment() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="flex items-center gap-2">
-                  Name
-                  <HelpTooltip content={helpContent.environment.variableName.content} iconSize="w-3 h-3" />
-                </TableHead>
-                <TableHead className="relative">
-                  Value
-                  <HelpTooltip content={helpContent.environment.variableValue.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
-                </TableHead>
-                <TableHead className="relative">
-                  Type
-                  <HelpTooltip content={helpContent.environment.variableType.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
-                </TableHead>
-                <TableHead className="relative">
-                  Scope
-                  <HelpTooltip content={helpContent.environment.variableScope.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
-                </TableHead>
-                <TableHead className="relative">
-                  Access Count
-                  <HelpTooltip content={helpContent.environment.accessCount.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
-                </TableHead>
-                <TableHead className="relative">
-                  Last Used
-                  <HelpTooltip content={helpContent.environment.lastUsed.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
-                </TableHead>
-                <TableHead className="text-right relative">
-                  Actions
-                  <HelpTooltip content={helpContent.environment.variableActions.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
-                </TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Value</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Scope</TableHead>
+                <TableHead>Access Count</TableHead>
+                <TableHead>Last Used</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
