@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { helpContent } from "@/data/help-content";
 import {
   Select,
   SelectContent,
@@ -288,13 +290,31 @@ export default function Scripts() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Script</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Performance</TableHead>
-                <TableHead>Version</TableHead>
-                <TableHead>Size</TableHead>
+                <TableHead className="flex items-center gap-2">
+                  Script
+                  <HelpTooltip content={helpContent.scripts.scriptName.content} iconSize="w-3 h-3" />
+                </TableHead>
+                <TableHead className="relative">
+                  Category
+                  <HelpTooltip content={helpContent.scripts.scriptCategory.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
+                </TableHead>
+                <TableHead className="relative">
+                  Performance
+                  <HelpTooltip content={helpContent.scripts.scriptPerformance.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
+                </TableHead>
+                <TableHead className="relative">
+                  Version
+                  <HelpTooltip content={helpContent.scripts.scriptVersion.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
+                </TableHead>
+                <TableHead className="relative">
+                  Size
+                  <HelpTooltip content={helpContent.scripts.scriptSize.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
+                </TableHead>
                 <TableHead>Last Updated</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="text-right relative">
+                  Actions
+                  <HelpTooltip content={helpContent.scripts.scriptActions.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

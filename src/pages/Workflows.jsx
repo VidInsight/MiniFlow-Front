@@ -9,6 +9,8 @@ import {
   useEdgesState,
   BackgroundVariant,
 } from "@xyflow/react";
+import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { helpContent } from "@/data/help-content";
 import "@xyflow/react/dist/style.css";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -256,7 +258,10 @@ export default function Workflows() {
         {/* Builder Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Workflow Builder</h1>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              Workflow Builder
+              <HelpTooltip content={helpContent.workflows.workflowBuilder.content} />
+            </h1>
             <p className="text-muted-foreground">Drag and drop to create your automation workflow</p>
           </div>
           <div className="flex gap-2">
@@ -344,6 +349,9 @@ export default function Workflows() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/50 focus:border-primary transition-all duration-300"
                 />
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <HelpTooltip content={helpContent.workflows.searchFilter.content} side="left" />
+                </div>
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-40 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/50 transition-all duration-300">
@@ -407,19 +415,31 @@ export default function Workflows() {
                 {/* Middle Section - Stats */}
                 <div className="hidden lg:flex items-center gap-8 px-6">
                   <div className="text-center">
-                    <div className="text-lg font-bold text-success">{workflow.success_rate}%</div>
+                    <div className="text-lg font-bold text-success flex items-center justify-center gap-1">
+                      {workflow.success_rate}%
+                      <HelpTooltip content={helpContent.workflows.successRate.content} iconSize="w-3 h-3" />
+                    </div>
                     <div className="text-xs text-muted-foreground">Success Rate</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-lg font-bold text-primary">{workflow.total_runs}</div>
+                    <div className="text-lg font-bold text-primary flex items-center justify-center gap-1">
+                      {workflow.total_runs}
+                      <HelpTooltip content={helpContent.workflows.totalRuns.content} iconSize="w-3 h-3" />
+                    </div>
                     <div className="text-xs text-muted-foreground">Total Runs</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-lg font-bold text-warning">{workflow.nodes_count}</div>
+                    <div className="text-lg font-bold text-warning flex items-center justify-center gap-1">
+                      {workflow.nodes_count}
+                      <HelpTooltip content={helpContent.workflows.nodeCount.content} iconSize="w-3 h-3" />
+                    </div>
                     <div className="text-xs text-muted-foreground">Nodes</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-lg font-bold text-secondary">{workflow.avg_duration}</div>
+                    <div className="text-lg font-bold text-secondary flex items-center justify-center gap-1">
+                      {workflow.avg_duration}
+                      <HelpTooltip content={helpContent.workflows.avgDuration.content} iconSize="w-3 h-3" />
+                    </div>
                     <div className="text-xs text-muted-foreground">Avg Duration</div>
                   </div>
                 </div>
