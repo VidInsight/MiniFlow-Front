@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { helpContent } from "@/data/help-content";
 import {
   Select,
   SelectContent,
@@ -265,13 +267,34 @@ export default function Environment() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Value</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Scope</TableHead>
-                <TableHead>Access Count</TableHead>
-                <TableHead>Last Used</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="flex items-center gap-2">
+                  Name
+                  <HelpTooltip content={helpContent.environment.name} iconSize="w-3 h-3" />
+                </TableHead>
+                <TableHead className="flex items-center gap-2">
+                  Value
+                  <HelpTooltip content="The variable value (click eye to show/hide)" iconSize="w-3 h-3" />
+                </TableHead>
+                <TableHead className="flex items-center gap-2">
+                  Type
+                  <HelpTooltip content={helpContent.environment.type} iconSize="w-3 h-3" />
+                </TableHead>
+                <TableHead className="flex items-center gap-2">
+                  Scope
+                  <HelpTooltip content={helpContent.environment.scope} iconSize="w-3 h-3" />
+                </TableHead>
+                <TableHead className="flex items-center gap-2">
+                  Access Count
+                  <HelpTooltip content={helpContent.environment.accessCount} iconSize="w-3 h-3" />
+                </TableHead>
+                <TableHead className="flex items-center gap-2">
+                  Last Used
+                  <HelpTooltip content={helpContent.environment.lastUsed} iconSize="w-3 h-3" />
+                </TableHead>
+                <TableHead className="text-right flex items-center gap-2 justify-end">
+                  Actions
+                  <HelpTooltip content={helpContent.environment.actions} iconSize="w-3 h-3" />
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

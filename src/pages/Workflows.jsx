@@ -14,6 +14,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { helpContent } from "@/data/help-content";
 import {
   Select,
   SelectContent,
@@ -366,12 +368,15 @@ export default function Workflows() {
       {/* Workflows List */}
       <Card className="shadow-xl border-0 bg-gradient-to-br from-card via-card/90 to-muted/20">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-primary/10">
-              <Workflow className="w-6 h-6 text-primary" />
-            </div>
-            Workflows ({filteredWorkflows.length})
-          </CardTitle>
+          <div className="flex items-center gap-3">
+            <CardTitle className="text-2xl font-bold flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-primary/10">
+                <Workflow className="w-6 h-6 text-primary" />
+              </div>
+              Workflows ({filteredWorkflows.length})
+            </CardTitle>
+            <HelpTooltip content={helpContent.workflows.totalWorkflows} />
+          </div>
           <CardDescription className="text-lg">
             Manage your automation workflows with detailed insights and controls
           </CardDescription>
@@ -406,21 +411,33 @@ export default function Workflows() {
 
                 {/* Middle Section - Stats */}
                 <div className="hidden lg:flex items-center gap-8 px-6">
-                  <div className="text-center">
+                  <div className="text-center relative">
                     <div className="text-lg font-bold text-success">{workflow.success_rate}%</div>
-                    <div className="text-xs text-muted-foreground">Success Rate</div>
+                    <div className="text-xs text-muted-foreground flex items-center gap-1">
+                      Success Rate
+                      <HelpTooltip content="Percentage of successful workflow runs" iconSize="w-3 h-3" />
+                    </div>
                   </div>
-                  <div className="text-center">
+                  <div className="text-center relative">
                     <div className="text-lg font-bold text-primary">{workflow.total_runs}</div>
-                    <div className="text-xs text-muted-foreground">Total Runs</div>
+                    <div className="text-xs text-muted-foreground flex items-center gap-1">
+                      Total Runs
+                      <HelpTooltip content="Number of times this workflow has been executed" iconSize="w-3 h-3" />
+                    </div>
                   </div>
-                  <div className="text-center">
+                  <div className="text-center relative">
                     <div className="text-lg font-bold text-warning">{workflow.nodes_count}</div>
-                    <div className="text-xs text-muted-foreground">Nodes</div>
+                    <div className="text-xs text-muted-foreground flex items-center gap-1">
+                      Nodes
+                      <HelpTooltip content="Number of processing nodes in this workflow" iconSize="w-3 h-3" />
+                    </div>
                   </div>
-                  <div className="text-center">
+                  <div className="text-center relative">
                     <div className="text-lg font-bold text-secondary">{workflow.avg_duration}</div>
-                    <div className="text-xs text-muted-foreground">Avg Duration</div>
+                    <div className="text-xs text-muted-foreground flex items-center gap-1">
+                      Avg Duration
+                      <HelpTooltip content="Average execution time for this workflow" iconSize="w-3 h-3" />
+                    </div>
                   </div>
                 </div>
 

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { helpContent } from "@/data/help-content";
 import { 
   Activity, 
   Clock, 
@@ -220,9 +222,12 @@ export default function Dashboard() {
           <Card className="group relative overflow-hidden bg-gradient-to-br from-card via-card to-primary/5 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                Execution Count
-              </CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                  Execution Count
+                </CardTitle>
+                <HelpTooltip content={helpContent.dashboard.executionCount} />
+              </div>
               <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
                 <Activity className="h-5 w-5 text-primary" />
               </div>
@@ -240,9 +245,12 @@ export default function Dashboard() {
           <Card className="group relative overflow-hidden bg-gradient-to-br from-card via-card to-success/5 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
             <div className="absolute inset-0 bg-gradient-to-br from-success/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                Successful
-              </CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                  Successful
+                </CardTitle>
+                <HelpTooltip content={helpContent.dashboard.successful} />
+              </div>
               <div className="p-2 rounded-lg bg-success/10 group-hover:bg-success/20 transition-colors">
                 <CheckCircle2 className="h-5 w-5 text-success" />
               </div>
@@ -260,9 +268,12 @@ export default function Dashboard() {
           <Card className="group relative overflow-hidden bg-gradient-to-br from-card via-card to-destructive/5 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
             <div className="absolute inset-0 bg-gradient-to-br from-destructive/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                Failed
-              </CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                  Failed
+                </CardTitle>
+                <HelpTooltip content={helpContent.dashboard.failed} />
+              </div>
               <div className="p-2 rounded-lg bg-destructive/10 group-hover:bg-destructive/20 transition-colors">
                 <AlertCircle className="h-5 w-5 text-destructive" />
               </div>
@@ -280,9 +291,12 @@ export default function Dashboard() {
           <Card className="group relative overflow-hidden bg-gradient-to-br from-card via-card to-warning/5 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
             <div className="absolute inset-0 bg-gradient-to-br from-warning/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                Canceled
-              </CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                  Canceled
+                </CardTitle>
+                <HelpTooltip content={helpContent.dashboard.canceled} />
+              </div>
               <div className="p-2 rounded-lg bg-warning/10 group-hover:bg-warning/20 transition-colors">
                 <Clock className="h-5 w-5 text-warning" />
               </div>
@@ -313,22 +327,42 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent className="relative">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Button size="lg" className="h-20 flex-col gap-3 bg-gradient-to-r from-primary to-primary-hover hover:from-primary-hover hover:to-primary shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group">
-                <Workflow className="w-8 h-8 group-hover:rotate-12 transition-transform duration-300" />
-                <span className="font-semibold">Create Workflow</span>
-              </Button>
-              <Button variant="outline" size="lg" className="h-20 flex-col gap-3 border-2 hover:border-primary hover:bg-primary/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
-                <Settings2 className="w-8 h-8 group-hover:rotate-90 transition-transform duration-300" />
-                <span className="font-semibold">Environment Variable</span>
-              </Button>
-              <Button variant="outline" size="lg" className="h-20 flex-col gap-3 border-2 hover:border-success hover:bg-success/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
-                <Code2 className="w-8 h-8 group-hover:scale-110 transition-transform duration-300" />
-                <span className="font-semibold">Create Script</span>
-              </Button>
-              <Button variant="outline" size="lg" className="h-20 flex-col gap-3 border-2 hover:border-warning hover:bg-warning/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
-                <Plus className="w-8 h-8 group-hover:rotate-180 transition-transform duration-300" />
-                <span className="font-semibold">Upload File</span>
-              </Button>
+              <div className="relative">
+                <Button size="lg" className="w-full h-20 flex-col gap-3 bg-gradient-to-r from-primary to-primary-hover hover:from-primary-hover hover:to-primary shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group">
+                  <Workflow className="w-8 h-8 group-hover:rotate-12 transition-transform duration-300" />
+                  <span className="font-semibold">Create Workflow</span>
+                </Button>
+                <div className="absolute -top-2 -right-2">
+                  <HelpTooltip content={helpContent.dashboard.quickActions.createWorkflow} />
+                </div>
+              </div>
+              <div className="relative">
+                <Button variant="outline" size="lg" className="w-full h-20 flex-col gap-3 border-2 hover:border-primary hover:bg-primary/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+                  <Settings2 className="w-8 h-8 group-hover:rotate-90 transition-transform duration-300" />
+                  <span className="font-semibold">Environment Variable</span>
+                </Button>
+                <div className="absolute -top-2 -right-2">
+                  <HelpTooltip content={helpContent.dashboard.quickActions.environmentVariable} />
+                </div>
+              </div>
+              <div className="relative">
+                <Button variant="outline" size="lg" className="w-full h-20 flex-col gap-3 border-2 hover:border-success hover:bg-success/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+                  <Code2 className="w-8 h-8 group-hover:scale-110 transition-transform duration-300" />
+                  <span className="font-semibold">Create Script</span>
+                </Button>
+                <div className="absolute -top-2 -right-2">
+                  <HelpTooltip content={helpContent.dashboard.quickActions.createScript} />
+                </div>
+              </div>
+              <div className="relative">
+                <Button variant="outline" size="lg" className="w-full h-20 flex-col gap-3 border-2 hover:border-warning hover:bg-warning/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+                  <Plus className="w-8 h-8 group-hover:rotate-180 transition-transform duration-300" />
+                  <span className="font-semibold">Upload File</span>
+                </Button>
+                <div className="absolute -top-2 -right-2">
+                  <HelpTooltip content={helpContent.dashboard.quickActions.uploadFile} />
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -337,12 +371,15 @@ export default function Dashboard() {
         <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-card via-card/90 to-muted/20 shadow-xl">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-success/5 opacity-50"></div>
           <CardHeader className="relative">
-            <CardTitle className="text-2xl font-bold flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-gradient-to-r from-primary/10 to-success/10">
-                <Activity className="w-6 h-6 text-primary" />
-              </div>
-              Latest Executions
-            </CardTitle>
+            <div className="flex items-center gap-3">
+              <CardTitle className="text-2xl font-bold flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-gradient-to-r from-primary/10 to-success/10">
+                  <Activity className="w-6 h-6 text-primary" />
+                </div>
+                Latest Executions
+              </CardTitle>
+              <HelpTooltip content={helpContent.dashboard.latestExecutions} />
+            </div>
             <CardDescription className="text-lg">
               Recent workflow executions and their status
             </CardDescription>
