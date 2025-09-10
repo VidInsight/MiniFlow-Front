@@ -320,8 +320,8 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent className="relative">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="relative">
-                <Button size="lg" className="h-20 flex-col gap-3 bg-gradient-to-r from-primary to-primary-hover hover:from-primary-hover hover:to-primary shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group">
+              <div className="relative w-full">
+                <Button size="lg" className="w-full h-20 flex-col gap-3 bg-gradient-to-r from-primary to-primary-hover hover:from-primary-hover hover:to-primary shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group">
                   <Workflow className="w-8 h-8 group-hover:rotate-12 transition-transform duration-300" />
                   <span className="font-semibold">Create Workflow</span>
                 </Button>
@@ -329,8 +329,8 @@ export default function Dashboard() {
                   <HelpTooltip content={helpContent.dashboard.createWorkflow.content} side="top" />
                 </div>
               </div>
-              <div className="relative">
-                <Button variant="outline" size="lg" className="h-20 flex-col gap-3 border-2 hover:border-primary hover:bg-primary/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+              <div className="relative w-full">
+                <Button variant="outline" size="lg" className="w-full h-20 flex-col gap-3 border-2 hover:border-primary hover:bg-primary/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
                   <Settings2 className="w-8 h-8 group-hover:rotate-90 transition-transform duration-300" />
                   <span className="font-semibold">Environment Variable</span>
                 </Button>
@@ -338,8 +338,8 @@ export default function Dashboard() {
                   <HelpTooltip content={helpContent.dashboard.environmentVariable.content} side="top" />
                 </div>
               </div>
-              <div className="relative">
-                <Button variant="outline" size="lg" className="h-20 flex-col gap-3 border-2 hover:border-success hover:bg-success/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+              <div className="relative w-full">
+                <Button variant="outline" size="lg" className="w-full h-20 flex-col gap-3 border-2 hover:border-success hover:bg-success/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
                   <Code2 className="w-8 h-8 group-hover:scale-110 transition-transform duration-300" />
                   <span className="font-semibold">Create Script</span>
                 </Button>
@@ -347,8 +347,8 @@ export default function Dashboard() {
                   <HelpTooltip content={helpContent.dashboard.createScript.content} side="top" />
                 </div>
               </div>
-              <div className="relative">
-                <Button variant="outline" size="lg" className="h-20 flex-col gap-3 border-2 hover:border-warning hover:bg-warning/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+              <div className="relative w-full">
+                <Button variant="outline" size="lg" className="w-full h-20 flex-col gap-3 border-2 hover:border-warning hover:bg-warning/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
                   <Plus className="w-8 h-8 group-hover:rotate-180 transition-transform duration-300" />
                   <span className="font-semibold">Upload File</span>
                 </Button>
