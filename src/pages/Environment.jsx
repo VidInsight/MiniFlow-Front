@@ -1,348 +1,365 @@
-import React, { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Settings, Globe, Server, Lock, Key, Eye, EyeOff, Edit, Trash2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { toast } from "@/hooks/use-toast";
-import { CreateEnvironmentDialog } from "@/components/environment/CreateEnvironmentDialog";
-import { EditEnvironmentDialog } from "@/components/environment/EditEnvironmentDialog";
-import { environmentService } from "@/services/environmentService";
+import { helpContent } from "@/data/help-content";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { PageHeader } from "@/components/ui/page-header";
+import { 
+  Plus, 
+  Search, 
+  Edit, 
+  Trash2, 
+  Eye, 
+  EyeOff, 
+  Shield,
+  Globe,
+  User,
+  Clock,
+  Filter
+} from "lucide-react";
 
-// Helper functions
+// Mock data
+const environmentVariables = [
+  {
+    id: "EV-001",
+    name: "DATABASE_URL",
+    value: "postgresql://localhost:5432/miniflow",
+    description: "Main database connection string",
+    type: "URL",
+    scope: "GLOBAL",
+    created_at: "2024-01-15T10:00:00Z",
+    last_accessed_at: "2024-01-15T12:00:00Z",
+    access_count: 25,
+    last_modified_by: "admin@miniflow.dev"
+  },
+  {
+    id: "EV-002", 
+    name: "API_SECRET_KEY",
+    value: "sk-1234567890abcdef",
+    description: "External API authentication key",
+    type: "STRING",
+    scope: "USER",
+    created_at: "2024-01-14T09:30:00Z",
+    last_accessed_at: "2024-01-15T11:45:00Z",
+    access_count: 12,
+    last_modified_by: "dev@miniflow.dev"
+  },
+  {
+    id: "EV-003",
+    name: "MAX_RETRY_COUNT",
+    value: "3",
+    description: "Maximum number of retries for failed operations",
+    type: "INTEGER",
+    scope: "GLOBAL",
+    created_at: "2024-01-13T14:20:00Z",
+    last_accessed_at: "2024-01-15T10:15:00Z",
+    access_count: 45,
+    last_modified_by: "admin@miniflow.dev"
+  },
+];
+
 const getScopeIcon = (scope) => {
-  switch (scope?.toLowerCase()) {
-    case 'global': return Globe;
-    case 'project': return Server;
-    case 'environment': return Settings;
-    default: return Globe;
+  switch (scope) {
+    case "GLOBAL":
+      return <Globe className="w-4 h-4" />;
+    case "USER":
+      return <User className="w-4 h-4" />;
+    default:
+      return <Shield className="w-4 h-4" />;
   }
 };
 
 const getScopeBadge = (scope) => {
-  const variants = {
-    'GLOBAL': 'default',
-    'PROJECT': 'destructive', 
-    'ENVIRONMENT': 'secondary'
-  };
-  return <Badge variant={variants[scope] || 'default'}>{scope}</Badge>;
+  switch (scope) {
+    case "GLOBAL":
+      return <Badge variant="success">Global</Badge>;
+    case "USER":
+      return <Badge variant="secondary">User</Badge>;
+    default:
+      return <Badge variant="outline">{scope}</Badge>;
+  }
 };
 
 const getTypeBadge = (type) => {
   const variants = {
-    'SECRET': 'destructive',
-    'CONFIG': 'secondary',
-    'API_KEY': 'default'
+    "STRING": "outline",
+    "INTEGER": "secondary", 
+    "URL": "success",
+    "BOOLEAN": "warning"
   };
-  const icons = {
-    'SECRET': Lock,
-    'CONFIG': Settings,
-    'API_KEY': Key
-  };
-  const Icon = icons[type] || Key;
   
-  return (
-    <Badge variant={variants[type] || 'default'} className="gap-1">
-      <Icon className="w-3 h-3" />
-      {type}
-    </Badge>
-  );
+  return <Badge variant={variants[type] || "outline"}>{type}</Badge>;
 };
 
 const formatDate = (dateString) => {
-  if (!dateString) return 'Never';
-  return new Date(dateString).toLocaleString();
+  return new Date(dateString).toLocaleDateString() + " " + new Date(dateString).toLocaleTimeString();
 };
 
 export default function Environment() {
   const [searchTerm, setSearchTerm] = useState("");
   const [scopeFilter, setScopeFilter] = useState("all");
-  const [visibleValues, setVisibleValues] = useState(new Set());
+  const [showValues, setShowValues] = useState({});
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [selectedEnvVar, setSelectedEnvVar] = useState(null);
-
-  const queryClient = useQueryClient();
-
-  // Fetch environment variables
-  const { data: envVarsData, isLoading, error } = useQuery({
-    queryKey: ['environmentVariables'],
-    queryFn: environmentService.getAll,
-  });
-
-  const environmentVariables = envVarsData?.data?.items || [];
-
-  // Create mutation
-  const createMutation = useMutation({
-    mutationFn: environmentService.create,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries(['environmentVariables']);
-      toast({
-        title: "Success",
-        description: data.message || "Environment variable created successfully",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.response?.data?.message || "Failed to create environment variable",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Update mutation
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => environmentService.update(id, data),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries(['environmentVariables']);
-      toast({
-        title: "Success",
-        description: data.message || "Environment variable updated successfully",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.response?.data?.message || "Failed to update environment variable",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Delete mutation
-  const deleteMutation = useMutation({
-    mutationFn: environmentService.delete,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries(['environmentVariables']);
-      toast({
-        title: "Success",
-        description: data.message || "Environment variable deleted successfully",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error", 
-        description: error.response?.data?.message || "Failed to delete environment variable",
-        variant: "destructive",
-      });
-    },
-  });
 
   const toggleValueVisibility = (id) => {
-    const newVisible = new Set(visibleValues);
-    if (newVisible.has(id)) {
-      newVisible.delete(id);
-    } else {
-      newVisible.add(id);
-    }
-    setVisibleValues(newVisible);
+    setShowValues(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const handleCreate = async (values) => {
-    await createMutation.mutateAsync(values);
-  };
-
-  const handleUpdate = async (id, values) => {
-    await updateMutation.mutateAsync({ id, data: values });
-  };
-
-  const handleDelete = async (id) => {
-    if (confirm('Are you sure you want to delete this environment variable?')) {
-      await deleteMutation.mutateAsync(id);
-    }
-  };
-
-  const handleEdit = (envVar) => {
-    setSelectedEnvVar(envVar);
-    setIsEditDialogOpen(true);
-  };
-
-  // Filter environment variables based on search term and scope
-  const filteredVariables = environmentVariables.filter(envVar => {
-    const matchesSearch = envVar.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         envVar.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesScope = scopeFilter === "all" || envVar.scope?.toLowerCase() === scopeFilter.toLowerCase();
-    
+  const filteredVariables = environmentVariables.filter(variable => {
+    const matchesSearch = variable.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         variable.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesScope = scopeFilter === "all" || variable.scope === scopeFilter;
     return matchesSearch && matchesScope;
   });
 
-  if (error) {
-    return (
-      <div className="space-y-6">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/5 to-accent/5 -m-6 p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
         <PageHeader
           title="Environment Variables"
-          description="Manage environment variables and configuration settings"
+          description="Manage secure configuration variables for your workflows and scripts"
+          icon={Shield}
+          actions={[
+            <Dialog key="create-dialog" open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-glow hover:shadow-strong transition-all duration-300 hover:scale-105">
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Variable
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Create Environment Variable</DialogTitle>
+                  <DialogDescription>
+                    Add a new environment variable to your MiniFlow workspace
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Variable Name</Label>
+                      <Input id="name" placeholder="DATABASE_URL" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="type">Type</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="STRING">String</SelectItem>
+                          <SelectItem value="INTEGER">Integer</SelectItem>
+                          <SelectItem value="FLOAT">Float</SelectItem>
+                          <SelectItem value="BOOLEAN">Boolean</SelectItem>
+                          <SelectItem value="URL">URL</SelectItem>
+                          <SelectItem value="JSON">JSON</SelectItem>
+                          <SelectItem value="FILE_PATH">File Path</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="value">Value</Label>
+                    <Input id="value" type="password" placeholder="Enter value" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea id="description" placeholder="Describe this variable's purpose" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="scope">Scope</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select scope" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="GLOBAL">Global</SelectItem>
+                        <SelectItem value="USER">User</SelectItem>
+                        <SelectItem value="SESSION">Session</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => setIsCreateDialogOpen(false)}>
+                    Create Variable
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          ]}
         />
-        <Card>
-          <CardContent className="p-6">
-            <div className="text-center text-muted-foreground">
-              Failed to load environment variables: {error.message}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
-  return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Environment Variables"
-        description="Manage environment variables and configuration settings"
-        action={
-          <div className="flex items-center gap-2">
-            <HelpTooltip content="environment" />
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              New Variable
-            </Button>
-          </div>
-        }
-      />
-
-      {/* Filters and Search */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex flex-1 items-center gap-2">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+        {/* Filters and Search */}
+        <Card className="shadow-xl bg-gradient-to-r from-card/90 via-card/80 to-card/70 backdrop-blur-sm border-border/50">
+          <CardContent className="pt-6">
+            <div className="flex gap-4 items-center">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search environment variables..."
+                  placeholder="Search variables..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/50 focus:border-primary transition-all duration-300"
                 />
               </div>
               <Select value={scopeFilter} onValueChange={setScopeFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Scope" />
+                <SelectTrigger className="w-40 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/50 transition-all duration-300">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Scopes</SelectItem>
-                  <SelectItem value="global">Global</SelectItem>
-                  <SelectItem value="project">Project</SelectItem>
-                  <SelectItem value="environment">Environment</SelectItem>
+                  <SelectItem value="GLOBAL">Global</SelectItem>
+                  <SelectItem value="USER">User</SelectItem>
+                  <SelectItem value="SESSION">Session</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Environment Variables Table */}
-      <Card>
-        <CardContent className="p-0">
+        {/* Variables Table */}
+        <Card className="shadow-xl border-0 bg-gradient-to-br from-card via-card/90 to-muted/20">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-primary/10">
+                <Shield className="w-6 h-6 text-primary" />
+              </div>
+              Environment Variables ({filteredVariables.length})
+            </CardTitle>
+            <CardDescription className="text-lg">
+              Secure storage for configuration data and secrets
+            </CardDescription>
+          </CardHeader>
+        <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Scope</TableHead>
-                <TableHead>Access Count</TableHead>
-                <TableHead>Last Used</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="flex items-center gap-2">
+                  Name
+                  <HelpTooltip content={helpContent.environment.name} iconSize="w-3 h-3" />
+                </TableHead>
+                <TableHead className="flex items-center gap-2">
+                  Value
+                  <HelpTooltip content="The variable value (click eye to show/hide)" iconSize="w-3 h-3" />
+                </TableHead>
+                <TableHead className="flex items-center gap-2">
+                  Type
+                  <HelpTooltip content={helpContent.environment.type} iconSize="w-3 h-3" />
+                </TableHead>
+                <TableHead className="flex items-center gap-2">
+                  Scope
+                  <HelpTooltip content={helpContent.environment.scope} iconSize="w-3 h-3" />
+                </TableHead>
+                <TableHead className="flex items-center gap-2">
+                  Access Count
+                  <HelpTooltip content={helpContent.environment.accessCount} iconSize="w-3 h-3" />
+                </TableHead>
+                <TableHead className="flex items-center gap-2">
+                  Last Used
+                  <HelpTooltip content={helpContent.environment.lastUsed} iconSize="w-3 h-3" />
+                </TableHead>
+                <TableHead className="text-right flex items-center gap-2 justify-end">
+                  Actions
+                  <HelpTooltip content={helpContent.environment.actions} iconSize="w-3 h-3" />
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground">
-                    Loading environment variables...
+              {filteredVariables.map((variable) => (
+                <TableRow key={variable.id}>
+                  <TableCell className="font-medium">
+                    <div>
+                      <div className="font-mono text-sm">{variable.name}</div>
+                      <div className="text-xs text-muted-foreground truncate max-w-48">
+                        {variable.description}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <code className="text-xs bg-muted px-2 py-1 rounded">
+                        {showValues[variable.id] ? variable.value : '••••••••'}
+                      </code>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleValueVisibility(variable.id)}
+                      >
+                        {showValues[variable.id] ? 
+                          <EyeOff className="w-3 h-3" /> : 
+                          <Eye className="w-3 h-3" />
+                        }
+                      </Button>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {getTypeBadge(variable.type)}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {getScopeIcon(variable.scope)}
+                      {getScopeBadge(variable.scope)}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1 text-sm">
+                      <Clock className="w-3 h-3" />
+                      {variable.access_count}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {formatDate(variable.last_accessed_at)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button variant="ghost" size="sm">
+                        <Edit className="w-3 h-3" />
+                      </Button>
+                      <Button variant="ghost" size="sm">
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
-              ) : filteredVariables.length > 0 ? (
-                filteredVariables.map((envVar) => (
-                  <TableRow key={envVar.id}>
-                    <TableCell className="font-mono font-medium">
-                      <div className="flex items-center gap-2">
-                        <span>{envVar.name}</span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleValueVisibility(envVar.id)}
-                          className="h-6 w-6 p-0"
-                        >
-                          {visibleValues.has(envVar.id) ? (
-                            <EyeOff className="w-3 h-3" />
-                          ) : (
-                            <Eye className="w-3 h-3" />
-                          )}
-                        </Button>
-                      </div>
-                      {visibleValues.has(envVar.id) && (
-                        <div className="text-xs text-muted-foreground mt-1 font-mono break-all">
-                          {envVar.value}
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {envVar.description}
-                    </TableCell>
-                    <TableCell>
-                      {getTypeBadge(envVar.variable_type)}
-                    </TableCell>
-                    <TableCell>
-                      {getScopeBadge(envVar.scope)}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {(envVar.access_count || 0).toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {formatDate(envVar.last_accessed_at)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => handleEdit(envVar)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => handleDelete(envVar.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground">
-                    {searchTerm || scopeFilter !== "all" ? "No environment variables found matching your filters" : "No environment variables created yet"}
-                  </TableCell>
-                </TableRow>
-              )}
+              ))}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
-
-      {/* Dialogs */}
-      <CreateEnvironmentDialog
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-        onSuccess={handleCreate}
-      />
-
-      <EditEnvironmentDialog
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        envVar={selectedEnvVar}
-        onSuccess={handleUpdate}
-      />
     </div>
+  </div>
   );
 }

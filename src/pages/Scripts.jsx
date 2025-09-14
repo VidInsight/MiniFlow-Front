@@ -292,28 +292,31 @@ export default function Scripts() {
               <TableRow>
                 <TableHead className="flex items-center gap-2">
                   Script
-                  <HelpTooltip content={helpContent.scripts.scriptName.content} iconSize="w-3 h-3" />
+                  <HelpTooltip content={helpContent.scripts.name} iconSize="w-3 h-3" />
                 </TableHead>
-                <TableHead className="relative">
+                <TableHead className="flex items-center gap-2">
                   Category
-                  <HelpTooltip content={helpContent.scripts.scriptCategory.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
+                  <HelpTooltip content="Script category and programming language" iconSize="w-3 h-3" />
                 </TableHead>
-                <TableHead className="relative">
+                <TableHead className="flex items-center gap-2">
                   Performance
-                  <HelpTooltip content={helpContent.scripts.scriptPerformance.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
+                  <HelpTooltip content="Success rate, average execution time, and total runs" iconSize="w-3 h-3" />
                 </TableHead>
-                <TableHead className="relative">
+                <TableHead className="flex items-center gap-2">
                   Version
-                  <HelpTooltip content={helpContent.scripts.scriptVersion.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
+                  <HelpTooltip content="Current script version number" iconSize="w-3 h-3" />
                 </TableHead>
-                <TableHead className="relative">
+                <TableHead className="flex items-center gap-2">
                   Size
-                  <HelpTooltip content={helpContent.scripts.scriptSize.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
+                  <HelpTooltip content="Script file size in bytes/KB/MB" iconSize="w-3 h-3" />
                 </TableHead>
-                <TableHead>Last Updated</TableHead>
-                <TableHead className="text-right relative">
+                <TableHead className="flex items-center gap-2">
+                  Last Updated
+                  <HelpTooltip content={helpContent.scripts.lastModified} iconSize="w-3 h-3" />
+                </TableHead>
+                <TableHead className="text-right flex items-center gap-2 justify-end">
                   Actions
-                  <HelpTooltip content={helpContent.scripts.scriptActions.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
+                  <HelpTooltip content={helpContent.scripts.actions} iconSize="w-3 h-3" />
                 </TableHead>
               </TableRow>
             </TableHeader>
