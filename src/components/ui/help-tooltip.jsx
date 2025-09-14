@@ -1,47 +1,52 @@
-import React from 'react';
-import { HelpCircle } from 'lucide-react';
+import * as React from "react";
+import { HelpCircle } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
-export const HelpTooltip = ({ 
+const HelpTooltip = React.forwardRef(({ 
   content, 
-  side = 'top', 
-  align = 'center',
-  className = '',
-  iconSize = 'w-4 h-4',
-  contentClassName = ''
-}) => {
+  side = "right", 
+  className,
+  iconSize = "w-4 h-4",
+  ...props 
+}, ref) => {
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <button 
-            className={`inline-flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-sm ${className}`}
+          <button
+            ref={ref}
+            className={cn(
+              "inline-flex items-center justify-center rounded-full p-1 text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+              className
+            )}
+            type="button"
             aria-label="Help information"
+            {...props}
           >
-            <HelpCircle className={iconSize} />
+            <HelpCircle className={cn(iconSize)} />
           </button>
         </TooltipTrigger>
         <TooltipContent 
           side={side} 
-          align={align}
-          className={`max-w-xs text-sm font-normal ${contentClassName}`}
+          className="max-w-xs text-sm p-3 bg-popover text-popover-foreground border shadow-md"
         >
-          <div className="space-y-1">
-            {typeof content === 'string' ? (
-              <p>{content}</p>
-            ) : (
-              content
-            )}
-          </div>
+          {typeof content === 'string' ? (
+            <p>{content}</p>
+          ) : (
+            content
+          )}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );
-};
+});
 
-export default HelpTooltip;
+HelpTooltip.displayName = "HelpTooltip";
+
+export { HelpTooltip };

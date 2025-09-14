@@ -269,31 +269,31 @@ export default function Environment() {
               <TableRow>
                 <TableHead className="flex items-center gap-2">
                   Name
-                  <HelpTooltip content={helpContent.environment.name} iconSize="w-3 h-3" />
+                  <HelpTooltip content={helpContent.environment.variableName.content} iconSize="w-3 h-3" />
                 </TableHead>
-                <TableHead className="flex items-center gap-2">
+                <TableHead className="relative">
                   Value
-                  <HelpTooltip content="The variable value (click eye to show/hide)" iconSize="w-3 h-3" />
+                  <HelpTooltip content={helpContent.environment.variableValue.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
                 </TableHead>
-                <TableHead className="flex items-center gap-2">
+                <TableHead className="relative">
                   Type
-                  <HelpTooltip content={helpContent.environment.type} iconSize="w-3 h-3" />
+                  <HelpTooltip content={helpContent.environment.variableType.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
                 </TableHead>
-                <TableHead className="flex items-center gap-2">
+                <TableHead className="relative">
                   Scope
-                  <HelpTooltip content={helpContent.environment.scope} iconSize="w-3 h-3" />
+                  <HelpTooltip content={helpContent.environment.variableScope.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
                 </TableHead>
-                <TableHead className="flex items-center gap-2">
+                <TableHead className="relative">
                   Access Count
-                  <HelpTooltip content={helpContent.environment.accessCount} iconSize="w-3 h-3" />
+                  <HelpTooltip content={helpContent.environment.accessCount.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
                 </TableHead>
-                <TableHead className="flex items-center gap-2">
+                <TableHead className="relative">
                   Last Used
-                  <HelpTooltip content={helpContent.environment.lastUsed} iconSize="w-3 h-3" />
+                  <HelpTooltip content={helpContent.environment.lastUsed.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
                 </TableHead>
-                <TableHead className="text-right flex items-center gap-2 justify-end">
+                <TableHead className="text-right relative">
                   Actions
-                  <HelpTooltip content={helpContent.environment.actions} iconSize="w-3 h-3" />
+                  <HelpTooltip content={helpContent.environment.variableActions.content} iconSize="w-3 h-3" className="absolute right-0 top-3" />
                 </TableHead>
               </TableRow>
             </TableHeader>
