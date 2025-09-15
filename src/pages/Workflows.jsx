@@ -98,16 +98,25 @@ export default function Workflows() {
     // Use filter mutation for complex filters
     const hasAdvancedFilters = 
       newFilters.name || 
-      newFilters.status || 
+      (newFilters.status && newFilters.status !== 'all') || 
       newFilters.minPriority ||
       newFilters.maxPriority;
     
     if (hasAdvancedFilters) {
       const filterPayload = {
         ...newFilters,
+        // Don't send 'all' status to API
+        status: newFilters.status === 'all' ? undefined : newFilters.status,
         skip: 0,
         limit: ITEMS_PER_PAGE
       };
+      
+      // Remove undefined values
+      Object.keys(filterPayload).forEach(key => {
+        if (filterPayload[key] === undefined || filterPayload[key] === '') {
+          delete filterPayload[key];
+        }
+      });
       
       filterMutation.mutate(filterPayload, {
         onSettled: () => setIsFiltering(false)

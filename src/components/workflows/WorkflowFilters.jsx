@@ -19,7 +19,7 @@ import {
 import { HelpTooltip } from '@/components/ui/help-tooltip';
 
 const STATUS_OPTIONS = [
-  { value: '', label: 'Tümü' },
+  { value: 'all', label: 'Tümü' },
   { value: 'ACTIVE', label: 'Aktif' },
   { value: 'INACTIVE', label: 'Pasif' },
   { value: 'DRAFT', label: 'Taslak' },
@@ -34,7 +34,7 @@ export const WorkflowFilters = ({
 }) => {
   const [filters, setFilters] = useState({
     name: '',
-    status: '',
+    status: 'all',
     minPriority: '',
     maxPriority: '',
     ...initialFilters
@@ -65,7 +65,7 @@ export const WorkflowFilters = ({
   const handleReset = () => {
     const resetFilters = {
       name: '',
-      status: '',
+      status: 'all',
       minPriority: '',
       maxPriority: ''
     };
@@ -74,7 +74,10 @@ export const WorkflowFilters = ({
     onFiltersChange(resetFilters);
   };
 
-  const hasActiveFilters = Object.values(filters).some(value => value !== '' && value !== null && value !== undefined);
+  const hasActiveFilters = Object.entries(filters).some(([key, value]) => {
+    if (key === 'status') return value !== 'all';
+    return value !== '' && value !== null && value !== undefined;
+  });
 
   return (
     <Card className="mb-6">
