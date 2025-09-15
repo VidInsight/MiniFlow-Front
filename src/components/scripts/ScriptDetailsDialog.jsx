@@ -184,12 +184,10 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
                           <span className="font-medium">Kategori:</span>
                           {getCategoryBadge(script.category)}
                         </div>
-                        {script.subcategory && (
-                          <div className="flex justify-between">
-                            <span className="font-medium">Alt Kategori:</span>
-                            <span>{script.subcategory}</span>
-                          </div>
-                        )}
+                        <div className="flex justify-between">
+                          <span className="font-medium">Alt Kategori:</span>
+                          <span>{script.subcategory || "Belirtilmemiş"}</span>
+                        </div>
                         <div className="flex justify-between">
                           <span className="font-medium">Versiyon:</span>
                           <Badge variant="outline">{script.version}</Badge>
