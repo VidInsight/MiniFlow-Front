@@ -34,6 +34,20 @@ export const helpContent = {
     actions: "Edit, delete, or toggle visibility of environment variables"
   },
 
+  // Files page help content
+  files: {
+    upload: "Upload files to use in your workflows and scripts - supports PDF, JSON, images, and more",
+    fileName: "Original filename when uploaded and stored filename in the system",
+    fileSize: "Size of the file in bytes, KB, MB, or GB",
+    fileType: "MIME type of the file (e.g., application/pdf, image/png)",
+    temporary: "Temporary files are automatically deleted after expiration, permanent files are kept indefinitely",
+    uploadDate: "Date and time when the file was uploaded to the system",
+    expirationDate: "When temporary files will be automatically deleted",
+    actions: "View file details, download, or delete files from the system",
+    filters: "Filter files by type, size, status, or search by filename",
+    dragDrop: "Drag and drop files directly onto the upload area for quick uploading"
+  },
+
   // Scripts page help content  
   scripts: {
     name: "The script name and description for identification in workflows",

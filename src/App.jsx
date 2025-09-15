@@ -10,7 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Environment from "./pages/Environment";
 import Scripts from "./pages/Scripts";
 import Workflows from "./pages/Workflows";
-import FileUpload from "./pages/FileUpload";
+import Files from "./pages/Files";
 import ComingSoon from "./pages/ComingSoon";
 import NotFound from "./pages/NotFound";
 
@@ -29,7 +29,7 @@ const App = () => (
             <Route path="workflows" element={<Workflows />} />
             <Route path="scripts" element={<Scripts />} />
             <Route path="environment" element={<Environment />} />
-            <Route path="files" element={<FileUpload />} />
+            <Route path="files" element={<Files />} />
             <Route path="executions" element={<ComingSoon title="Execution Monitoring" description="Real-time execution dashboard with live updates and detailed logging" />} />
             <Route path="analytics" element={<ComingSoon title="Analytics & Reports" description="Performance metrics, success rates, and detailed workflow analytics" />} />
             <Route path="templates" element={<ComingSoon title="Workflow Templates" description="Pre-built workflow templates for common automation patterns" />} />
