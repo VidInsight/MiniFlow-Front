@@ -217,14 +217,12 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
                           <span className="font-medium">ID:</span>
                           <span className="font-mono">{script.id}</span>
                         </div>
-                        {script.file_path && (
-                          <div className="space-y-1">
-                            <span className="font-medium">Dosya Yolu:</span>
-                            <p className="text-sm font-mono bg-muted p-2 rounded break-all">
-                              {script.file_path}
-                            </p>
-                          </div>
-                        )}
+                        <div className="space-y-1">
+                          <span className="font-medium">Dosya Yolu:</span>
+                          <p className="text-sm font-mono bg-muted p-2 rounded break-all">
+                            {script.file_path || "Belirtilmemiş"}
+                          </p>
+                        </div>
                         {script.file_size && (
                           <div className="flex justify-between">
                             <span className="font-medium">Dosya Boyutu:</span>
