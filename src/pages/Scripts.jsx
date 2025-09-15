@@ -45,7 +45,8 @@ import {
   Eye,
   ChevronLeft,
   ChevronRight,
-  FileCode
+  FileCode,
+  TestTube
 } from "lucide-react";
 
 // Mock data for fallback
@@ -470,6 +471,12 @@ export default function Scripts() {
                             <div className="flex items-center justify-end gap-1">
                               <Button variant="ghost" size="sm" onClick={() => setSelectedScriptId(script.id)}>
                                 <Eye className="w-3 h-3" />
+                              </Button>
+                              <Button variant="ghost" size="sm" onClick={() => console.log('Test stats for script:', script.id)}>
+                                <TestTube className="w-3 h-3" />
+                              </Button>
+                              <Button variant="ghost" size="sm" onClick={() => console.log('Performance stats for script:', script.id)}>
+                                <BarChart3 className="w-3 h-3" />
                               </Button>
                               <Button variant="ghost" size="sm" onClick={() => setEditingScriptId(script.id)}>
                                 <Edit className="w-3 h-3" />
