@@ -246,18 +246,16 @@ export function CreateScriptDialog({ open, onOpenChange }) {
 
     console.log('✅ All validations passed');
 
-    // Validate JSON fields
+    // Validate JSON syntax only
     const jsonFields = ['input_schema', 'output_schema', 'test_input_params', 'test_output_params'];
     for (const field of jsonFields) {
-      if (formData[field]) {
+      if (formData[field] && formData[field].trim()) {
         try {
           JSON.parse(formData[field]);
-          console.log(`✅ ${field} JSON is valid`);
         } catch (e) {
-          console.log(`❌ ${field} JSON is invalid:`, e.message);
           toast({
-            title: "JSON Validation Hatası",
-            description: `${field} alanında geçersiz JSON formatı: ${e.message}`,
+            title: "JSON Syntax Hatası",
+            description: `${field} alanında geçersiz JSON: ${e.message}`,
             variant: "destructive",
           });
           return;
