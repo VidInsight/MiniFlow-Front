@@ -221,54 +221,6 @@ export default function Files() {
           ]}
         />
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="shadow-lg bg-gradient-to-br from-card to-muted/10">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Toplam Dosya</p>
-                  <p className="text-2xl font-bold">{totalFiles}</p>
-                </div>
-                <div className="p-3 rounded-full bg-primary/10">
-                  <File className="w-6 h-6 text-primary" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="shadow-lg bg-gradient-to-br from-card to-muted/10">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Geçici Dosyalar</p>
-                  <p className="text-2xl font-bold">
-                    {displayedFiles.filter(f => f.is_temporary).length}
-                  </p>
-                </div>
-                <div className="p-3 rounded-full bg-warning/10">
-                  <Clock className="w-6 h-6 text-warning" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="shadow-lg bg-gradient-to-br from-card to-muted/10">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Toplam Boyut</p>
-                  <p className="text-2xl font-bold">
-                    {formatFileSize(displayedFiles.reduce((sum, file) => sum + (file.file_size || 0), 0))}
-                  </p>
-                </div>
-                <div className="p-3 rounded-full bg-success/10">
-                  <HardDrive className="w-6 h-6 text-success" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Filters */}
         <Card className="shadow-xl bg-gradient-to-r from-card/90 via-card/80 to-card/70 backdrop-blur-sm border-border/50">
