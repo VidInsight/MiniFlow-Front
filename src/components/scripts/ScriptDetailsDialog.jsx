@@ -466,7 +466,7 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
                       </CardContent>
                     </Card>
                   </div>
-                )
+                )}
               )}
             </div>
           </div>
