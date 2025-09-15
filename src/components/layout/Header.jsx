@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { ThemeVariantSelector } from "@/components/ui/theme-variant-selector";
 
 const navigation = [
   {
@@ -108,10 +107,9 @@ export const Header = () => {
 
         {/* Actions - Right */}
         <div className="flex items-center gap-2 flex-shrink-0">
-          <ThemeVariantSelector />
           <ThemeToggle />
 
-          <Button 
+          <Button
             variant="ghost" 
             size="sm"
             className="h-10 w-10 rounded-xl hover:bg-primary/10 transition-all duration-300"

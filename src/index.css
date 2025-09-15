@@ -8,42 +8,42 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Core surfaces - Modern automation platform */
+    /* Dark Theme - Siyah Mor Tonlama */
     --background: 0 0% 2%;
-    --foreground: 0 0% 98%;
+    --foreground: 0 0% 95%;
 
-    --surface-primary: 0 0% 4%;
-    --surface-secondary: 0 0% 7%;
-    --surface-tertiary: 0 0% 10%;
+    --surface-primary: 0 0% 3%;
+    --surface-secondary: 0 0% 6%;
+    --surface-tertiary: 0 0% 9%;
 
     --card: 0 0% 4%;
-    --card-foreground: 0 0% 95%;
+    --card-foreground: 0 0% 92%;
 
     --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 95%;
+    --popover-foreground: 0 0% 92%;
 
-    /* Primary - Tech blue for automation */
-    --primary: 220 91% 65%;
+    /* Primary - Mor tonları */
+    --primary: 280 70% 65%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 220 91% 58%;
-    --primary-variant: 200 95% 58%;
-    --primary-glow: 220 91% 75%;
+    --primary-hover: 280 70% 58%;
+    --primary-variant: 260 75% 62%;
+    --primary-glow: 280 70% 75%;
 
     /* Interactive elements */
-    --interactive-primary: 220 91% 65%;
-    --interactive-hover: 220 91% 72%;
-    --interactive-active: 220 91% 58%;
+    --interactive-primary: 280 70% 65%;
+    --interactive-hover: 280 70% 72%;
+    --interactive-active: 280 70% 58%;
 
-    /* Secondary - Innovation purple */
-    --secondary: 280 60% 65%;
+    /* Secondary - Koyu mor */
+    --secondary: 260 65% 55%;
     --secondary-foreground: 0 0% 100%;
-    --secondary-hover: 280 60% 58%;
-    --secondary-glow: 280 60% 75%;
+    --secondary-hover: 260 65% 48%;
+    --secondary-glow: 260 65% 65%;
 
-    /* Accent - Cyber blue */
-    --accent: 200 95% 58%;
+    /* Accent - Açık mor */
+    --accent: 300 80% 70%;
     --accent-foreground: 0 0% 100%;
-    --accent-hover: 200 95% 65%;
+    --accent-hover: 300 80% 75%;
 
     /* Status colors - Enhanced */
     --success: 160 84% 45%;
@@ -83,15 +83,15 @@ All colors MUST be HSL.
     --sidebar-border: 0 0% 15%;
     --sidebar-ring: 238 77% 58%;
 
-    /* Enhanced Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(220 91% 65%), hsl(280 60% 65%));
-    --gradient-secondary: linear-gradient(135deg, hsl(200 95% 58%), hsl(220 91% 65%));
-    --gradient-accent: linear-gradient(135deg, hsl(280 60% 65%), hsl(200 95% 58%));
+    /* Enhanced Gradients - Mor tonları */
+    --gradient-primary: linear-gradient(135deg, hsl(280 70% 65%), hsl(260 65% 55%));
+    --gradient-secondary: linear-gradient(135deg, hsl(300 80% 70%), hsl(280 70% 65%));
+    --gradient-accent: linear-gradient(135deg, hsl(260 65% 55%), hsl(300 80% 70%));
     
-    --gradient-hero: linear-gradient(135deg, hsl(220 91% 65% / 0.1), hsl(280 60% 65% / 0.08), hsl(200 95% 58% / 0.05));
+    --gradient-hero: linear-gradient(135deg, hsl(280 70% 65% / 0.1), hsl(260 65% 55% / 0.08), hsl(300 80% 70% / 0.05));
     --gradient-card: linear-gradient(135deg, hsl(0 0% 4%), hsl(0 0% 7%));
-    --gradient-card-hover: linear-gradient(135deg, hsl(220 91% 65% / 0.05), hsl(280 60% 65% / 0.03));
-    --gradient-mesh: linear-gradient(135deg, hsl(220 91% 65% / 0.1), hsl(280 60% 65% / 0.1), hsl(200 95% 58% / 0.1));
+    --gradient-card-hover: linear-gradient(135deg, hsl(280 70% 65% / 0.05), hsl(260 65% 55% / 0.03));
+    --gradient-mesh: linear-gradient(135deg, hsl(280 70% 65% / 0.1), hsl(260 65% 55% / 0.1), hsl(300 80% 70% / 0.1));
 
     /* Animation-aware shadows */
     --shadow-soft: 0 2px 8px hsl(220 91% 65% / 0.08);
@@ -101,10 +101,10 @@ All colors MUST be HSL.
     --shadow-glow: 0 0 32px hsl(220 91% 75% / 0.24);
     --shadow-glow-secondary: 0 0 24px hsl(280 60% 75% / 0.2);
 
-    /* Glow colors for animations */
-    --glow-primary: 220 91% 65%;
-    --glow-secondary: 280 60% 65%;
-    --glow-accent: 200 95% 58%;
+    /* Glow colors for animations - Mor tonları */
+    --glow-primary: 280 70% 65%;
+    --glow-secondary: 260 65% 55%;
+    --glow-accent: 300 80% 70%;
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -112,39 +112,39 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Light theme - Clean and professional */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 8%;
+    /* Light Theme - Beyaz Mavi Tonlama */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 10%;
 
-    --surface-primary: 0 0% 98%;
-    --surface-secondary: 0 0% 95%;
-    --surface-tertiary: 0 0% 92%;
+    --surface-primary: 0 0% 100%;
+    --surface-secondary: 0 0% 96%;
+    --surface-tertiary: 0 0% 93%;
 
-    --card: 0 0% 98%;
-    --card-foreground: 0 0% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 8%;
+    --popover-foreground: 0 0% 10%;
 
-    /* Primary maintains identity in light */
-    --primary: 220 91% 45%;
+    /* Primary - Mavi tonları */
+    --primary: 210 90% 55%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 220 91% 38%;
-    --primary-variant: 200 95% 42%;
-    --primary-glow: 220 91% 55%;
+    --primary-hover: 210 90% 48%;
+    --primary-variant: 195 95% 58%;
+    --primary-glow: 210 90% 65%;
 
-    --interactive-primary: 220 91% 45%;
-    --interactive-hover: 220 91% 52%;
-    --interactive-active: 220 91% 38%;
+    --interactive-primary: 210 90% 55%;
+    --interactive-hover: 210 90% 62%;
+    --interactive-active: 210 90% 48%;
 
-    --secondary: 280 60% 45%;
+    --secondary: 195 85% 50%;
     --secondary-foreground: 0 0% 100%;
-    --secondary-hover: 280 60% 38%;
-    --secondary-glow: 280 60% 55%;
+    --secondary-hover: 195 85% 43%;
+    --secondary-glow: 195 85% 60%;
 
-    --accent: 200 95% 42%;
+    --accent: 220 95% 65%;
     --accent-foreground: 0 0% 100%;
-    --accent-hover: 200 95% 48%;
+    --accent-hover: 220 95% 70%;
 
     --success: 160 84% 35%;
     --success-foreground: 0 0% 100%;
@@ -179,15 +179,15 @@ All colors MUST be HSL.
     --sidebar-border: 215 27.9% 16.9%;
     --sidebar-ring: 263 70% 50.4%;
 
-    /* Light theme gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(220 91% 45%), hsl(280 60% 45%));
-    --gradient-secondary: linear-gradient(135deg, hsl(200 95% 42%), hsl(220 91% 45%));
-    --gradient-accent: linear-gradient(135deg, hsl(280 60% 45%), hsl(200 95% 42%));
+    /* Light theme gradients - Mavi tonları */
+    --gradient-primary: linear-gradient(135deg, hsl(210 90% 55%), hsl(195 85% 50%));
+    --gradient-secondary: linear-gradient(135deg, hsl(220 95% 65%), hsl(210 90% 55%));
+    --gradient-accent: linear-gradient(135deg, hsl(195 85% 50%), hsl(220 95% 65%));
     
-    --gradient-hero: linear-gradient(135deg, hsl(220 91% 45% / 0.05), hsl(280 60% 45% / 0.03), hsl(200 95% 42% / 0.02));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 98%), hsl(0 0% 95%));
-    --gradient-card-hover: linear-gradient(135deg, hsl(220 91% 45% / 0.02), hsl(280 60% 45% / 0.01));
-    --gradient-mesh: linear-gradient(135deg, hsl(220 91% 45% / 0.05), hsl(280 60% 45% / 0.05), hsl(200 95% 42% / 0.05));
+    --gradient-hero: linear-gradient(135deg, hsl(210 90% 55% / 0.05), hsl(195 85% 50% / 0.03), hsl(220 95% 65% / 0.02));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(0 0% 96%));
+    --gradient-card-hover: linear-gradient(135deg, hsl(210 90% 55% / 0.02), hsl(195 85% 50% / 0.01));
+    --gradient-mesh: linear-gradient(135deg, hsl(210 90% 55% / 0.05), hsl(195 85% 50% / 0.05), hsl(220 95% 65% / 0.05));
 
     /* Light theme shadows */
     --shadow-soft: 0 2px 8px hsl(220 91% 45% / 0.08);
@@ -197,9 +197,9 @@ All colors MUST be HSL.
     --shadow-glow: 0 0 32px hsl(220 91% 55% / 0.2);
     --shadow-glow-secondary: 0 0 24px hsl(280 60% 55% / 0.15);
 
-    --glow-primary: 220 91% 45%;
-    --glow-secondary: 280 60% 45%;
-    --glow-accent: 200 95% 42%;
+    --glow-primary: 210 90% 55%;
+    --glow-secondary: 195 85% 50%;
+    --glow-accent: 220 95% 65%;
   }
 }
 
