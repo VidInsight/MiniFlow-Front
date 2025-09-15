@@ -234,18 +234,67 @@ export function CreateScriptDialog({ open, onOpenChange }) {
       return;
     }
 
+    // Validate JSON fields
+    const jsonFields = ['input_schema', 'output_schema', 'test_input_params', 'test_output_params'];
+    for (const field of jsonFields) {
+      if (formData[field]) {
+        try {
+          JSON.parse(formData[field]);
+        } catch (e) {
+          toast({
+            title: "JSON Validation Hatası",
+            description: `${field} alanında geçersiz JSON formatı.`,
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+    }
+
+    // Prepare data with proper types
+    const submitData = {
+      name: formData.name.trim(),
+      category: formData.category,
+      subcategory: formData.subcategory?.trim() || null,
+      description: formData.description?.trim() || null,
+      version: formData.version?.trim() || "1.0.0",
+      author: formData.author?.trim() || null,
+      file_extension: formData.file_extension,
+      content: formData.content.trim(),
+      input_schema: formData.input_schema || "{}",
+      output_schema: formData.output_schema || "{}",
+      test_input_params: formData.test_input_params || "{}",
+      test_output_params: formData.test_output_params || "{}"
+    };
+
     try {
-      console.log('Calling createScriptMutation with:', formData);
-      const result = await createScriptMutation.mutateAsync(formData);
+      console.log('Calling createScriptMutation with cleaned data:', submitData);
+      const result = await createScriptMutation.mutateAsync(submitData);
       console.log('Script creation successful:', result);
       onOpenChange(false);
       resetForm();
     } catch (error) {
       console.error('Script creation failed:', error);
-      // Hata toast hook tarafından işleniyor ama ek debugging için
+      console.error('Error response:', error.response);
+      
+      let errorMessage = "Beklenmeyen bir hata oluştu.";
+      
+      if (error.response?.status === 422) {
+        const validationErrors = error.response?.data?.detail || error.response?.data?.message;
+        if (Array.isArray(validationErrors)) {
+          errorMessage = validationErrors.map(err => `${err.field}: ${err.message}`).join(', ');
+        } else if (typeof validationErrors === 'string') {
+          errorMessage = validationErrors;
+        } else {
+          errorMessage = "Veri doğrulama hatası. Lütfen tüm alanları kontrol edin.";
+        }
+      } else {
+        errorMessage = error.response?.data?.message || error.message || errorMessage;
+      }
+      
       toast({
         title: "Script Oluşturma Hatası",
-        description: error.response?.data?.message || error.message || "Beklenmeyen bir hata oluştu.",
+        description: errorMessage,
         variant: "destructive",
       });
     }
