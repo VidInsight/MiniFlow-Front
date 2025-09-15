@@ -199,25 +199,35 @@ export default function Environment() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="flex items-center gap-2">
-                    Ad
-                    <HelpTooltip content={helpContent.environment.name} iconSize="w-3 h-3" />
+                  <TableHead>
+                    <div className="flex items-center gap-2">
+                      Ad
+                      <HelpTooltip content={helpContent.environment.name} iconSize="w-3 h-3" />
+                    </div>
                   </TableHead>
-                  <TableHead className="flex items-center gap-2">
-                    Değer
-                    <HelpTooltip content="Değişken değeri (göstermek/gizlemek için göz simgesine tıklayın)" iconSize="w-3 h-3" />
+                  <TableHead>
+                    <div className="flex items-center gap-2">
+                      Değer
+                      <HelpTooltip content="Değişken değeri (göstermek/gizlemek için göz simgesine tıklayın)" iconSize="w-3 h-3" />
+                    </div>
                   </TableHead>
-                  <TableHead className="flex items-center gap-2">
-                    Tür
-                    <HelpTooltip content={helpContent.environment.type} iconSize="w-3 h-3" />
+                  <TableHead>
+                    <div className="flex items-center gap-2">
+                      Tür
+                      <HelpTooltip content={helpContent.environment.type} iconSize="w-3 h-3" />
+                    </div>
                   </TableHead>
-                  <TableHead className="flex items-center gap-2">
-                    Kapsam
-                    <HelpTooltip content={helpContent.environment.scope} iconSize="w-3 h-3" />
+                  <TableHead>
+                    <div className="flex items-center gap-2">
+                      Kapsam
+                      <HelpTooltip content={helpContent.environment.scope} iconSize="w-3 h-3" />
+                    </div>
                   </TableHead>
-                  <TableHead className="text-right flex items-center gap-2 justify-end">
-                    İşlemler
-                    <HelpTooltip content={helpContent.environment.actions} iconSize="w-3 h-3" />
+                  <TableHead className="text-right">
+                    <div className="flex items-center gap-2 justify-end">
+                      İşlemler
+                      <HelpTooltip content={helpContent.environment.actions} iconSize="w-3 h-3" />
+                    </div>
                   </TableHead>
                 </TableRow>
               </TableHeader>
