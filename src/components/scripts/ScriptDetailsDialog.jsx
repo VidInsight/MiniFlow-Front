@@ -135,7 +135,7 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
           </DialogTitle>
           <div className="flex gap-2 mt-4">
             <Button
-              variant={activeView === "details" ? "default" : "outline"}
+              variant={activeView === "details" && "default" || "outline"}
               size="sm"
               onClick={() => setActiveView("details")}
             >
@@ -143,7 +143,7 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
               Detaylar
             </Button>
             <Button
-              variant={activeView === "code" ? "default" : "outline"}
+              variant={activeView === "code" && "default" || "outline"}
               size="sm"
               onClick={() => setActiveView("code")}
             >
@@ -156,9 +156,9 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
               onClick={handlePerformanceStatsClick}
               disabled={isLoadingPerformanceStats}
             >
-              {isLoadingPerformanceStats ? (
+              {isLoadingPerformanceStats && (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
+              ) || (
                 <BarChart3 className="w-4 h-4 mr-2" />
               )}
               Performans
