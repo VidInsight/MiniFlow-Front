@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Bell, Settings, User, LayoutDashboard, Workflow, Code2, Settings2, Upload, Play, BarChart3 } from "lucide-react";
+import { Bell, Settings, User, LayoutDashboard, Workflow, Code2, Settings2, Upload, Play, BarChart3, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -44,9 +44,9 @@ const navigation = [
     icon: Play,
   },
   {
-    name: "Analytics",
-    href: "/analytics",
-    icon: BarChart3,
+    name: "I/O Monitor",
+    href: "/execution-io",
+    icon: Activity,
   },
 ];
 
@@ -62,11 +62,11 @@ export const Header = () => {
   };
 
   return (
-    <header className="border-b border-border/50 bg-gradient-to-r from-background/95 via-background to-background/95 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
-      <div className="flex h-16 items-center justify-between px-6">
+    <header className="border-b border-border/40 bg-background/80 backdrop-blur-xl sticky top-0 z-50 shadow-lg shadow-primary/5">
+      <div className="flex h-16 items-center justify-between px-6 max-w-7xl mx-auto">
         {/* Logo */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="w-9 h-9 bg-gradient-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
             <div className="w-4 h-4 bg-primary-foreground rounded-sm" />
           </div>
           <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
@@ -74,8 +74,8 @@ export const Header = () => {
           </h1>
         </div>
 
-        {/* Animated Navigation Tabs - Center */}
-        <div className="flex items-center gap-1 bg-muted/30 rounded-xl p-1 backdrop-blur-sm">
+        {/* Navigation Tabs - Center */}
+        <nav className="flex items-center gap-2 bg-muted/20 rounded-2xl p-1.5 backdrop-blur-sm border border-border/30">
           {navigation.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -86,35 +86,37 @@ export const Header = () => {
                 to={item.href}
                 end={item.href === "/"}
                 className={cn(
-                  "relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105",
+                  "relative flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300",
+                  "hover:scale-[1.02] hover:shadow-md",
                   active 
-                    ? "text-primary-foreground bg-primary shadow-lg shadow-primary/20" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                    ? "text-primary-foreground bg-gradient-primary shadow-lg shadow-primary/25 border border-primary/20" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-card/50 hover:shadow-sm"
                 )}
               >
                 <Icon className={cn(
                   "w-4 h-4 transition-all duration-300",
-                  active && "animate-pulse"
+                  active ? "drop-shadow-sm" : ""
                 )} />
-                <span className="hidden sm:inline-block">{item.name}</span>
+                <span className="hidden lg:inline-block whitespace-nowrap">{item.name}</span>
                 {active && (
-                  <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 animate-pulse" />
+                  <div className="absolute inset-0 rounded-xl bg-gradient-primary opacity-10 blur-xl" />
                 )}
               </NavLink>
             );
           })}
-        </div>
+        </nav>
 
         {/* Actions - Right */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-3 flex-shrink-0">
           <ThemeToggle />
 
           <Button
             variant="ghost" 
             size="sm"
-            className="h-10 w-10 rounded-xl hover:bg-primary/10 transition-all duration-300"
+            className="h-10 w-10 rounded-xl hover:bg-primary/10 transition-all duration-300 relative"
           >
             <Bell className="w-4 h-4" />
+            <div className="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full animate-pulse" />
           </Button>
 
           <DropdownMenu>
@@ -122,31 +124,31 @@ export const Header = () => {
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="h-10 w-10 rounded-xl hover:bg-primary/10 transition-all duration-300"
+                className="h-10 w-10 rounded-xl hover:bg-primary/10 transition-all duration-300 ring-2 ring-transparent hover:ring-primary/20"
               >
                 <User className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent 
               align="end" 
-              className="min-w-56 bg-background/95 backdrop-blur-xl border-border/50 shadow-xl rounded-xl"
+              className="min-w-56 bg-background/95 backdrop-blur-xl border-border/50 shadow-2xl rounded-2xl p-2"
             >
-              <DropdownMenuLabel className="font-semibold">My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="rounded-lg hover:bg-primary/10 transition-colors">
+              <DropdownMenuLabel className="font-semibold text-base px-3 py-2">Hesabım</DropdownMenuLabel>
+              <DropdownMenuSeparator className="my-2" />
+              <DropdownMenuItem className="rounded-xl hover:bg-primary/10 transition-colors p-3 cursor-pointer">
                 <Settings className="w-4 h-4 mr-3" />
-                Settings
+                Ayarlar
               </DropdownMenuItem>
-              <DropdownMenuItem className="rounded-lg hover:bg-primary/10 transition-colors">
+              <DropdownMenuItem className="rounded-xl hover:bg-primary/10 transition-colors p-3 cursor-pointer">
                 <User className="w-4 h-4 mr-3" />
-                Profile
+                Profil
               </DropdownMenuItem>
-              <DropdownMenuItem className="rounded-lg hover:bg-primary/10 transition-colors">
-                Billing
+              <DropdownMenuItem className="rounded-xl hover:bg-primary/10 transition-colors p-3 cursor-pointer">
+                Fatura
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="rounded-lg hover:bg-destructive/10 text-destructive hover:text-destructive transition-colors">
-                Log out
+              <DropdownMenuSeparator className="my-2" />
+              <DropdownMenuItem className="rounded-xl hover:bg-destructive/10 text-destructive hover:text-destructive transition-colors p-3 cursor-pointer">
+                Çıkış Yap
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
