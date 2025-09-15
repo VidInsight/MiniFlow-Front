@@ -153,19 +153,6 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
             <Button
               variant="outline"
               size="sm"
-              onClick={handleTestStatsClick}
-              disabled={isLoadingTestStats}
-            >
-              {isLoadingTestStats ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <TestTube className="w-4 h-4 mr-2" />
-              )}
-              Test İstatistikleri
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
               onClick={handlePerformanceStatsClick}
               disabled={isLoadingPerformanceStats}
             >
