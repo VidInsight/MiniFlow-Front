@@ -26,6 +26,8 @@ import { CreateScriptDialog } from "@/components/scripts/CreateScriptDialog";
 import { DeleteScriptDialog } from "@/components/scripts/DeleteScriptDialog";
 import { ScriptDetailsDialog } from "@/components/scripts/ScriptDetailsDialog";
 import { EditScriptDialog } from "@/components/scripts/EditScriptDialog";
+import { TestStatsDialog } from "@/components/scripts/TestStatsDialog";
+import { PerformanceStatsDialog } from "@/components/scripts/PerformanceStatsDialog";
 import { useScripts, useFilterScripts, useScriptsCount } from "@/hooks/useScripts";
 import { formatFileSize, formatDate } from "@/lib/fileUtils";
 import { 
@@ -132,6 +134,8 @@ export default function Scripts() {
   const [selectedScriptId, setSelectedScriptId] = useState(null);
   const [deletingScript, setDeletingScript] = useState(null);
   const [editingScriptId, setEditingScriptId] = useState(null);
+  const [testStatsScriptId, setTestStatsScriptId] = useState(null);
+  const [performanceStatsScriptId, setPerformanceStatsScriptId] = useState(null);
   
   // API hooks
   const [useCustomFilter, setUseCustomFilter] = useState(false);
@@ -472,10 +476,10 @@ export default function Scripts() {
                               <Button variant="ghost" size="sm" onClick={() => setSelectedScriptId(script.id)}>
                                 <Eye className="w-3 h-3" />
                               </Button>
-                              <Button variant="ghost" size="sm" onClick={() => console.log('Test stats for script:', script.id)}>
+                              <Button variant="ghost" size="sm" onClick={() => setTestStatsScriptId(script.id)}>
                                 <TestTube className="w-3 h-3" />
                               </Button>
-                              <Button variant="ghost" size="sm" onClick={() => console.log('Performance stats for script:', script.id)}>
+                              <Button variant="ghost" size="sm" onClick={() => setPerformanceStatsScriptId(script.id)}>
                                 <BarChart3 className="w-3 h-3" />
                               </Button>
                               <Button variant="ghost" size="sm" onClick={() => setEditingScriptId(script.id)}>
@@ -535,6 +539,18 @@ export default function Scripts() {
           open={!!selectedScriptId} 
           onOpenChange={(open) => !open && setSelectedScriptId(null)}
           scriptId={selectedScriptId}
+        />
+        
+        <TestStatsDialog 
+          open={!!testStatsScriptId} 
+          onOpenChange={(open) => !open && setTestStatsScriptId(null)}
+          scriptId={testStatsScriptId}
+        />
+        
+        <PerformanceStatsDialog 
+          open={!!performanceStatsScriptId} 
+          onOpenChange={(open) => !open && setPerformanceStatsScriptId(null)}
+          scriptId={performanceStatsScriptId}
         />
         
         <EditScriptDialog 
