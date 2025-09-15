@@ -1,3 +1,4 @@
+import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fileService } from '@/services/fileService';
 import { useToast } from '@/hooks/use-toast';
