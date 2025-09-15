@@ -42,28 +42,6 @@ export const useExecution = (executionId, options = {}) => {
   });
 };
 
-// Hook for execution count and statistics - temporarily disabled due to 404 errors
-export const useExecutionCount = (params = {}) => {
-  return {
-    data: {
-      total: 0,
-      by_status: {},
-      by_success: {}
-    },
-    isLoading: false,
-    error: null
-  };
-};
-
-// Hook for execution statistics - temporarily disabled due to 404 errors
-export const useExecutionStats = (params = {}) => {
-  return {
-    data: null,
-    isLoading: false,
-    error: null
-  };
-};
-
 // Hook for filtering executions
 export const useFilterExecutions = () => {
   const { toast } = useToast();

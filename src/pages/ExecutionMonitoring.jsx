@@ -6,12 +6,6 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from '@/components/ui/tabs';
-import { 
   PaginationContent,
   PaginationEllipsis,
   PaginationItem,
@@ -24,7 +18,6 @@ import { PageHeader } from '@/components/ui/page-header';
 import { ExecutionFilters } from '@/components/executions/ExecutionFilters';
 import { ExecutionTable } from '@/components/executions/ExecutionTable';
 import { ExecutionDetailModal } from '@/components/executions/ExecutionDetailModal';
-import { ExecutionStats } from '@/components/executions/ExecutionStats';
 import { 
   useExecutions, 
   useExecutionMonitoring, 
@@ -36,9 +29,7 @@ import {
   RefreshCw, 
   Filter, 
   Play, 
-  Pause,
-  TrendingUp,
-  BarChart3
+  Pause
 } from 'lucide-react';
 import { HelpTooltip } from '@/components/ui/help-tooltip';
 
@@ -67,7 +58,6 @@ export default function ExecutionMonitoring() {
   const [isRealTimeEnabled, setIsRealTimeEnabled] = useState(true);
   const [selectedExecutionId, setSelectedExecutionId] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('monitoring');
   const [isFiltering, setIsFiltering] = useState(false);
 
   // Data fetching
@@ -222,155 +212,99 @@ export default function ExecutionMonitoring() {
         }
       />
 
-      {/* Main Content Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="monitoring" className="gap-2">
-            <Activity className="h-4 w-4" />
-            İzleme
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Analitik
-          </TabsTrigger>
-          <TabsTrigger value="reports" className="gap-2">
-            <TrendingUp className="h-4 w-4" />
-            Raporlar
-          </TabsTrigger>
-        </TabsList>
+      {/* Filters */}
+      <ExecutionFilters
+        onFiltersChange={handleFiltersChange}
+        initialFilters={filters}
+        isLoading={isLoading}
+      />
 
-        {/* Monitoring Tab */}
-        <TabsContent value="monitoring" className="space-y-6">
-          {/* Statistics */}
-          <ExecutionStats filters={filters} />
-
-          {/* Filters */}
-          <ExecutionFilters
-            onFiltersChange={handleFiltersChange}
-            initialFilters={filters}
+      {/* Results */}
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle className="flex items-center gap-2">
+              <Filter className="h-5 w-5" />
+              Execution Listesi
+              {currentTotal > 0 && (
+                <Badge variant="outline">
+                  {currentTotal.toLocaleString('tr-TR')} sonuç
+                </Badge>
+              )}
+            </CardTitle>
+            
+            {isRealTimeEnabled && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Play className="h-3 w-3 text-green-500" />
+                <span>10s'de bir güncelleniyor</span>
+              </div>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {/* Execution Table */}
+          <ExecutionTable
+            executions={currentExecutions}
             isLoading={isLoading}
+            onViewDetails={handleViewDetails}
+            onNavigateToWorkflow={handleNavigateToWorkflow}
           />
 
-          {/* Results Header */}
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle className="flex items-center gap-2">
-                  <Filter className="h-5 w-5" />
-                  Execution Listesi
-                  {currentTotal > 0 && (
-                    <Badge variant="outline">
-                      {currentTotal.toLocaleString('tr-TR')} sonuç
-                    </Badge>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6 flex justify-center">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                    />
+                  </PaginationItem>
+                  
+                  {/* Page numbers */}
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <PaginationItem key={pageNum}>
+                        <PaginationLink
+                          onClick={() => handlePageChange(pageNum)}
+                          isActive={pageNum === currentPage}
+                        >
+                          {pageNum}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  })}
+                  
+                  {totalPages > 5 && currentPage < totalPages - 2 && (
+                    <PaginationItem>
+                      <PaginationEllipsis />
+                    </PaginationItem>
                   )}
-                </CardTitle>
-                
-                {isRealTimeEnabled && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Play className="h-3 w-3 text-green-500" />
-                    <span>10s'de bir güncelleniyor</span>
-                  </div>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              {/* Execution Table */}
-              <ExecutionTable
-                executions={currentExecutions}
-                isLoading={isLoading}
-                onViewDetails={handleViewDetails}
-                onNavigateToWorkflow={handleNavigateToWorkflow}
-              />
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="mt-6 flex justify-center">
-                  <Pagination>
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious 
-                          onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                          disabled={currentPage === 1}
-                        />
-                      </PaginationItem>
-                      
-                      {/* Page numbers */}
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        let pageNum;
-                        if (totalPages <= 5) {
-                          pageNum = i + 1;
-                        } else if (currentPage <= 3) {
-                          pageNum = i + 1;
-                        } else if (currentPage >= totalPages - 2) {
-                          pageNum = totalPages - 4 + i;
-                        } else {
-                          pageNum = currentPage - 2 + i;
-                        }
-                        
-                        return (
-                          <PaginationItem key={pageNum}>
-                            <PaginationLink
-                              onClick={() => handlePageChange(pageNum)}
-                              isActive={pageNum === currentPage}
-                            >
-                              {pageNum}
-                            </PaginationLink>
-                          </PaginationItem>
-                        );
-                      })}
-                      
-                      {totalPages > 5 && currentPage < totalPages - 2 && (
-                        <PaginationItem>
-                          <PaginationEllipsis />
-                        </PaginationItem>
-                      )}
-                      
-                      <PaginationItem>
-                        <PaginationNext 
-                          onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                          disabled={currentPage === totalPages}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Analytics Tab */}
-        <TabsContent value="analytics" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Analitik Raporlar</CardTitle>
-            </CardHeader>
-            <CardContent className="text-center py-12">
-              <BarChart3 className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Analitik Özelliği</h3>
-              <p className="text-muted-foreground">
-                Detaylı performans analizi ve trend raporları yakında eklenecek.
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Reports Tab */}
-        <TabsContent value="reports" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Rapor Merkezi</CardTitle>
-            </CardHeader>
-            <CardContent className="text-center py-12">
-              <TrendingUp className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Rapor Sistemi</h3>
-              <p className="text-muted-foreground">
-                Otomatik rapor oluşturma ve performans metrikleri yakında eklenecek.
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                  
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                      disabled={currentPage === totalPages}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Detail Modal */}
       <ExecutionDetailModal
