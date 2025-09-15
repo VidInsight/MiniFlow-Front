@@ -73,8 +73,6 @@ const getExtensionBadge = (extension) => {
 };
 
 const JsonViewer = ({ data, title }) => {
-  const { theme } = useTheme();
-  
   let jsonString = "";
   try {
     jsonString = typeof data === 'string' ? data : JSON.stringify(JSON.parse(data || "{}"), null, 2);
@@ -84,23 +82,11 @@ const JsonViewer = ({ data, title }) => {
 
   return (
     <div className="space-y-2">
-      <Label className="text-sm font-medium">{title}</Label>
-      <div className="border rounded-lg overflow-hidden">
-        <Editor
-          height="120px"
-          language="json"
-          theme={theme === "dark" ? "vs-dark" : "light"}
-          value={jsonString}
-          options={{
-            readOnly: true,
-            minimap: { enabled: false },
-            fontSize: 12,
-            wordWrap: "on",
-            scrollBeyondLastLine: false,
-            automaticLayout: true,
-            lineNumbers: "off",
-          }}
-        />
+      {title && <Label className="text-sm font-medium">{title}</Label>}
+      <div className="border rounded-lg p-3 bg-muted/50">
+        <pre className="text-sm font-mono overflow-auto max-h-32 whitespace-pre-wrap">
+          <code>{jsonString}</code>
+        </pre>
       </div>
     </div>
   );
@@ -108,7 +94,7 @@ const JsonViewer = ({ data, title }) => {
 
 export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
   const { theme } = useTheme();
-  const [activeTab, setActiveTab] = useState("details");
+  const [activeView, setActiveView] = useState("details");
   
   const { data: scriptData, isLoading: isLoadingScript } = useScript(scriptId);
   const { data: testStatsData, isLoading: isLoadingTestStats } = useScriptTestStats(scriptId);
@@ -134,6 +120,40 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
               </div>
             )}
           </DialogTitle>
+          <div className="flex gap-2 mt-4">
+            <Button
+              variant={activeView === "details" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveView("details")}
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Detaylar
+            </Button>
+            <Button
+              variant={activeView === "code" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveView("code")}
+            >
+              <Code2 className="w-4 h-4 mr-2" />
+              Kod
+            </Button>
+            <Button
+              variant={activeView === "test-stats" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveView("test-stats")}
+            >
+              <TestTube className="w-4 h-4 mr-2" />
+              Test İstatistikleri
+            </Button>
+            <Button
+              variant={activeView === "performance" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveView("performance")}
+            >
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Performans
+            </Button>
+          </div>
         </DialogHeader>
 
         {isLoadingScript ? (
@@ -146,28 +166,10 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
             Script bulunamadı veya yüklenirken hata oluştu.
           </div>
         ) : (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="details">
-                <FileText className="w-4 h-4 mr-2" />
-                Detaylar
-              </TabsTrigger>
-              <TabsTrigger value="code">
-                <Code2 className="w-4 h-4 mr-2" />
-                Kod
-              </TabsTrigger>
-              <TabsTrigger value="test-stats">
-                <TestTube className="w-4 h-4 mr-2" />
-                Test İstatistikleri
-              </TabsTrigger>
-              <TabsTrigger value="performance">
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Performans
-              </TabsTrigger>
-            </TabsList>
-
+          <div className="flex-1 overflow-hidden">
             <div className="mt-4 flex-1 overflow-hidden">
-              <TabsContent value="details" className="space-y-4 h-full overflow-y-auto">
+              {activeView === "details" && (
+                <div className="space-y-4 h-full overflow-y-auto">
                 <div className="grid grid-cols-2 gap-6">
                   <Card>
                     <CardHeader>
@@ -294,9 +296,9 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
                     </Card>
                   )}
                 </div>
-              </TabsContent>
+              )}
 
-              <TabsContent value="code" className="h-full">
+              {activeView === "code" && (
                 <div className="space-y-2 h-full flex flex-col">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold">Script Kodu</h3>
@@ -304,30 +306,16 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
                       {script.file_extension?.toUpperCase()} - {script.name}
                     </Badge>
                   </div>
-                  <div className="flex-1 border rounded-lg overflow-hidden">
-                    <Editor
-                      height="500px"
-                      language={script.file_extension === "py" ? "python" : 
-                               script.file_extension === "js" ? "javascript" :
-                               script.file_extension === "ts" ? "typescript" :
-                               script.file_extension === "sh" ? "shell" :
-                               script.file_extension === "sql" ? "sql" : "text"}
-                      theme={theme === "dark" ? "vs-dark" : "light"}
-                      value={script.content || "// Kod içeriği bulunamadı"}
-                      options={{
-                        readOnly: true,
-                        minimap: { enabled: true },
-                        fontSize: 14,
-                        wordWrap: "on",
-                        scrollBeyondLastLine: false,
-                        automaticLayout: true,
-                      }}
-                    />
+                  <div className="flex-1 border rounded-lg overflow-hidden bg-muted/50">
+                    <pre className="p-4 text-sm font-mono overflow-auto h-96 whitespace-pre-wrap">
+                      <code>{script.content || "// Kod içeriği bulunamadı"}</code>
+                    </pre>
                   </div>
                 </div>
-              </TabsContent>
+              )}
 
-              <TabsContent value="test-stats" className="space-y-4 h-full overflow-y-auto">
+              {activeView === "test-stats" && (
+                <div className="space-y-4 h-full overflow-y-auto">
                 {isLoadingTestStats ? (
                   <div className="flex items-center justify-center py-8">
                     <Loader2 className="w-6 h-6 animate-spin" />
@@ -409,10 +397,11 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
                       </Card>
                     )}
                   </div>
-                )}
-              </TabsContent>
+                )
+              )}
 
-              <TabsContent value="performance" className="space-y-4 h-full overflow-y-auto">
+              {activeView === "performance" && (
+                <div className="space-y-4 h-full overflow-y-auto">
                 {isLoadingPerformanceStats ? (
                   <div className="flex items-center justify-center py-8">
                     <Loader2 className="w-6 h-6 animate-spin" />
@@ -478,10 +467,10 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
                       </CardContent>
                     </Card>
                   </div>
-                )}
-              </TabsContent>
+                )
+              )}
             </div>
-          </Tabs>
+          </div>
         )}
       </DialogContent>
     </Dialog>
