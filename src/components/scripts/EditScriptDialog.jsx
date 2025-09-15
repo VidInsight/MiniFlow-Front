@@ -103,7 +103,12 @@ export function EditScriptDialog({ open, onOpenChange, scriptId }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    console.log('🔧 EditScript: Form submitted!');
+    console.log('🔧 EditScript: Script ID:', scriptId);
+    console.log('🔧 EditScript: Form data:', formData);
+    
     if (!scriptId || !formData.name.trim() || !formData.category || !formData.content.trim()) {
+      console.log('❌ EditScript: Validation failed - missing required fields');
       return;
     }
 
@@ -113,11 +118,15 @@ export function EditScriptDialog({ open, onOpenChange, scriptId }) {
       if (formData[field] && formData[field].trim()) {
         try {
           JSON.parse(formData[field]);
+          console.log(`✅ EditScript: ${field} JSON is valid`);
         } catch (e) {
+          console.log(`❌ EditScript: ${field} JSON is invalid:`, e.message);
           return; // Invalid JSON, don't submit
         }
       }
     }
+
+    console.log('✅ EditScript: All validations passed');
 
     // Prepare data - parse JSON strings to objects
     const submitData = {
@@ -147,13 +156,18 @@ export function EditScriptDialog({ open, onOpenChange, scriptId }) {
     submitData.test_input_params = formData.test_input_params ? JSON.parse(formData.test_input_params) : {};
     submitData.test_output_params = formData.test_output_params ? JSON.parse(formData.test_output_params) : {};
 
+    console.log('📤 EditScript: Prepared data for API:', submitData);
+
     try {
-      await updateScriptMutation.mutateAsync({ 
+      console.log('🚀 EditScript: Calling update mutation...');
+      const result = await updateScriptMutation.mutateAsync({ 
         scriptId, 
         scriptData: submitData 
       });
+      console.log('🎉 EditScript: Update successful:', result);
       onOpenChange(false);
     } catch (error) {
+      console.error('💥 EditScript: Update failed:', error);
       // Hata toast hook tarafından işleniyor
     }
   };

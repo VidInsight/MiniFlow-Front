@@ -46,7 +46,17 @@ export const scriptService = {
 
   // Update script
   updateScript: async (scriptId, scriptData) => {
-    return api.put(`/api/bff/scripts/${scriptId}`, scriptData);
+    console.log('🔧 API: Update script called with:', { scriptId, scriptData });
+    try {
+      const response = await api.put(`/api/bff/scripts/${scriptId}`, scriptData);
+      console.log('🎉 API: Script update successful:', response);
+      return response;
+    } catch (error) {
+      console.error('💥 API: Script update failed:', error);
+      console.error('Error status:', error.response?.status);
+      console.error('Error data:', error.response?.data);
+      throw error;
+    }
   },
 
   // Delete script
