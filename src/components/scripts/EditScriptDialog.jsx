@@ -84,10 +84,11 @@ export function EditScriptDialog({ open, onOpenChange, scriptId }) {
         author: script.author || "",
         file_extension: script.file_extension || "py",
         content: script.content || "",
-        input_schema: script.input_schema || "{}",
-        output_schema: script.output_schema || "{}",
-        test_input_params: script.test_input_params || "{}",
-        test_output_params: script.test_output_params || "{}"
+        // Convert objects back to JSON strings for editing
+        input_schema: script.input_schema ? JSON.stringify(script.input_schema, null, 2) : "{}",
+        output_schema: script.output_schema ? JSON.stringify(script.output_schema, null, 2) : "{}",
+        test_input_params: script.test_input_params ? JSON.stringify(script.test_input_params, null, 2) : "{}",
+        test_output_params: script.test_output_params ? JSON.stringify(script.test_output_params, null, 2) : "{}"
       });
     }
   }, [scriptData]);
@@ -106,10 +107,50 @@ export function EditScriptDialog({ open, onOpenChange, scriptId }) {
       return;
     }
 
+    // Validate JSON syntax only
+    const jsonFields = ['input_schema', 'output_schema', 'test_input_params', 'test_output_params'];
+    for (const field of jsonFields) {
+      if (formData[field] && formData[field].trim()) {
+        try {
+          JSON.parse(formData[field]);
+        } catch (e) {
+          return; // Invalid JSON, don't submit
+        }
+      }
+    }
+
+    // Prepare data - parse JSON strings to objects
+    const submitData = {
+      name: formData.name.trim(),
+      category: formData.category,
+      content: formData.content.trim(),
+      file_extension: formData.file_extension || "py"
+    };
+
+    // Add optional fields only if they exist
+    if (formData.subcategory?.trim()) {
+      submitData.subcategory = formData.subcategory.trim();
+    }
+    if (formData.description?.trim()) {
+      submitData.description = formData.description.trim();
+    }
+    if (formData.version?.trim()) {
+      submitData.version = formData.version.trim();
+    }
+    if (formData.author?.trim()) {
+      submitData.author = formData.author.trim();
+    }
+    
+    // Parse JSON schemas as objects (API expects objects, not strings)
+    submitData.input_schema = formData.input_schema ? JSON.parse(formData.input_schema) : {};
+    submitData.output_schema = formData.output_schema ? JSON.parse(formData.output_schema) : {};
+    submitData.test_input_params = formData.test_input_params ? JSON.parse(formData.test_input_params) : {};
+    submitData.test_output_params = formData.test_output_params ? JSON.parse(formData.test_output_params) : {};
+
     try {
       await updateScriptMutation.mutateAsync({ 
         scriptId, 
-        scriptData: formData 
+        scriptData: submitData 
       });
       onOpenChange(false);
     } catch (error) {
