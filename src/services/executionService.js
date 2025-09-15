@@ -42,12 +42,12 @@ export const executionService = {
     return api.get(`/api/bff/executions/count${query}`);
   },
 
-  // Get execution statistics for dashboard
-  getStats: async (params = {}) => {
-    const queryParams = new URLSearchParams(params);
-    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    return api.get(`/api/bff/executions/stats${query}`);
-  },
+  // Get execution statistics (remove stats call that causes 404)
+  // getStats: async (params = {}) => {
+  //   const queryParams = new URLSearchParams(params);
+  //   const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+  //   return api.get(`/api/bff/executions/stats${query}`);
+  // },
 
   // Get executions by workflow ID
   getByWorkflowId: async (workflowId, params = {}) => {

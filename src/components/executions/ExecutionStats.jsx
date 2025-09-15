@@ -66,13 +66,23 @@ export const ExecutionStats = ({ filters = {}, className = "" }) => {
   if (hasError) {
     return (
       <Card className={className}>
-        <CardContent className="p-6 text-center">
-          <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-          <h3 className="text-lg font-semibold mb-2">İstatistikler yüklenemedi</h3>
-          <p className="text-muted-foreground text-sm">
-            {statsError?.message || countsError?.message || 'Bilinmeyen bir hata oluştu'}
-          </p>
-        </CardContent>
+          <div className="text-center py-12">
+            {isLoading ? (
+              <div className="space-y-4">
+                <div className="h-12 w-12 mx-auto bg-muted rounded animate-pulse" />
+                <div className="h-4 w-32 mx-auto bg-muted rounded animate-pulse" />
+                <div className="h-3 w-48 mx-auto bg-muted rounded animate-pulse" />
+              </div>
+            ) : (
+              <>
+                <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
+                <h3 className="text-lg font-semibold mb-2">İstatistikler yüklenemedi</h3>
+                <div className="text-muted-foreground text-sm">
+                  {statsError?.message || countsError?.message || 'Bilinmeyen bir hata oluştu'}
+                </div>
+              </>
+            )}
+          </div>
       </Card>
     );
   }
@@ -86,18 +96,22 @@ export const ExecutionStats = ({ filters = {}, className = "" }) => {
           <Activity className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <Skeleton className="h-8 w-16" />
-          ) : (
-            <div className="text-2xl font-bold">{totalExecutions.toLocaleString('tr-TR')}</div>
-          )}
-          <p className="text-xs text-muted-foreground">
+          <div>
             {isLoading ? (
-              <Skeleton className="h-3 w-20" />
+              <div className="h-8 w-16 bg-muted rounded animate-pulse" />
             ) : (
-              `${runningCount + pendingCount > 0 ? `${runningCount + pendingCount} aktif` : 'Tümü tamamlandı'}`
+              <div className="text-2xl font-bold">{totalExecutions.toLocaleString('tr-TR')}</div>
             )}
-          </p>
+          </div>
+          <div>
+            {isLoading ? (
+              <div className="h-3 w-20 bg-muted rounded animate-pulse" />
+            ) : (
+              <div className="text-xs text-muted-foreground">
+                {runningCount + pendingCount > 0 ? `${runningCount + pendingCount} aktif` : 'Tümü tamamlandı'}
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
 
@@ -108,27 +122,31 @@ export const ExecutionStats = ({ filters = {}, className = "" }) => {
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <Skeleton className="h-8 w-16" />
-          ) : (
-            <div className="text-2xl font-bold text-green-600">
-              %{Math.round(successRate)}
-            </div>
-          )}
+          <div>
+            {isLoading ? (
+              <div className="h-8 w-16 bg-muted rounded animate-pulse" />
+            ) : (
+              <div className="text-2xl font-bold text-green-600">
+                %{Math.round(successRate)}
+              </div>
+            )}
+          </div>
           <div className="mt-2">
             {isLoading ? (
-              <Skeleton className="h-2 w-full" />
+              <div className="h-2 w-full bg-muted rounded animate-pulse" />
             ) : (
               <Progress value={successRate} className="h-2" />
             )}
           </div>
-          <p className="text-xs text-muted-foreground mt-1">
+          <div>
             {isLoading ? (
-              <Skeleton className="h-3 w-24" />
+              <div className="h-3 w-24 bg-muted rounded animate-pulse mt-1" />
             ) : (
-              `${successfulExecutions} başarılı, ${failedExecutions} başarısız`
+              <div className="text-xs text-muted-foreground mt-1">
+                {successfulExecutions} başarılı, {failedExecutions} başarısız
+              </div>
             )}
-          </p>
+          </div>
         </CardContent>
       </Card>
 
@@ -139,18 +157,22 @@ export const ExecutionStats = ({ filters = {}, className = "" }) => {
           <PlayCircle className="h-4 w-4 text-blue-600" />
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <Skeleton className="h-8 w-16" />
-          ) : (
-            <div className="text-2xl font-bold text-blue-600">{runningCount}</div>
-          )}
-          <p className="text-xs text-muted-foreground">
+          <div>
             {isLoading ? (
-              <Skeleton className="h-3 w-20" />
+              <div className="h-8 w-16 bg-muted rounded animate-pulse" />
             ) : (
-              `${pendingCount} bekliyor`
+              <div className="text-2xl font-bold text-blue-600">{runningCount}</div>
             )}
-          </p>
+          </div>
+          <div>
+            {isLoading ? (
+              <div className="h-3 w-20 bg-muted rounded animate-pulse" />
+            ) : (
+              <div className="text-xs text-muted-foreground">
+                {pendingCount} bekliyor
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
 
@@ -161,20 +183,25 @@ export const ExecutionStats = ({ filters = {}, className = "" }) => {
           <XCircle className="h-4 w-4 text-red-600" />
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <Skeleton className="h-8 w-16" />
-          ) : (
-            <div className="text-2xl font-bold text-red-600">{failedCount}</div>
-          )}
-          <p className="text-xs text-muted-foreground">
+          <div>
             {isLoading ? (
-              <Skeleton className="h-3 w-20" />
+              <div className="h-8 w-16 bg-muted rounded animate-pulse" />
             ) : (
-              totalExecutions > 0 
-                ? `%${Math.round((failedCount / totalExecutions) * 100)} hata`
-                : 'Hata yok'
+              <div className="text-2xl font-bold text-red-600">{failedCount}</div>
             )}
-          </p>
+          </div>
+          <div>
+            {isLoading ? (
+              <div className="h-3 w-20 bg-muted rounded animate-pulse" />
+            ) : (
+              <div className="text-xs text-muted-foreground">
+                {totalExecutions > 0 
+                  ? `%${Math.round((failedCount / totalExecutions) * 100)} hata`
+                  : 'Hata yok'
+                }
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
 

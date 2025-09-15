@@ -1,5 +1,4 @@
 import React from "react"
-import { useToast } from "@/hooks/use-toast"
 import {
   Toast,
   ToastClose,
@@ -10,7 +9,8 @@ import {
 } from "@/components/ui/toast"
 
 export function Toaster() {
-  const { toasts } = useToast()
+  // Use a simple state without the custom hook to avoid React context issues
+  const [toasts] = React.useState([])
 
   return (
     <ToastProvider>
