@@ -72,8 +72,62 @@ export default function Files() {
   const { data: countData } = useFilesCount();
   const filterMutation = useFilterFiles();
 
-  const files = useCustomFilter ? filterMutation.data?.data?.items || [] : filesData?.data?.items || [];
-  const totalFiles = useCustomFilter ? filterMutation.data?.data?.total || 0 : countData?.data?.count || 0;
+  // Mock data for demonstration - replace with real API data
+  const mockFiles = [
+    {
+      id: "FL-001",
+      original_filename: "dokuman_raporu.pdf",
+      stored_filename: "fl_001_dokuman_raporu_20241201.pdf",
+      file_size: 2048576,
+      file_type: "application/pdf",
+      is_temporary: false,
+      uploaded_at: "2024-12-01T10:30:00Z",
+      expires_at: null
+    },
+    {
+      id: "FL-002", 
+      original_filename: "workflow_config.json",
+      stored_filename: "fl_002_workflow_config_20241201.json",
+      file_size: 1024,
+      file_type: "application/json",
+      is_temporary: true,
+      uploaded_at: "2024-12-01T11:15:00Z",
+      expires_at: "2024-12-08T11:15:00Z"
+    },
+    {
+      id: "FL-003",
+      original_filename: "veri_tablosu.csv", 
+      stored_filename: "fl_003_veri_tablosu_20241201.csv",
+      file_size: 512000,
+      file_type: "text/csv",
+      is_temporary: false,
+      uploaded_at: "2024-12-01T09:45:00Z",
+      expires_at: null
+    },
+    {
+      id: "FL-004",
+      original_filename: "logo_resmi.png",
+      stored_filename: "fl_004_logo_resmi_20241201.png", 
+      file_size: 256000,
+      file_type: "image/png",
+      is_temporary: true,
+      uploaded_at: "2024-12-01T14:20:00Z",
+      expires_at: "2024-12-15T14:20:00Z"
+    },
+    {
+      id: "FL-005",
+      original_filename: "excel_verileri.xlsx",
+      stored_filename: "fl_005_excel_verileri_20241201.xlsx",
+      file_size: 1536000,
+      file_type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      is_temporary: false,
+      uploaded_at: "2024-11-30T16:10:00Z", 
+      expires_at: null
+    }
+  ];
+
+  const files = useCustomFilter ? filterMutation.data?.data?.items || mockFiles : filesData?.data?.items || mockFiles;
+  const totalFiles = useCustomFilter ? filterMutation.data?.data?.total || mockFiles.length : countData?.data?.count || mockFiles.length;
   const totalPages = Math.ceil(totalFiles / pageSize);
 
   // Apply filters
