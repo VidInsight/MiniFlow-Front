@@ -48,8 +48,12 @@ export const useCreateScript = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: scriptService.createScript,
+    mutationFn: (scriptData) => {
+      console.log('Hook: useCreateScript called with:', scriptData);
+      return scriptService.createScript(scriptData);
+    },
     onSuccess: (data) => {
+      console.log('Hook: Script creation success:', data);
       queryClient.invalidateQueries({ queryKey: ['scripts'] });
       queryClient.invalidateQueries({ queryKey: ['scripts-count'] });
       
@@ -59,6 +63,7 @@ export const useCreateScript = () => {
       });
     },
     onError: (error) => {
+      console.error('Hook: Script creation error:', error);
       toast({
         title: "Oluşturma Hatası",
         description: error.response?.data?.message || "Script oluşturulurken bir hata oluştu.",

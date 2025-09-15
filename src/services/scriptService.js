@@ -33,7 +33,15 @@ export const scriptService = {
 
   // Create new script
   createScript: async (scriptData) => {
-    return api.post('/api/bff/scripts/', scriptData);
+    console.log('API: Creating script with data:', scriptData);
+    try {
+      const response = await api.post('/api/bff/scripts/', scriptData);
+      console.log('API: Script creation successful:', response);
+      return response;
+    } catch (error) {
+      console.error('API: Script creation failed:', error);
+      throw error;
+    }
   },
 
   // Update script

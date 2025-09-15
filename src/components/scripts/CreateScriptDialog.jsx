@@ -27,6 +27,7 @@ import {
   TabsList, 
   TabsTrigger 
 } from "@/components/ui/tabs";
+import { toast } from '@/hooks/use-toast';
 import { useCreateScript } from "@/hooks/useScripts";
 import { Loader2, Code2, FileCode, Database } from "lucide-react";
 
@@ -203,17 +204,50 @@ export function CreateScriptDialog({ open, onOpenChange }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation
-    if (!formData.name.trim() || !formData.category || !formData.content.trim()) {
+    console.log('Script creation started with data:', formData);
+    
+    // Validation with user feedback
+    if (!formData.name.trim()) {
+      toast({
+        title: "Validation Hatası",
+        description: "Script adı zorunludur.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!formData.category) {
+      toast({
+        title: "Validation Hatası", 
+        description: "Kategori seçimi zorunludur.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!formData.content.trim()) {
+      toast({
+        title: "Validation Hatası",
+        description: "Script içeriği zorunludur.",
+        variant: "destructive", 
+      });
       return;
     }
 
     try {
-      await createScriptMutation.mutateAsync(formData);
+      console.log('Calling createScriptMutation with:', formData);
+      const result = await createScriptMutation.mutateAsync(formData);
+      console.log('Script creation successful:', result);
       onOpenChange(false);
       resetForm();
     } catch (error) {
-      // Hata toast hook tarafından işleniyor
+      console.error('Script creation failed:', error);
+      // Hata toast hook tarafından işleniyor ama ek debugging için
+      toast({
+        title: "Script Oluşturma Hatası",
+        description: error.response?.data?.message || error.message || "Beklenmeyen bir hata oluştu.",
+        variant: "destructive",
+      });
     }
   };
 
