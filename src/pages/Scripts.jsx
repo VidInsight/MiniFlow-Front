@@ -1,10 +1,9 @@
-import { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { helpContent } from "@/data/help-content";
 import {
@@ -15,15 +14,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Table,
   TableBody,
   TableCell,
@@ -32,6 +22,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PageHeader } from "@/components/ui/page-header";
+import { CreateScriptDialog } from "@/components/scripts/CreateScriptDialog";
+import { DeleteScriptDialog } from "@/components/scripts/DeleteScriptDialog";
+import { ScriptDetailsDialog } from "@/components/scripts/ScriptDetailsDialog";
+import { EditScriptDialog } from "@/components/scripts/EditScriptDialog";
+import { useScripts, useFilterScripts, useScriptsCount } from "@/hooks/useScripts";
+import { formatFileSize, formatDate } from "@/lib/fileUtils";
 import { 
   Plus, 
   Search, 
@@ -44,7 +40,12 @@ import {
   FileText,
   BarChart3,
   CheckCircle2,
-  Tag
+  Tag,
+  Loader2,
+  Eye,
+  ChevronLeft,
+  ChevronRight,
+  FileCode
 } from "lucide-react";
 
 // Mock data for fallback
