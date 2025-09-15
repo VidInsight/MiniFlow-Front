@@ -295,7 +295,7 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
                     </div>
 
                     <div className="grid grid-cols-2 gap-6">
-                      {(script.test_input_params && JSON.stringify(script.test_input_params) !== "{}") && (
+                      {script.test_input_params && (
                         <Card>
                           <CardHeader>
                             <CardTitle className="flex items-center gap-2">
@@ -309,7 +309,7 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
                         </Card>
                       )}
 
-                      {(script.test_output_params && JSON.stringify(script.test_output_params) !== "{}") && (
+                      {script.test_output_params && (
                         <Card>
                           <CardHeader>
                             <CardTitle className="flex items-center gap-2">
