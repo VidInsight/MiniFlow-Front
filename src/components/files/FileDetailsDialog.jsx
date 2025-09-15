@@ -24,8 +24,8 @@ export function FileDetailsDialog({ open, onOpenChange, fileId }) {
           <DialogTitle className="flex items-center gap-2">
             {file ? (
               <>
-                <div className="text-2xl">{getFileIcon(file.file_type)}</div>
-                {file.original_filename}
+                <div className="text-2xl">{getFileIcon(file.mime_type)}</div>
+                {file.name}
               </>
             ) : (
               <>
@@ -54,16 +54,23 @@ export function FileDetailsDialog({ open, onOpenChange, fileId }) {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-6 text-sm">
               <div className="space-y-2">
-                <Label className="font-semibold">Orijinal Dosya Adı</Label>
+                <Label className="font-semibold">Dosya Adı</Label>
                 <p className="text-muted-foreground bg-muted/30 p-2 rounded">
-                  {file.original_filename}
+                  {file.name}
                 </p>
               </div>
               
               <div className="space-y-2">
-                <Label className="font-semibold">Saklanan Dosya Adı</Label>
-                <p className="text-muted-foreground bg-muted/30 p-2 rounded font-mono text-xs">
-                  {file.stored_filename}
+                <Label className="font-semibold">Temel Dosya Adı</Label>
+                <p className="text-muted-foreground bg-muted/30 p-2 rounded">
+                  {file.filename}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="font-semibold">Dosya Uzantısı</Label>
+                <p className="text-muted-foreground bg-muted/30 p-2 rounded">
+                  {file.file_extension}
                 </p>
               </div>
 
@@ -75,9 +82,9 @@ export function FileDetailsDialog({ open, onOpenChange, fileId }) {
               </div>
 
               <div className="space-y-2">
-                <Label className="font-semibold">Dosya Tipi</Label>
+                <Label className="font-semibold">MIME Tipi</Label>
                 <p className="text-muted-foreground bg-muted/30 p-2 rounded">
-                  {file.file_type}
+                  {file.mime_type}
                 </p>
               </div>
 
@@ -88,46 +95,28 @@ export function FileDetailsDialog({ open, onOpenChange, fileId }) {
                 </Badge>
               </div>
 
-              {file.expires_at && (
-                <div className="space-y-2">
-                  <Label className="font-semibold">Son Kullanma</Label>
-                  <p className="text-muted-foreground bg-muted/30 p-2 rounded">
-                    {formatDate(file.expires_at)}
+              <div className="space-y-2 col-span-2">
+                <Label className="font-semibold">Dosya Yolu</Label>
+                <p className="text-muted-foreground font-mono text-xs bg-muted/30 p-2 rounded break-all">
+                  {file.file_path}
+                </p>
+              </div>
+
+              {file.checksum && (
+                <div className="space-y-2 col-span-2">
+                  <Label className="font-semibold">Checksum</Label>
+                  <p className="text-muted-foreground font-mono text-xs bg-muted/30 p-2 rounded break-all">
+                    {file.checksum}
                   </p>
                 </div>
               )}
 
-              <div className="space-y-2">
-                <Label className="font-semibold">Yüklenme Tarihi</Label>
-                <p className="text-muted-foreground bg-muted/30 p-2 rounded">
-                  {formatDate(file.uploaded_at)}
-                </p>
-              </div>
-
-              <div className="space-y-2">
+              <div className="space-y-2 col-span-2">
                 <Label className="font-semibold">Dosya ID</Label>
                 <p className="text-muted-foreground bg-muted/30 p-2 rounded font-mono text-xs">
                   {file.id}
                 </p>
               </div>
-
-              {file.file_hash && (
-                <div className="space-y-2 col-span-2">
-                  <Label className="font-semibold">Dosya Hash</Label>
-                  <p className="text-muted-foreground font-mono text-xs bg-muted/30 p-2 rounded break-all">
-                    {file.file_hash}
-                  </p>
-                </div>
-              )}
-
-              {file.metadata && Object.keys(file.metadata).length > 0 && (
-                <div className="space-y-2 col-span-2">
-                  <Label className="font-semibold">Metadata</Label>
-                  <pre className="text-muted-foreground font-mono text-xs bg-muted/30 p-2 rounded overflow-auto max-h-32">
-                    {JSON.stringify(file.metadata, null, 2)}
-                  </pre>
-                </div>
-              )}
             </div>
           </div>
         ) : null}

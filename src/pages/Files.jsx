@@ -72,57 +72,62 @@ export default function Files() {
   const { data: countData } = useFilesCount();
   const filterMutation = useFilterFiles();
 
-  // Mock data for demonstration - replace with real API data
+  // Mock data matching the actual database model
   const mockFiles = [
     {
       id: "FL-001",
-      original_filename: "dokuman_raporu.pdf",
-      stored_filename: "fl_001_dokuman_raporu_20241201.pdf",
+      name: "dokuman_raporu.pdf",
+      filename: "dokuman_raporu",
+      file_extension: ".pdf",
+      file_path: "/uploads/2024/12/01/dokuman_raporu.pdf",
       file_size: 2048576,
-      file_type: "application/pdf",
-      is_temporary: false,
-      uploaded_at: "2024-12-01T10:30:00Z",
-      expires_at: null
+      mime_type: "application/pdf",
+      checksum: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6",
+      is_temporary: false
     },
     {
       id: "FL-002", 
-      original_filename: "workflow_config.json",
-      stored_filename: "fl_002_workflow_config_20241201.json",
+      name: "workflow_config.json",
+      filename: "workflow_config",
+      file_extension: ".json",
+      file_path: "/uploads/2024/12/01/workflow_config.json",
       file_size: 1024,
-      file_type: "application/json",
-      is_temporary: true,
-      uploaded_at: "2024-12-01T11:15:00Z",
-      expires_at: "2024-12-08T11:15:00Z"
+      mime_type: "application/json",
+      checksum: "b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7",
+      is_temporary: true
     },
     {
       id: "FL-003",
-      original_filename: "veri_tablosu.csv", 
-      stored_filename: "fl_003_veri_tablosu_20241201.csv",
+      name: "veri_tablosu.csv",
+      filename: "veri_tablosu",
+      file_extension: ".csv",
+      file_path: "/uploads/2024/12/01/veri_tablosu.csv",
       file_size: 512000,
-      file_type: "text/csv",
-      is_temporary: false,
-      uploaded_at: "2024-12-01T09:45:00Z",
-      expires_at: null
+      mime_type: "text/csv",
+      checksum: "c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8",
+      is_temporary: false
     },
     {
       id: "FL-004",
-      original_filename: "logo_resmi.png",
-      stored_filename: "fl_004_logo_resmi_20241201.png", 
+      name: "logo_resmi.png",
+      filename: "logo_resmi",
+      file_extension: ".png",
+      file_path: "/uploads/2024/12/01/logo_resmi.png",
       file_size: 256000,
-      file_type: "image/png",
-      is_temporary: true,
-      uploaded_at: "2024-12-01T14:20:00Z",
-      expires_at: "2024-12-15T14:20:00Z"
+      mime_type: "image/png",
+      checksum: "d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9",
+      is_temporary: true
     },
     {
       id: "FL-005",
-      original_filename: "excel_verileri.xlsx",
-      stored_filename: "fl_005_excel_verileri_20241201.xlsx",
+      name: "excel_verileri.xlsx",
+      filename: "excel_verileri",
+      file_extension: ".xlsx", 
+      file_path: "/uploads/2024/12/01/excel_verileri.xlsx",
       file_size: 1536000,
-      file_type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      is_temporary: false,
-      uploaded_at: "2024-11-30T16:10:00Z", 
-      expires_at: null
+      mime_type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      checksum: "e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0",
+      is_temporary: false
     }
   ];
 
@@ -145,11 +150,11 @@ export default function Files() {
       };
 
       if (searchTerm) {
-        filterData.original_filename = searchTerm;
+        filterData.name = searchTerm;
       }
       
       if (fileTypeFilter !== "all") {
-        filterData.file_type = fileTypeFilter;
+        filterData.mime_type = fileTypeFilter;
       }
       
       if (temporaryFilter !== "all") {
@@ -176,7 +181,7 @@ export default function Files() {
   const fileTypes = useMemo(() => {
     const types = new Set();
     files.forEach(file => {
-      if (file.file_type) types.add(file.file_type);
+      if (file.mime_type) types.add(file.mime_type);
     });
     return Array.from(types).sort();
   }, [files]);
@@ -399,8 +404,8 @@ export default function Files() {
                       <TableRow className="bg-muted/30">
                         <TableHead>
                           <div className="flex items-center gap-2">
-                            Dosya
-                            <HelpTooltip content="Dosya adı ve icon" iconSize="w-3 h-3" />
+                            Dosya Adı
+                            <HelpTooltip content="Tam dosya adı (ad + uzantı)" iconSize="w-3 h-3" />
                           </div>
                         </TableHead>
                         <TableHead>
@@ -411,8 +416,8 @@ export default function Files() {
                         </TableHead>
                         <TableHead>
                           <div className="flex items-center gap-2">
-                            Tip
-                            <HelpTooltip content="Dosya tipi (MIME)" iconSize="w-3 h-3" />
+                            MIME Tipi
+                            <HelpTooltip content="Dosya MIME tipi" iconSize="w-3 h-3" />
                           </div>
                         </TableHead>
                         <TableHead>
@@ -423,18 +428,10 @@ export default function Files() {
                         </TableHead>
                         <TableHead>
                           <div className="flex items-center gap-2">
-                            Yükleme
-                            <HelpTooltip content="Yüklenme tarihi" iconSize="w-3 h-3" />
+                            Dosya Yolu
+                            <HelpTooltip content="Sistemdeki dosya yolu" iconSize="w-3 h-3" />
                           </div>
                         </TableHead>
-                        {displayedFiles.some(f => f.expires_at) && (
-                          <TableHead>
-                            <div className="flex items-center gap-2">
-                              Son Kullanma
-                              <HelpTooltip content="Dosyanın son kullanma tarihi" iconSize="w-3 h-3" />
-                            </div>
-                          </TableHead>
-                        )}
                         <TableHead className="text-right">
                           <div className="flex items-center gap-2 justify-end">
                             İşlemler
@@ -449,14 +446,14 @@ export default function Files() {
                           <TableCell className="font-medium">
                             <div className="flex items-center gap-3">
                               <div className="text-2xl p-2 rounded-lg bg-muted/50">
-                                {getFileIcon(file.file_type)}
+                                {getFileIcon(file.mime_type)}
                               </div>
                               <div className="min-w-0 flex-1">
                                 <div className="font-medium truncate">
-                                  {file.original_filename}
+                                  {file.name}
                                 </div>
                                 <div className="text-xs text-muted-foreground font-mono truncate">
-                                  {file.stored_filename}
+                                  {file.filename}{file.file_extension}
                                 </div>
                               </div>
                             </div>
@@ -465,8 +462,8 @@ export default function Files() {
                             {formatFileSize(file.file_size)}
                           </TableCell>
                           <TableCell>
-                            <Badge variant={getFileTypeVariant(file.file_type)}>
-                              {getMimeTypeDisplayName(file.file_type)}
+                            <Badge variant={getFileTypeVariant(file.mime_type)}>
+                              {getMimeTypeDisplayName(file.mime_type)}
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -474,14 +471,11 @@ export default function Files() {
                               {file.is_temporary ? "Geçici" : "Kalıcı"}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-muted-foreground">
-                            {formatDate(file.uploaded_at)}
+                          <TableCell className="text-muted-foreground font-mono text-xs">
+                            <div className="truncate max-w-xs" title={file.file_path}>
+                              {file.file_path}
+                            </div>
                           </TableCell>
-                          {displayedFiles.some(f => f.expires_at) && (
-                            <TableCell className="text-muted-foreground">
-                              {file.expires_at ? formatDate(file.expires_at) : "-"}
-                            </TableCell>
-                          )}
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-1">
                               <Button 
@@ -504,7 +498,7 @@ export default function Files() {
                                 size="sm"
                                 onClick={() => setDeletingFile({ 
                                   id: file.id, 
-                                  name: file.original_filename
+                                  name: file.name
                                 })}
                                 title="Sil"
                               >
