@@ -169,6 +169,12 @@ export function CreateScriptDialog({ open, onOpenChange }) {
   const { theme } = useTheme();
   const createScriptMutation = useCreateScript();
   
+  console.log('CreateScriptDialog rendered, mutation state:', {
+    isPending: createScriptMutation.isPending,
+    isError: createScriptMutation.isError,
+    error: createScriptMutation.error
+  });
+  
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -204,10 +210,12 @@ export function CreateScriptDialog({ open, onOpenChange }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    console.log('Script creation started with data:', formData);
+    console.log('🚀 Form submitted!');
+    console.log('📝 Form data:', formData);
     
     // Validation with user feedback
     if (!formData.name.trim()) {
+      console.log('❌ Name validation failed');
       toast({
         title: "Validation Hatası",
         description: "Script adı zorunludur.",
@@ -217,6 +225,7 @@ export function CreateScriptDialog({ open, onOpenChange }) {
     }
     
     if (!formData.category) {
+      console.log('❌ Category validation failed');
       toast({
         title: "Validation Hatası", 
         description: "Kategori seçimi zorunludur.",
@@ -226,6 +235,7 @@ export function CreateScriptDialog({ open, onOpenChange }) {
     }
     
     if (!formData.content.trim()) {
+      console.log('❌ Content validation failed');
       toast({
         title: "Validation Hatası",
         description: "Script içeriği zorunludur.",
@@ -234,16 +244,20 @@ export function CreateScriptDialog({ open, onOpenChange }) {
       return;
     }
 
+    console.log('✅ All validations passed');
+
     // Validate JSON fields
     const jsonFields = ['input_schema', 'output_schema', 'test_input_params', 'test_output_params'];
     for (const field of jsonFields) {
       if (formData[field]) {
         try {
           JSON.parse(formData[field]);
+          console.log(`✅ ${field} JSON is valid`);
         } catch (e) {
+          console.log(`❌ ${field} JSON is invalid:`, e.message);
           toast({
             title: "JSON Validation Hatası",
-            description: `${field} alanında geçersiz JSON formatı.`,
+            description: `${field} alanında geçersiz JSON formatı: ${e.message}`,
             variant: "destructive",
           });
           return;
@@ -251,49 +265,84 @@ export function CreateScriptDialog({ open, onOpenChange }) {
       }
     }
 
-    // Prepare data with proper types
+    // Prepare data - minimal required fields first
     const submitData = {
       name: formData.name.trim(),
       category: formData.category,
-      subcategory: formData.subcategory?.trim() || null,
-      description: formData.description?.trim() || null,
-      version: formData.version?.trim() || "1.0.0",
-      author: formData.author?.trim() || null,
-      file_extension: formData.file_extension,
       content: formData.content.trim(),
-      input_schema: formData.input_schema || "{}",
-      output_schema: formData.output_schema || "{}",
-      test_input_params: formData.test_input_params || "{}",
-      test_output_params: formData.test_output_params || "{}"
+      file_extension: formData.file_extension || "py"
     };
 
+    // Add optional fields only if they exist
+    if (formData.subcategory?.trim()) {
+      submitData.subcategory = formData.subcategory.trim();
+    }
+    if (formData.description?.trim()) {
+      submitData.description = formData.description.trim();
+    }
+    if (formData.version?.trim()) {
+      submitData.version = formData.version.trim();
+    }
+    if (formData.author?.trim()) {
+      submitData.author = formData.author.trim();
+    }
+    
+    // Only add JSON schemas if they're not empty
+    if (formData.input_schema && formData.input_schema !== "{}") {
+      submitData.input_schema = formData.input_schema;
+    }
+    if (formData.output_schema && formData.output_schema !== "{}") {
+      submitData.output_schema = formData.output_schema;
+    }
+    if (formData.test_input_params && formData.test_input_params !== "{}") {
+      submitData.test_input_params = formData.test_input_params;
+    }
+    if (formData.test_output_params && formData.test_output_params !== "{}") {
+      submitData.test_output_params = formData.test_output_params;
+    }
+
+    console.log('📤 Sending to API:', submitData);
+
     try {
-      console.log('Calling createScriptMutation with cleaned data:', submitData);
       const result = await createScriptMutation.mutateAsync(submitData);
-      console.log('Script creation successful:', result);
+      console.log('🎉 Script creation successful:', result);
       onOpenChange(false);
       resetForm();
     } catch (error) {
-      console.error('Script creation failed:', error);
+      console.error('💥 Script creation failed!');
+      console.error('Error object:', error);
       console.error('Error response:', error.response);
+      console.error('Error status:', error.response?.status);
+      console.error('Error data:', error.response?.data);
       
       let errorMessage = "Beklenmeyen bir hata oluştu.";
       
       if (error.response?.status === 422) {
-        const validationErrors = error.response?.data?.detail || error.response?.data?.message;
-        if (Array.isArray(validationErrors)) {
-          errorMessage = validationErrors.map(err => `${err.field}: ${err.message}`).join(', ');
-        } else if (typeof validationErrors === 'string') {
-          errorMessage = validationErrors;
+        console.log('📋 422 Validation Error Details:');
+        const errorData = error.response?.data;
+        console.log('Full error data:', errorData);
+        
+        if (errorData?.detail) {
+          console.log('Detail:', errorData.detail);
+          if (Array.isArray(errorData.detail)) {
+            errorMessage = errorData.detail.map(err => {
+              console.log('Validation error:', err);
+              return `${err.loc ? err.loc.join('.') : 'Field'}: ${err.msg || err.message || 'Invalid value'}`;
+            }).join('\n');
+          } else {
+            errorMessage = errorData.detail;
+          }
+        } else if (errorData?.message) {
+          errorMessage = errorData.message;
         } else {
-          errorMessage = "Veri doğrulama hatası. Lütfen tüm alanları kontrol edin.";
+          errorMessage = "Veri doğrulama hatası. Console'u kontrol edin.";
         }
       } else {
         errorMessage = error.response?.data?.message || error.message || errorMessage;
       }
       
       toast({
-        title: "Script Oluşturma Hatası",
+        title: "Script Oluşturma Hatası (422)",
         description: errorMessage,
         variant: "destructive",
       });
