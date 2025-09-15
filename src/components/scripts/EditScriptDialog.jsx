@@ -107,7 +107,7 @@ export function EditScriptDialog({ open, onOpenChange, scriptId }) {
     console.log('🔧 EditScript: Script ID:', scriptId);
     console.log('🔧 EditScript: Form data:', formData);
     
-    if (!scriptId || !formData.name.trim() || !formData.category || !formData.content.trim()) {
+    if (!scriptId || !formData.content.trim()) {
       console.log('❌ EditScript: Validation failed - missing required fields');
       return;
     }
@@ -128,18 +128,12 @@ export function EditScriptDialog({ open, onOpenChange, scriptId }) {
 
     console.log('✅ EditScript: All validations passed');
 
-    // Prepare data - parse JSON strings to objects
+    // Prepare data - parse JSON strings to objects (exclude read-only fields)
     const submitData = {
-      name: formData.name.trim(),
-      category: formData.category,
-      content: formData.content.trim(),
-      file_extension: formData.file_extension || "py"
+      content: formData.content.trim()
     };
 
-    // Add optional fields only if they exist
-    if (formData.subcategory?.trim()) {
-      submitData.subcategory = formData.subcategory.trim();
-    }
+    // Add optional editable fields only if they exist
     if (formData.description?.trim()) {
       submitData.description = formData.description.trim();
     }
@@ -220,15 +214,15 @@ export function EditScriptDialog({ open, onOpenChange, scriptId }) {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="script-name" className="flex items-center gap-2">
-                        Script Adı *
-                        <HelpTooltip content="Benzersiz script adı" />
+                        Script Adı (Değiştirilemez)
+                        <HelpTooltip content="Script adı güncellenemez" />
                       </Label>
                       <Input
                         id="script-name"
                         value={formData.name}
-                        onChange={(e) => handleInputChange("name", e.target.value)}
                         placeholder="csv_processor"
-                        required
+                        disabled
+                        className="bg-muted cursor-not-allowed"
                       />
                     </div>
                     <div className="space-y-2">
@@ -245,43 +239,38 @@ export function EditScriptDialog({ open, onOpenChange, scriptId }) {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="category" className="flex items-center gap-2">
-                        Kategori *
-                        <HelpTooltip content="Script kategorisi" />
+                        Kategori (Değiştirilemez)
+                        <HelpTooltip content="Kategori güncellenemez" />
                       </Label>
                       <Input
                         id="category"
                         value={formData.category}
-                        onChange={(e) => handleInputChange("category", e.target.value)}
                         placeholder="data_processing, communication, automation..."
-                        required
+                        disabled
+                        className="bg-muted cursor-not-allowed"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="subcategory">Alt Kategori</Label>
+                      <Label htmlFor="subcategory">Alt Kategori (Değiştirilemez)</Label>
                       <Input
                         id="subcategory"
                         value={formData.subcategory}
-                        onChange={(e) => handleInputChange("subcategory", e.target.value)}
                         placeholder="etl, backup, notification..."
+                        disabled
+                        className="bg-muted cursor-not-allowed"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="file-extension">Dosya Uzantısı</Label>
-                      <Select value={formData.file_extension} onValueChange={(value) => handleInputChange("file_extension", value)}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-popover border border-border shadow-md z-50">
-                          {FILE_EXTENSIONS.map(ext => (
-                            <SelectItem key={ext.value} value={ext.value}>
-                              {ext.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Label htmlFor="file-extension">Dosya Uzantısı (Değiştirilemez)</Label>
+                      <Input
+                        id="file-extension"
+                        value={selectedExtension?.label || formData.file_extension}
+                        disabled
+                        className="bg-muted cursor-not-allowed"
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="author">Yazar</Label>
@@ -400,7 +389,7 @@ export function EditScriptDialog({ open, onOpenChange, scriptId }) {
               </Button>
               <Button
                 type="submit"
-                disabled={updateScriptMutation.isPending || !formData.name.trim() || !formData.category || !formData.content.trim()}
+                disabled={updateScriptMutation.isPending || !formData.content.trim()}
               >
                 {updateScriptMutation.isPending ? (
                   <>
