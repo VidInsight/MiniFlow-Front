@@ -31,8 +31,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Plus, 
   Workflow,
-  Filter,
-  TrendingUp
+  Filter
 } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 20;
@@ -194,47 +193,6 @@ export default function Workflows() {
           </Button>
         }
       />
-
-      {/* Summary Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Toplam Workflow</CardTitle>
-            <Workflow className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalWorkflows || 0}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Filtrelenmiş Sonuç</CardTitle>
-            <Filter className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{currentTotal}</div>
-            {currentTotal !== totalWorkflows && (
-              <p className="text-xs text-muted-foreground">
-                Toplam {totalWorkflows} workflow'dan filtrelendi
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ortalama Başarı</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">-</div>
-            <p className="text-xs text-muted-foreground">
-              İstatistik yakında eklenecek
-            </p>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Filters */}
       <WorkflowFilters
