@@ -150,19 +150,6 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
               <Code2 className="w-4 h-4 mr-2" />
               Kod
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePerformanceStatsClick}
-              disabled={isLoadingPerformanceStats}
-            >
-              {isLoadingPerformanceStats && (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) || (
-                <BarChart3 className="w-4 h-4 mr-2" />
-              )}
-              Performans
-            </Button>
           </div>
         </DialogHeader>
 
