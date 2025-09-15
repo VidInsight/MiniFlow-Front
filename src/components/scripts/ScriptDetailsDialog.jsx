@@ -94,14 +94,28 @@ const JsonViewer = ({ data, title }) => {
 export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
   const { theme } = useTheme();
   const [activeView, setActiveView] = useState("details");
+  const [showTestStats, setShowTestStats] = useState(false);
+  const [showPerformanceStats, setShowPerformanceStats] = useState(false);
   
   const { data: scriptData, isLoading: isLoadingScript } = useScript(scriptId);
-  const { data: testStatsData, isLoading: isLoadingTestStats } = useScriptTestStats(scriptId);
-  const { data: performanceStatsData, isLoading: isLoadingPerformanceStats } = useScriptPerformanceStats(scriptId);
+  const { data: testStatsData, isLoading: isLoadingTestStats, refetch: refetchTestStats } = useScriptTestStats(scriptId, { enabled: false });
+  const { data: performanceStatsData, isLoading: isLoadingPerformanceStats, refetch: refetchPerformanceStats } = useScriptPerformanceStats(scriptId, { enabled: false });
 
   const script = scriptData?.data;
   const testStats = testStatsData?.data;
   const performanceStats = performanceStatsData?.data;
+
+  const handleTestStatsClick = () => {
+    setShowTestStats(true);
+    setShowPerformanceStats(false);
+    refetchTestStats();
+  };
+
+  const handlePerformanceStatsClick = () => {
+    setShowPerformanceStats(true);
+    setShowTestStats(false);
+    refetchPerformanceStats();
+  };
 
   if (!open || !scriptId) return null;
 
@@ -137,19 +151,29 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
               Kod
             </Button>
             <Button
-              variant={activeView === "test-stats" ? "default" : "outline"}
+              variant="outline"
               size="sm"
-              onClick={() => setActiveView("test-stats")}
+              onClick={handleTestStatsClick}
+              disabled={isLoadingTestStats}
             >
-              <TestTube className="w-4 h-4 mr-2" />
+              {isLoadingTestStats ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <TestTube className="w-4 h-4 mr-2" />
+              )}
               Test İstatistikleri
             </Button>
             <Button
-              variant={activeView === "performance" ? "default" : "outline"}
+              variant="outline"
               size="sm"
-              onClick={() => setActiveView("performance")}
+              onClick={handlePerformanceStatsClick}
+              disabled={isLoadingPerformanceStats}
             >
-              <BarChart3 className="w-4 h-4 mr-2" />
+              {isLoadingPerformanceStats ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <BarChart3 className="w-4 h-4 mr-2" />
+              )}
               Performans
             </Button>
           </div>
@@ -314,159 +338,63 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
                 </div>
               )}
 
-              {activeView === "test-stats" && (
+              {showTestStats && (
                 <div className="space-y-4 h-full overflow-y-auto">
-                  {isLoadingTestStats ? (
-                    <div className="flex items-center justify-center py-8">
-                      <Loader2 className="w-6 h-6 animate-spin" />
-                      <span className="ml-2">Test istatistikleri yükleniyor...</span>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">Test İstatistikleri</h3>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowTestStats(false)}
+                    >
+                      Kapat
+                    </Button>
+                  </div>
+                  {testStats ? (
+                    <div className="grid grid-cols-1 gap-6">
                       <Card>
                         <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <TestTube className="w-4 h-4" />
-                            Test Durumu
-                          </CardTitle>
+                          <CardTitle>API Yanıtı</CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-3">
-                          <div className="flex items-center gap-2">
-                            {testStats?.test_status === "PASSED" ? (
-                              <CheckCircle2 className="w-5 h-5 text-success" />
-                            ) : testStats?.test_status === "FAILED" ? (
-                              <XCircle className="w-5 h-5 text-destructive" />
-                            ) : (
-                              <AlertTriangle className="w-5 h-5 text-warning" />
-                            )}
-                            <span className="font-medium">
-                              {testStats?.test_status === "PASSED" ? "Başarılı" :
-                               testStats?.test_status === "FAILED" ? "Başarısız" : "Belirsiz"}
-                            </span>
-                          </div>
-                          {testStats?.test_coverage && (
-                            <div className="space-y-1">
-                              <span className="text-sm font-medium">Test Kapsamı: %{testStats.test_coverage}</span>
-                              <div className="w-full bg-muted rounded-full h-2">
-                                <div 
-                                  className="bg-primary h-2 rounded-full transition-all"
-                                  style={{ width: `${testStats.test_coverage}%` }}
-                                />
-                              </div>
-                            </div>
-                          )}
-                          {testStats?.last_test_run_at && (
-                            <div className="flex justify-between">
-                              <span className="font-medium">Son Test:</span>
-                              <span>{formatDate(testStats.last_test_run_at)}</span>
-                            </div>
-                          )}
+                        <CardContent>
+                          <JsonViewer data={testStats} title="" />
                         </CardContent>
                       </Card>
-
-                      {testStats?.test_results && (
-                        <Card>
-                          <CardHeader>
-                            <CardTitle>Test Sonuçları</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <JsonViewer data={testStats.test_results} title="" />
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {(script.test_input_params && JSON.stringify(script.test_input_params) !== "{}") && (
-                        <Card>
-                          <CardHeader>
-                            <CardTitle>Test Girdi Parametreleri</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <JsonViewer data={script.test_input_params} title="" />
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {(script.test_output_params && JSON.stringify(script.test_output_params) !== "{}") && (
-                        <Card>
-                          <CardHeader>
-                            <CardTitle>Beklenen Test Çıktısı</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <JsonViewer data={script.test_output_params} title="" />
-                          </CardContent>
-                        </Card>
-                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      Test istatistikleri bulunamadı.
                     </div>
                   )}
                 </div>
               )}
 
-              {activeView === "performance" && (
+              {showPerformanceStats && (
                 <div className="space-y-4 h-full overflow-y-auto">
-                  {isLoadingPerformanceStats ? (
-                    <div className="flex items-center justify-center py-8">
-                      <Loader2 className="w-6 h-6 animate-spin" />
-                      <span className="ml-2">Performans istatistikleri yükleniyor...</span>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">Performans İstatistikleri</h3>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowPerformanceStats(false)}
+                    >
+                      Kapat
+                    </Button>
+                  </div>
+                  {performanceStats ? (
+                    <div className="grid grid-cols-1 gap-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>API Yanıtı</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <JsonViewer data={performanceStats} title="" />
+                        </CardContent>
+                      </Card>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 gap-6">
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <Activity className="w-4 h-4" />
-                            Çalışma İstatistikleri
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                          {performanceStats?.avg_execution_time && (
-                            <div className="flex justify-between">
-                              <span className="font-medium">Ortalama Süre:</span>
-                              <span>{performanceStats.avg_execution_time}s</span>
-                            </div>
-                          )}
-                          {performanceStats?.success_rate && (
-                            <div className="flex justify-between">
-                              <span className="font-medium">Başarı Oranı:</span>
-                              <span>%{performanceStats.success_rate}</span>
-                            </div>
-                          )}
-                          {performanceStats?.total_executions && (
-                            <div className="flex justify-between">
-                              <span className="font-medium">Toplam Çalıştırma:</span>
-                              <span>{performanceStats.total_executions}</span>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <Cpu className="w-4 h-4" />
-                            Sistem Kaynakları
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                          {performanceStats?.performance_metrics?.cpu_usage?.avg && (
-                            <div className="flex justify-between">
-                              <span className="font-medium">Ortalama CPU:</span>
-                              <span>{performanceStats.performance_metrics.cpu_usage.avg}</span>
-                            </div>
-                          )}
-                          {performanceStats?.performance_metrics?.memory_usage?.avg && (
-                            <div className="flex justify-between">
-                              <span className="font-medium">Ortalama RAM:</span>
-                              <span>{performanceStats.performance_metrics.memory_usage.avg}</span>
-                            </div>
-                          )}
-                          {performanceStats?.performance_metrics?.memory_usage?.peak && (
-                            <div className="flex justify-between">
-                              <span className="font-medium">En Yüksek RAM:</span>
-                              <span>{performanceStats.performance_metrics.memory_usage.peak}</span>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
+                    <div className="text-center py-8 text-muted-foreground">
+                      Performans istatistikleri bulunamadı.
                     </div>
                   )}
                 </div>

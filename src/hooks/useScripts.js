@@ -148,19 +148,21 @@ export const useDeleteScript = () => {
 };
 
 // Hook to get script test stats
-export const useScriptTestStats = (scriptId) => {
+export const useScriptTestStats = (scriptId, options = {}) => {
   return useQuery({
     queryKey: ['script-test-stats', scriptId],
     queryFn: () => scriptService.getScriptTestStats(scriptId),
-    enabled: !!scriptId,
+    enabled: !!scriptId && (options.enabled !== false),
+    ...options,
   });
 };
 
 // Hook to get script performance stats
-export const useScriptPerformanceStats = (scriptId) => {
+export const useScriptPerformanceStats = (scriptId, options = {}) => {
   return useQuery({
     queryKey: ['script-performance-stats', scriptId],
     queryFn: () => scriptService.getScriptPerformanceStats(scriptId),
-    enabled: !!scriptId,
+    enabled: !!scriptId && (options.enabled !== false),
+    ...options,
   });
 };
