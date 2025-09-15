@@ -68,9 +68,15 @@ const getExtensionBadge = (extension) => {
 const JsonViewer = ({ data, title }) => {
   let jsonString = "";
   try {
-    jsonString = typeof data === 'string' ? data : JSON.stringify(JSON.parse(data || "{}"), null, 2);
-  } catch {
-    jsonString = data || "{}";
+    if (typeof data === 'string') {
+      jsonString = data;
+    } else if (typeof data === 'object' && data !== null) {
+      jsonString = JSON.stringify(data, null, 2);
+    } else {
+      jsonString = String(data || "{}");
+    }
+  } catch (error) {
+    jsonString = String(data || "{}");
   }
 
   return (
@@ -260,35 +266,35 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
                     </Card>
                   )}
 
-                  <div className="grid grid-cols-2 gap-6">
-                    {(script.input_schema && script.input_schema !== "{}") && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <Database className="w-4 h-4" />
-                            Girdi Şeması
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <JsonViewer data={script.input_schema} title="" />
-                        </CardContent>
-                      </Card>
-                    )}
+                    <div className="grid grid-cols-2 gap-6">
+                      {(script.input_schema && JSON.stringify(script.input_schema) !== "{}") && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                              <Database className="w-4 h-4" />
+                              Girdi Şeması
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <JsonViewer data={script.input_schema} title="" />
+                          </CardContent>
+                        </Card>
+                      )}
 
-                    {(script.output_schema && script.output_schema !== "{}") && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <Database className="w-4 h-4" />
-                            Çıktı Şeması
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <JsonViewer data={script.output_schema} title="" />
-                        </CardContent>
-                      </Card>
-                    )}
-                  </div>
+                      {(script.output_schema && JSON.stringify(script.output_schema) !== "{}") && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                              <Database className="w-4 h-4" />
+                              Çıktı Şeması
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <JsonViewer data={script.output_schema} title="" />
+                          </CardContent>
+                        </Card>
+                      )}
+                    </div>
                 </div>
               )}
 
@@ -369,7 +375,7 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
                         </Card>
                       )}
 
-                      {(script.test_input_params && script.test_input_params !== "{}") && (
+                      {(script.test_input_params && JSON.stringify(script.test_input_params) !== "{}") && (
                         <Card>
                           <CardHeader>
                             <CardTitle>Test Girdi Parametreleri</CardTitle>
@@ -380,7 +386,7 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
                         </Card>
                       )}
 
-                      {(script.test_output_params && script.test_output_params !== "{}") && (
+                      {(script.test_output_params && JSON.stringify(script.test_output_params) !== "{}") && (
                         <Card>
                           <CardHeader>
                             <CardTitle>Beklenen Test Çıktısı</CardTitle>
