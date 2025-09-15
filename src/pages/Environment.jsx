@@ -200,20 +200,8 @@ export default function Environment() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="flex items-center gap-2">
-                    Ad
-                    <HelpTooltip content={helpContent.environment.name} iconSize="w-3 h-3" />
-                  </TableHead>
-                  <TableHead className="flex items-center gap-2">
                     Değer
                     <HelpTooltip content="Değişken değeri (göstermek/gizlemek için göz simgesine tıklayın)" iconSize="w-3 h-3" />
-                  </TableHead>
-                  <TableHead className="flex items-center gap-2">
-                    Tür
-                    <HelpTooltip content={helpContent.environment.type} iconSize="w-3 h-3" />
-                  </TableHead>
-                  <TableHead className="flex items-center gap-2">
-                    Kapsam
-                    <HelpTooltip content={helpContent.environment.scope} iconSize="w-3 h-3" />
                   </TableHead>
                   <TableHead className="text-right flex items-center gap-2 justify-end">
                     İşlemler
@@ -224,14 +212,6 @@ export default function Environment() {
               <TableBody>
                 {filteredVariables.map((variable) => (
                 <TableRow key={variable.id}>
-                  <TableCell className="font-medium">
-                    <div>
-                      <div className="font-mono text-sm">{variable.name}</div>
-                      <div className="text-xs text-muted-foreground truncate max-w-48">
-                        {variable.description}
-                      </div>
-                    </div>
-                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <code className="text-xs bg-muted px-2 py-1 rounded">
@@ -247,15 +227,6 @@ export default function Environment() {
                           <Eye className="w-3 h-3" />
                         }
                       </Button>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {getTypeBadge(variable.variable_type)}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {getScopeIcon(variable.scope)}
-                      {getScopeBadge(variable.scope)}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
