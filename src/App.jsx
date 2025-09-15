@@ -12,6 +12,7 @@ import Scripts from "./pages/Scripts";
 import Workflows from "./pages/Workflows";
 import Files from "./pages/Files";
 import SchemaTest from "./pages/SchemaTest";
+import ExecutionMonitoring from "./pages/ExecutionMonitoring";
 import ComingSoon from "./pages/ComingSoon";
 import NotFound from "./pages/NotFound";
 
@@ -32,7 +33,7 @@ const App = () => (
             <Route path="environment" element={<Environment />} />
             <Route path="files" element={<Files />} />
             <Route path="schema-test" element={<SchemaTest />} />
-            <Route path="executions" element={<ComingSoon title="Execution Monitoring" description="Real-time execution dashboard with live updates and detailed logging" />} />
+            <Route path="executions" element={<ExecutionMonitoring />} />
             <Route path="analytics" element={<ComingSoon title="Analytics & Reports" description="Performance metrics, success rates, and detailed workflow analytics" />} />
             <Route path="templates" element={<ComingSoon title="Workflow Templates" description="Pre-built workflow templates for common automation patterns" />} />
             <Route path="integrations" element={<ComingSoon title="Integrations" description="Connect with external services and APIs" />} />
