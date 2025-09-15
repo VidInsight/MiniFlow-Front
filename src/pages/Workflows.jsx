@@ -1,205 +1,153 @@
-import React, { useCallback, useState } from "react";
-import {
-  ReactFlow,
-  addEdge,
-  MiniMap,
-  Controls,
-  Background,
-  useNodesState,
-  useEdgesState,
-  BackgroundVariant,
-} from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { helpContent } from "@/data/help-content";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { PageHeader } from "@/components/ui/page-header";
-import { CreateWorkflowDialog } from "@/components/workflows/CreateWorkflowDialog";
-import { EditWorkflowDialog } from "@/components/workflows/EditWorkflowDialog";
-import { WorkflowStatsDialog } from "@/components/workflows/WorkflowStatsDialog";
-import { DeleteWorkflowDialog } from "@/components/workflows/DeleteWorkflowDialog";
-import { useWorkflows, useExecuteWorkflow } from "@/hooks/useWorkflows";
+import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import { PageHeader } from '@/components/ui/page-header';
+import { WorkflowTable } from '@/components/workflows/WorkflowTable';
+import { WorkflowFilters } from '@/components/workflows/WorkflowFilters';
+import { CreateWorkflowDialog } from '@/components/workflows/CreateWorkflowDialog';
+import { EditWorkflowDialog } from '@/components/workflows/EditWorkflowDialog';
+import { DeleteWorkflowDialog } from '@/components/workflows/DeleteWorkflowDialog';
+import { WorkflowStatsDialog } from '@/components/workflows/WorkflowStatsDialog';
+import { WorkflowDetailsDialog } from '@/components/workflows/WorkflowDetailsDialog';
+import { 
+  useWorkflows, 
+  useWorkflowCount, 
+  useFilterWorkflows,
+  useExecuteWorkflow,
+  useValidateWorkflow 
+} from '@/hooks/useWorkflows';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Plus, 
-  Search, 
-  Save,
-  Play,
   Workflow,
   Filter,
-  Settings,
-  Database,
-  Mail,
-  FileText,
-  Clock,
-  Zap,
-  Info,
-  Edit,
-  Trash2,
-  BarChart3,
-  Loader2
-} from "lucide-react";
+  TrendingUp
+} from 'lucide-react';
 
-// Initial nodes and edges for the workflow builder
-const initialNodes = [
-  {
-    id: '1',
-    type: 'input',
-    data: { 
-      label: 'Trigger',
-      description: 'Workflow Start'
-    },
-    position: { x: 100, y: 100 },
-    style: {
-      background: 'hsl(var(--primary))',
-      color: 'hsl(var(--primary-foreground))',
-      border: '2px solid hsl(var(--primary))',
-      borderRadius: '8px',
-      width: 180,
-    },
-  },
-  {
-    id: '2',
-    data: { 
-      label: 'Process CSV',
-      description: 'Data Processing'
-    },
-    position: { x: 350, y: 100 },
-    style: {
-      background: 'hsl(var(--success))',
-      color: 'hsl(var(--success-foreground))',
-      border: '2px solid hsl(var(--success))',
-      borderRadius: '8px',
-      width: 180,
-    },
-  },
-  {
-    id: '3',
-    data: { 
-      label: 'Send Email',
-      description: 'Notification'
-    },
-    position: { x: 600, y: 100 },
-    style: {
-      background: 'hsl(var(--warning))',
-      color: 'hsl(var(--warning-foreground))',
-      border: '2px solid hsl(var(--warning))',
-      borderRadius: '8px',
-      width: 180,
-    },
-  },
-  {
-    id: '4',
-    type: 'output',
-    data: { 
-      label: 'Complete',
-      description: 'Workflow End'
-    },
-    position: { x: 850, y: 100 },
-    style: {
-      background: 'hsl(var(--secondary))',
-      color: 'hsl(var(--secondary-foreground))',
-      border: '2px solid hsl(var(--secondary))',
-      borderRadius: '8px',
-      width: 180,
-    },
-  },
-];
-
-const initialEdges = [
-  {
-    id: 'e1-2',
-    source: '1',
-    target: '2',
-    style: { stroke: 'hsl(var(--primary))' },
-  },
-  {
-    id: 'e2-3',
-    source: '2',
-    target: '3',
-    style: { stroke: 'hsl(var(--success))' },
-  },
-  {
-    id: 'e3-4',
-    source: '3',
-    target: '4',
-    style: { stroke: 'hsl(var(--warning))' },
-  },
-];
-
-// Status badge helper
-const getStatusBadge = (status) => {
-  const statusMap = {
-    "ACTIVE": <Badge variant="success" className="font-medium">Aktif</Badge>,
-    "INACTIVE": <Badge variant="destructive" className="font-medium">Pasif</Badge>,
-    "DRAFT": <Badge variant="secondary" className="font-medium">Taslak</Badge>,
-    "PAUSED": <Badge variant="warning" className="font-medium">Duraklatıldı</Badge>,
-    "FAILED": <Badge variant="destructive" className="font-medium">Başarısız</Badge>,
-  };
-  return statusMap[status] || <Badge variant="outline" className="font-medium">{status}</Badge>;
-};
-
-
-const getCategoryIcon = (category) => {
-  const categoryMap = {
-    "data_processing": <Database className="w-4 h-4" />,
-    "communication": <Mail className="w-4 h-4" />,
-    "maintenance": <Settings className="w-4 h-4" />,
-    "reporting": <FileText className="w-4 h-4" />,
-  };
-  return categoryMap[category] || <Workflow className="w-4 h-4" />;
-};
-
-const formatDate = (dateString) => {
-  if (!dateString) return "N/A";
-  return new Date(dateString).toLocaleDateString('tr-TR', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
+const ITEMS_PER_PAGE = 20;
 
 export default function Workflows() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [showBuilder, setShowBuilder] = useState(false);
+  const { toast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // State management
+  const [currentPage, setCurrentPage] = useState(
+    parseInt(searchParams.get('page')) || 1
+  );
+  const [filters, setFilters] = useState({
+    name: searchParams.get('name') || '',
+    status: searchParams.get('status') || '',
+    minPriority: searchParams.get('minPriority') || '',
+    maxPriority: searchParams.get('maxPriority') || ''
+  });
+  const [isFiltering, setIsFiltering] = useState(false);
+
+  // Dialog states
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingWorkflow, setEditingWorkflow] = useState(null);
-  const [statsWorkflow, setStatsWorkflow] = useState(null);
   const [deletingWorkflow, setDeletingWorkflow] = useState(null);
+  const [statsWorkflow, setStatsWorkflow] = useState(null);
+  const [detailsWorkflow, setDetailsWorkflow] = useState(null);
+
+  // Data fetching
+  const skip = (currentPage - 1) * ITEMS_PER_PAGE;
   
-  // API hooks
-  const { data: workflowsData, isLoading, error } = useWorkflows();
+  const {
+    data: workflowsData,
+    isLoading: isWorkflowsLoading,
+    error: workflowsError,
+    refetch: refetchWorkflows
+  } = useWorkflows({ ...filters, skip, limit: ITEMS_PER_PAGE });
+
+  const { data: totalWorkflows } = useWorkflowCount();
+
+  // Filter mutation for advanced filtering
+  const filterMutation = useFilterWorkflows();
   const executeWorkflow = useExecuteWorkflow();
+  const validateWorkflow = useValidateWorkflow();
 
-  const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges]
-  );
+  // URL state synchronization
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (currentPage > 1) params.set('page', currentPage.toString());
+    if (filters.name) params.set('name', filters.name);
+    if (filters.status) params.set('status', filters.status);
+    if (filters.minPriority) params.set('minPriority', filters.minPriority);
+    if (filters.maxPriority) params.set('maxPriority', filters.maxPriority);
+    
+    setSearchParams(params);
+  }, [currentPage, filters, setSearchParams]);
 
-  const workflows = workflowsData?.data?.items || [];
+  // Filter handling
+  const handleFiltersChange = useCallback((newFilters) => {
+    setFilters(newFilters);
+    setCurrentPage(1);
+    setIsFiltering(true);
+    
+    // Use filter mutation for complex filters
+    const hasAdvancedFilters = 
+      newFilters.name || 
+      newFilters.status || 
+      newFilters.minPriority ||
+      newFilters.maxPriority;
+    
+    if (hasAdvancedFilters) {
+      const filterPayload = {
+        ...newFilters,
+        skip: 0,
+        limit: ITEMS_PER_PAGE
+      };
+      
+      filterMutation.mutate(filterPayload, {
+        onSettled: () => setIsFiltering(false)
+      });
+    } else {
+      setIsFiltering(false);
+    }
+  }, [filterMutation]);
+
+  // Pagination
+  const totalPages = Math.ceil((workflowsData?.total || 0) / ITEMS_PER_PAGE);
   
-  const filteredWorkflows = workflows.filter(workflow => {
-    const matchesSearch = workflow.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         workflow.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || workflow.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-  const handleExecuteWorkflow = async (workflowId) => {
+  // Action handlers
+  const handleEdit = (workflow) => {
+    // For now, show a placeholder message
+    toast({
+      title: "Düzenleme Sayfası",
+      description: "Workflow düzenleme sayfası yakında eklenecek",
+    });
+    // Future implementation: navigate to `/workflows/edit/${workflow.id}`
+  };
+
+  const handleDelete = (workflow) => {
+    setDeletingWorkflow(workflow);
+  };
+
+  const handleViewDetails = (workflow) => {
+    setDetailsWorkflow(workflow);
+  };
+
+  const handleViewStats = (workflow) => {
+    setStatsWorkflow(workflow);
+  };
+
+  const handleExecute = async (workflowId) => {
     try {
       await executeWorkflow.mutateAsync({ workflowId });
     } catch (error) {
@@ -207,295 +155,181 @@ export default function Workflows() {
     }
   };
 
-  if (showBuilder) {
-    return (
-      <div className="h-[calc(100vh-12rem)] space-y-4">
-        {/* Builder Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold">Workflow Builder</h1>
-            <p className="text-muted-foreground">Drag and drop to create your automation workflow</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setShowBuilder(false)}>
-              Back to List
-            </Button>
-            <Button variant="outline">
-              <Save className="w-4 h-4 mr-2" />
-              Save Draft
-            </Button>
-            <Button>
-              <Play className="w-4 h-4 mr-2" />
-              Test Run
-            </Button>
-          </div>
-        </div>
+  const handleValidate = async (workflowId) => {
+    try {
+      await validateWorkflow.mutateAsync(workflowId);
+    } catch (error) {
+      // Error handled by hook
+    }
+  };
 
-        {/* Workflow Builder */}
-        <Card className="h-full shadow-soft">
-          <CardContent className="p-0 h-full">
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              onConnect={onConnect}
-              fitView
-              className="bg-muted/20"
-            >
-              <Controls className="shadow-soft" />
-              <MiniMap 
-                className="shadow-soft"
-                nodeColor="#hsl(var(--primary))"
-                maskColor="hsl(var(--muted) / 0.8)"
-              />
-              <Background 
-                variant={BackgroundVariant.Dots} 
-                gap={20} 
-                size={1}
-                color="hsl(var(--muted-foreground) / 0.3)"
-              />
-            </ReactFlow>
+  // Get current data
+  const currentWorkflows = filterMutation.data?.data?.items || workflowsData?.items || [];
+  const currentTotal = filterMutation.data?.data?.total || workflowsData?.total || 0;
+  const isLoading = isWorkflowsLoading || filterMutation.isPending || isFiltering;
+
+  return (
+    <div className="space-y-6">
+      {/* Page Header */}
+      <PageHeader
+        title="Workflow Yönetimi"
+        description="Otomasyon workflow'larınızı oluşturun, yönetin ve izleyin"
+        icon={Workflow}
+        actions={
+          <Button
+            onClick={() => setShowCreateDialog(true)}
+            className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-glow hover:shadow-strong transition-all duration-300"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Yeni Workflow
+          </Button>
+        }
+      />
+
+      {/* Summary Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Toplam Workflow</CardTitle>
+            <Workflow className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalWorkflows || 0}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Filtrelenmiş Sonuç</CardTitle>
+            <Filter className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{currentTotal}</div>
+            {currentTotal !== totalWorkflows && (
+              <p className="text-xs text-muted-foreground">
+                Toplam {totalWorkflows} workflow'dan filtrelendi
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Ortalama Başarı</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">-</div>
+            <p className="text-xs text-muted-foreground">
+              İstatistik yakında eklenecek
+            </p>
           </CardContent>
         </Card>
       </div>
-    );
-  }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/5 to-accent/5 -m-6 p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <PageHeader
-          title="Workflows"
-          description="Otomasyon workflow'larınızı oluşturun, yönetin ve izleyin"
-          icon={Workflow}
-          actions={[
-            <Button 
-              key="templates"
-              variant="outline" 
-              className="bg-background/50 backdrop-blur-sm hover:bg-background/80 hover:scale-105 transition-all duration-300 shadow-soft"
-            >
-              <FileText className="w-4 h-4 mr-2" />
-              Şablonlar
-            </Button>,
-            <Button 
-              key="new-workflow"
-              onClick={() => setShowCreateDialog(true)} 
-              className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-glow hover:shadow-strong transition-all duration-300 hover:scale-105"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Yeni Workflow
-            </Button>
-          ]}
-        />
+      {/* Filters */}
+      <WorkflowFilters
+        onFiltersChange={handleFiltersChange}
+        initialFilters={filters}
+        isLoading={isLoading}
+      />
 
-        {/* Filters and Search */}
-        <Card className="shadow-xl bg-gradient-to-r from-card/90 via-card/80 to-card/70 backdrop-blur-sm border-border/50">
-          <CardContent className="pt-6">
-            <div className="flex gap-4 items-center">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Workflow'ları ara..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/50 focus:border-primary transition-all duration-300"
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/50 transition-all duration-300">
-                  <Filter className="w-4 h-4 mr-2" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tüm Durumlar</SelectItem>
-                  <SelectItem value="ACTIVE">Aktif</SelectItem>
-                  <SelectItem value="DRAFT">Taslak</SelectItem>
-                  <SelectItem value="INACTIVE">Pasif</SelectItem>
-                  <SelectItem value="PAUSED">Duraklatıldı</SelectItem>
-                  <SelectItem value="FAILED">Başarısız</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-
-      {/* Workflows List */}
-      <Card className="shadow-xl border-0 bg-gradient-to-br from-card via-card/90 to-muted/20">
+      {/* Results */}
+      <Card>
         <CardHeader>
-          <div className="flex items-center gap-3">
-            <CardTitle className="text-2xl font-bold flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-primary/10">
-                <Workflow className="w-6 h-6 text-primary" />
-              </div>
-              Workflows ({filteredWorkflows.length})
+          <div className="flex justify-between items-center">
+            <CardTitle className="flex items-center gap-2">
+              <Workflow className="h-5 w-5" />
+              Workflow Listesi
+              {currentTotal > 0 && (
+                <Badge variant="outline">
+                  {currentTotal.toLocaleString('tr-TR')} sonuç
+                </Badge>
+              )}
             </CardTitle>
-            <HelpTooltip content={helpContent.workflows.totalWorkflows} />
           </div>
-          <CardDescription className="text-lg">
-            Manage your automation workflows with detailed insights and controls
-          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-8 h-8 animate-spin" />
-              <span className="ml-2">Workflow'lar yükleniyor...</span>
-            </div>
-          ) : error ? (
+        <CardContent>
+          {/* Error State */}
+          {workflowsError && (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">Workflow'lar yüklenirken bir hata oluştu: {error.message}</p>
-            </div>
-          ) : filteredWorkflows.length === 0 ? (
-            <div className="text-center py-8">
-              <Workflow className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">Henüz workflow bulunamadı.</p>
-              <Button 
-                onClick={() => setShowCreateDialog(true)}
-                className="mt-4"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                İlk Workflow'unuzu Oluşturun
+              <p className="text-destructive mb-4">
+                Workflow'lar yüklenirken hata oluştu: {workflowsError.message}
+              </p>
+              <Button onClick={refetchWorkflows} variant="outline">
+                Tekrar Dene
               </Button>
             </div>
-          ) : (
-            filteredWorkflows.map((workflow) => (
-            <div 
-              key={workflow.id} 
-              className="group p-6 rounded-xl bg-gradient-to-r from-background via-background/95 to-background/90 border border-border/50 hover:border-primary/30 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="flex items-center justify-between">
-                {/* Left Section - Main Info */}
-                <div className="flex items-center gap-6 flex-1 min-w-0">
-                  {/* Category Icon */}
-                  <div className="flex-shrink-0 p-3 rounded-xl bg-gradient-to-br from-muted/50 to-muted/30 group-hover:from-primary/10 group-hover:to-primary/5 transition-all duration-300">
-                    {getCategoryIcon(workflow.category)}
-                  </div>
+          )}
+
+          {/* Workflow Table */}
+          {!workflowsError && (
+            <WorkflowTable
+              workflows={currentWorkflows}
+              isLoading={isLoading}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onViewDetails={handleViewDetails}
+              onViewStats={handleViewStats}
+              onExecute={handleExecute}
+              onValidate={handleValidate}
+              executeLoading={executeWorkflow.isPending}
+            />
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6 flex justify-center">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                    />
+                  </PaginationItem>
                   
-                  {/* Name and Description */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300 truncate">
-                        {workflow.name}
-                      </h3>
-                      {getStatusBadge(workflow.status)}
-                    </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                      {workflow.description}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Middle Section - Stats */}
-                <div className="hidden lg:flex items-center gap-8 px-6">
-                  <div className="text-center relative">
-                    <div className="text-lg font-bold text-success">
-                      {workflow.success_rate ? `${workflow.success_rate.toFixed(1)}%` : 'N/A'}
-                    </div>
-                    <div className="text-xs text-muted-foreground flex items-center gap-1">
-                      Başarı Oranı
-                      <HelpTooltip content="Başarılı workflow çalıştırmalarının yüzdesi" iconSize="w-3 h-3" />
-                    </div>
-                  </div>
-                  <div className="text-center relative">
-                    <div className="text-lg font-bold text-primary">{workflow.total_executions || 0}</div>
-                    <div className="text-xs text-muted-foreground flex items-center gap-1">
-                      Toplam Çalıştırma
-                      <HelpTooltip content="Bu workflow'un kaç kez çalıştırıldığı" iconSize="w-3 h-3" />
-                    </div>
-                  </div>
-                  <div className="text-center relative">
-                    <div className="text-lg font-bold text-warning">{workflow.priority || 50}</div>
-                    <div className="text-xs text-muted-foreground flex items-center gap-1">
-                      Öncelik
-                      <HelpTooltip content="Workflow öncelik seviyesi (0-100)" iconSize="w-3 h-3" />
-                    </div>
-                  </div>
-                  <div className="text-center relative">
-                    <div className="text-lg font-bold text-secondary">
-                      {formatDate(workflow.created_at)}
-                    </div>
-                    <div className="text-xs text-muted-foreground flex items-center gap-1">
-                      Oluşturulma
-                      <HelpTooltip content="Workflow'un oluşturulma tarihi" iconSize="w-3 h-3" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Section - Actions */}
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-10 w-10 p-0 rounded-xl hover:bg-primary/10 hover:scale-110 transition-all duration-300"
-                    onClick={() => setStatsWorkflow({ id: workflow.id, name: workflow.name })}
-                    title="İstatistikleri Gör"
-                  >
-                    <BarChart3 className="w-4 h-4 text-primary" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-10 w-10 p-0 rounded-xl hover:bg-success/10 hover:scale-110 transition-all duration-300"
-                    onClick={() => setEditingWorkflow(workflow.id)}
-                    title="Workflow Düzenle"
-                  >
-                    <Edit className="w-4 h-4 text-success" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-10 w-10 p-0 rounded-xl hover:bg-warning/10 hover:scale-110 transition-all duration-300"
-                    disabled={workflow.status === 'DRAFT' || workflow.status === 'INACTIVE' || executeWorkflow.isPending}
-                    onClick={() => handleExecuteWorkflow(workflow.id)}
-                    title="Workflow Çalıştır"
-                  >
-                    {executeWorkflow.isPending ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-warning" />
-                    ) : (
-                      <Play className="w-4 h-4 text-warning" />
-                    )}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-10 w-10 p-0 rounded-xl hover:bg-destructive/10 hover:scale-110 transition-all duration-300"
-                    onClick={() => setDeletingWorkflow({ id: workflow.id, name: workflow.name })}
-                    title="Workflow Sil"
-                  >
-                    <Trash2 className="w-4 h-4 text-destructive" />
-                  </Button>
-                </div>
-              </div>
-
-              {/* Mobile Stats - Visible only on smaller screens */}
-              {/* Mobile Stats - Visible only on smaller screens */}
-              <div className="lg:hidden mt-4 pt-4 border-t border-border/30">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                  <div>
-                    <div className="text-sm font-bold text-success">
-                      {workflow.success_rate ? `${workflow.success_rate.toFixed(1)}%` : 'N/A'}
-                    </div>
-                    <div className="text-xs text-muted-foreground">Başarı Oranı</div>
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-primary">{workflow.total_executions || 0}</div>
-                    <div className="text-xs text-muted-foreground">Toplam Çalıştırma</div>
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-warning">{workflow.priority || 50}</div>
-                    <div className="text-xs text-muted-foreground">Öncelik</div>
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-secondary">
-                      {formatDate(workflow.created_at).split(' ')[0]}
-                    </div>
-                    <div className="text-xs text-muted-foreground">Oluşturulma</div>
-                  </div>
-                </div>
-              </div>
+                  {/* Page numbers */}
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <PaginationItem key={pageNum}>
+                        <PaginationLink
+                          onClick={() => handlePageChange(pageNum)}
+                          isActive={pageNum === currentPage}
+                        >
+                          {pageNum}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  })}
+                  
+                  {totalPages > 5 && currentPage < totalPages - 2 && (
+                    <PaginationItem>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  )}
+                  
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                      disabled={currentPage === totalPages}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </div>
-          )))}
+          )}
         </CardContent>
       </Card>
 
@@ -511,20 +345,23 @@ export default function Workflows() {
         workflowId={editingWorkflow}
       />
       
-      <WorkflowStatsDialog 
-        open={!!statsWorkflow} 
-        onOpenChange={(open) => !open && setStatsWorkflow(null)}
-        workflowId={statsWorkflow?.id}
-        workflowName={statsWorkflow?.name}
-      />
-      
       <DeleteWorkflowDialog 
         open={!!deletingWorkflow} 
         onOpenChange={(open) => !open && setDeletingWorkflow(null)}
-        workflowId={deletingWorkflow?.id}
-        workflowName={deletingWorkflow?.name}
+        workflow={deletingWorkflow}
+      />
+      
+      <WorkflowStatsDialog 
+        open={!!statsWorkflow} 
+        onOpenChange={(open) => !open && setStatsWorkflow(null)}
+        workflow={statsWorkflow}
+      />
+
+      <WorkflowDetailsDialog 
+        open={!!detailsWorkflow} 
+        onOpenChange={(open) => !open && setDetailsWorkflow(null)}
+        workflowId={detailsWorkflow?.id}
       />
     </div>
-  </div>
   );
 }
