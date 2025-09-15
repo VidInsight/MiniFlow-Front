@@ -42,22 +42,17 @@ export const useExecution = (executionId, options = {}) => {
   });
 };
 
-// Hook for execution count and statistics
+// Hook for execution count and statistics - temporarily disabled due to 404 errors
 export const useExecutionCount = (params = {}) => {
-  // Clean up params to remove null/empty values
-  const cleanParams = Object.entries(params).reduce((acc, [key, value]) => {
-    if (value !== null && value !== undefined && value !== '') {
-      acc[key] = value;
-    }
-    return acc;
-  }, {});
-
-  return useQuery({
-    queryKey: ['execution-count', cleanParams],
-    queryFn: () => executionService.getCount(cleanParams),
-    staleTime: 30000,
-    select: (data) => data.data
-  });
+  return {
+    data: {
+      total: 0,
+      by_status: {},
+      by_success: {}
+    },
+    isLoading: false,
+    error: null
+  };
 };
 
 // Hook for execution statistics - temporarily disabled due to 404 errors

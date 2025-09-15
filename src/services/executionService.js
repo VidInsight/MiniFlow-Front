@@ -35,12 +35,12 @@ export const executionService = {
     return api.post('/api/bff/executions/filter', filterData);
   },
 
-  // Get execution count (total and by status)
-  getCount: async (params = {}) => {
-    const queryParams = new URLSearchParams(params);
-    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    return api.get(`/api/bff/executions/count${query}`);
-  },
+  // Get execution count (temporarily disabled due to 404)
+  // getCount: async (params = {}) => {
+  //   const queryParams = new URLSearchParams(params);
+  //   const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+  //   return api.get(`/api/bff/executions/count${query}`);
+  // },
 
   // Get execution statistics (remove stats call that causes 404)
   // getStats: async (params = {}) => {
