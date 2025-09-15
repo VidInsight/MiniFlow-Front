@@ -49,11 +49,11 @@ export const useCreateScript = () => {
   
   return useMutation({
     mutationFn: (scriptData) => {
-      console.log('Hook: useCreateScript called with:', scriptData);
+      console.log('🔥 Hook: useCreateScript called with:', scriptData);
       return scriptService.createScript(scriptData);
     },
     onSuccess: (data) => {
-      console.log('Hook: Script creation success:', data);
+      console.log('🎉 Hook: Script creation success:', data);
       queryClient.invalidateQueries({ queryKey: ['scripts'] });
       queryClient.invalidateQueries({ queryKey: ['scripts-count'] });
       
@@ -63,7 +63,31 @@ export const useCreateScript = () => {
       });
     },
     onError: (error) => {
-      console.error('Hook: Script creation error:', error);
+      console.error('💥 Hook: Script creation error - FULL DETAILS:');
+      console.error('Error object:', error);
+      console.error('Error message:', error.message);
+      console.error('Error response:', error.response);
+      console.error('Error status:', error.response?.status);
+      console.error('Error data (DETAILED):', JSON.stringify(error.response?.data, null, 2));
+      console.error('Error headers:', error.response?.headers);
+      
+      // Try to parse detailed validation errors
+      if (error.response?.status === 422 && error.response?.data) {
+        console.error('🚨 422 VALIDATION ERROR BREAKDOWN:');
+        const errorData = error.response.data;
+        
+        if (errorData.detail && Array.isArray(errorData.detail)) {
+          errorData.detail.forEach((validationError, index) => {
+            console.error(`Validation Error ${index + 1}:`, {
+              field: validationError.loc?.join('.') || 'unknown',
+              message: validationError.msg || validationError.message,
+              type: validationError.type,
+              input: validationError.input
+            });
+          });
+        }
+      }
+      
       toast({
         title: "Oluşturma Hatası",
         description: error.response?.data?.message || "Script oluşturulurken bir hata oluştu.",
