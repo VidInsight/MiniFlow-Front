@@ -38,7 +38,7 @@ import {
   Activity,
   TrendingUp,
   Cpu,
-  Memory
+  HardDrive
 } from "lucide-react";
 
 const getCategoryBadge = (category) => {
