@@ -1,16 +1,60 @@
 import api from './api';
 
+// Mock data for testing (remove when real APIs are ready)
+const mockExecutions = [
+  {
+    id: "exec_123456789",
+    workflow_id: "wf_987654321", 
+    status: "RUNNING",
+    started_at: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+    completed_at: null,
+    duration_seconds: 300,
+    success: null,
+    current_node_id: "node_abc123"
+  },
+  {
+    id: "exec_234567890",
+    workflow_id: "wf_876543210",
+    status: "COMPLETED", 
+    started_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    completed_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+    duration_seconds: 3600,
+    success: true,
+    current_node_id: null
+  },
+  {
+    id: "exec_345678901",
+    workflow_id: "wf_765432109",
+    status: "FAILED",
+    started_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), 
+    completed_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+    duration_seconds: 1800,
+    success: false,
+    current_node_id: null
+  }
+];
+
 export const executionService = {
   // Get all executions with pagination
   getAll: async (params = {}) => {
-    const { skip = 0, limit = 100, ...otherParams } = params;
-    const queryParams = new URLSearchParams({
-      skip: skip.toString(),
-      limit: limit.toString(),
-      ...otherParams
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const { skip = 0, limit = 100 } = params;
+    const filteredExecutions = mockExecutions.filter(exec => {
+      if (params.status && exec.status !== params.status) return false;
+      if (params.workflowId && !exec.workflow_id.includes(params.workflowId)) return false;
+      return true;
     });
     
-    return api.get(`/api/bff/executions/?${queryParams}`);
+    return {
+      data: {
+        items: filteredExecutions.slice(skip, skip + limit),
+        total: filteredExecutions.length,
+        skip,
+        limit
+      }
+    };
   },
 
   // Get execution by ID with relationships
