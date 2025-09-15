@@ -516,25 +516,50 @@ export function CreateScriptDialog({ open, onOpenChange }) {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
-                      Girdi Şeması (JSON)
-                      <HelpTooltip content="Script'in beklediği girdi formatı" />
+                      Girdi Şeması (JSON Schema)
+                      <HelpTooltip content="Script'in girdi verisini validate etmek için JSON Schema formatında tanım" />
                     </Label>
                     <Textarea
                       value={formData.input_schema}
                       onChange={(e) => handleInputChange("input_schema", e.target.value)}
-                      placeholder='{"type": "object", "properties": {...}}'
+                      placeholder={JSON.stringify({
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "age": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["name"]
+                      }, null, 2)}
                       className="font-mono text-sm min-h-32"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
-                      Çıktı Şeması (JSON)
-                      <HelpTooltip content="Script'in döneceği sonuç formatı" />
+                      Çıktı Şeması (JSON Schema)
+                      <HelpTooltip content="Script'in döneceği sonucun validate edilmesi için JSON Schema formatında tanım" />
                     </Label>
                     <Textarea
                       value={formData.output_schema}
                       onChange={(e) => handleInputChange("output_schema", e.target.value)}
-                      placeholder='{"type": "object", "properties": {...}}'
+                      placeholder={JSON.stringify({
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": ["success", "error"]
+                          },
+                          "data": {
+                            "type": "object"
+                          }
+                        },
+                        "required": ["status"]
+                      }, null, 2)}
                       className="font-mono text-sm min-h-32"
                     />
                   </div>
@@ -543,25 +568,35 @@ export function CreateScriptDialog({ open, onOpenChange }) {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
-                      Test Girdi Parametreleri
-                      <HelpTooltip content="Script testinde kullanılacak örnek veri" />
+                      Test Girdi Verileri
+                      <HelpTooltip content="Script testinde kullanılacak gerçek örnek veri" />
                     </Label>
                     <Textarea
                       value={formData.test_input_params}
                       onChange={(e) => handleInputChange("test_input_params", e.target.value)}
-                      placeholder='{"example": "data"}'
+                      placeholder={JSON.stringify({
+                        "name": "John Doe",
+                        "age": 30,
+                        "email": "john@example.com"
+                      }, null, 2)}
                       className="font-mono text-sm min-h-32"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
-                      Beklenen Test Çıktısı
-                      <HelpTooltip content="Test sonucunda beklenen çıktı" />
+                      Beklenen Test Sonucu
+                      <HelpTooltip content="Test girdi verileri için beklenen çıktı sonucu" />
                     </Label>
                     <Textarea
                       value={formData.test_output_params}
                       onChange={(e) => handleInputChange("test_output_params", e.target.value)}
-                      placeholder='{"expected": "result"}'
+                      placeholder={JSON.stringify({
+                        "status": "success",
+                        "data": {
+                          "processed_name": "JOHN DOE",
+                          "is_adult": true
+                        }
+                      }, null, 2)}
                       className="font-mono text-sm min-h-32"
                     />
                   </div>
