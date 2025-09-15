@@ -46,84 +46,30 @@ const mockOutputs = [
 export const executionOutputService = {
   // Get all execution outputs with pagination
   getAll: async (params = {}) => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    const { skip = 0, limit = 100 } = params;
-    const filteredOutputs = mockOutputs.filter(output => {
-      if (params.execution_id && output.execution_id !== params.execution_id) return false;
-      if (params.node_id && output.node_id !== params.node_id) return false;
-      if (params.data_type && output.data_type !== params.data_type) return false;
-      if (params.success !== undefined && output.success !== params.success) return false;
-      return true;
+    const { skip = 0, limit = 100, ...otherParams } = params;
+    const queryParams = new URLSearchParams({
+      skip: skip.toString(),
+      limit: limit.toString(),
+      ...otherParams
     });
     
-    return {
-      data: {
-        items: filteredOutputs.slice(skip, skip + limit),
-        total: filteredOutputs.length,
-        skip,
-        limit
-      }
-    };
+    return api.get(`/api/bff/execution-outputs/?${queryParams}`);
   },
 
   // Get execution output count
   getCount: async (params = {}) => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 200));
-    
-    const filteredOutputs = mockOutputs.filter(output => {
-      if (params.execution_id && output.execution_id !== params.execution_id) return false;
-      if (params.node_id && output.node_id !== params.node_id) return false;
-      if (params.data_type && output.data_type !== params.data_type) return false;
-      if (params.success !== undefined && output.success !== params.success) return false;
-      return true;
-    });
-    
-    return {
-      data: { count: filteredOutputs.length }
-    };
+    const queryParams = new URLSearchParams(params);
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+    return api.get(`/api/bff/execution-outputs/count${query}`);
   },
 
   // Filter execution outputs
   filter: async (filterData) => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 400));
-    
-    const { execution_id, node_id, data_type, success, skip = 0, limit = 100 } = filterData;
-    const filteredOutputs = mockOutputs.filter(output => {
-      if (execution_id && output.execution_id !== execution_id) return false;
-      if (node_id && output.node_id !== node_id) return false;
-      if (data_type && output.data_type !== data_type) return false;
-      if (success !== undefined && output.success !== success) return false;
-      return true;
-    });
-    
-    return {
-      data: {
-        items: filteredOutputs.slice(skip, skip + limit),
-        total: filteredOutputs.length,
-        skip,
-        limit
-      }
-    };
+    return api.post('/api/bff/execution-outputs/filter', filterData);
   },
 
   // Get execution output by ID
   getById: async (outputId) => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 250));
-    
-    const output = mockOutputs.find(o => o.id === outputId);
-    
-    if (!output) {
-      throw {
-        message: 'Output bulunamadı',
-        status: 404
-      };
-    }
-    
-    return { data: output };
+    return api.get(`/api/bff/execution-outputs/${outputId}`);
   }
 };

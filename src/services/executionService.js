@@ -37,24 +37,14 @@ const mockExecutions = [
 export const executionService = {
   // Get all executions with pagination
   getAll: async (params = {}) => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const { skip = 0, limit = 100 } = params;
-    const filteredExecutions = mockExecutions.filter(exec => {
-      if (params.status && exec.status !== params.status) return false;
-      if (params.workflowId && !exec.workflow_id.includes(params.workflowId)) return false;
-      return true;
+    const { skip = 0, limit = 100, ...otherParams } = params;
+    const queryParams = new URLSearchParams({
+      skip: skip.toString(),
+      limit: limit.toString(),
+      ...otherParams
     });
     
-    return {
-      data: {
-        items: filteredExecutions.slice(skip, skip + limit),
-        total: filteredExecutions.length,
-        skip,
-        limit
-      }
-    };
+    return api.get(`/api/bff/executions/?${queryParams}`);
   },
 
   // Get execution by ID with relationships
