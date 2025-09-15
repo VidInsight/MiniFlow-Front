@@ -24,6 +24,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PageHeader } from "@/components/ui/page-header";
+import { CreateWorkflowDialog } from "@/components/workflows/CreateWorkflowDialog";
+import { EditWorkflowDialog } from "@/components/workflows/EditWorkflowDialog";
+import { WorkflowStatsDialog } from "@/components/workflows/WorkflowStatsDialog";
+import { DeleteWorkflowDialog } from "@/components/workflows/DeleteWorkflowDialog";
+import { useWorkflows, useExecuteWorkflow } from "@/hooks/useWorkflows";
 import { 
   Plus, 
   Search, 
@@ -40,7 +45,8 @@ import {
   Info,
   Edit,
   Trash2,
-  BarChart3
+  BarChart3,
+  Loader2
 } from "lucide-react";
 
 // Initial nodes and edges for the workflow builder
@@ -130,107 +136,38 @@ const initialEdges = [
   },
 ];
 
-// Mock workflow data
-const workflows = [
-  {
-    id: "WF-001",
-    name: "Data Processing Pipeline",
-    description: "Automated CSV processing with email notifications and data transformation",
-    status: "active",
-    created_at: "2024-01-15T10:00:00Z",
-    last_run: "2024-01-15T14:30:00Z",
-    success_rate: 96.7,
-    total_runs: 150,
-    nodes_count: 5,
-    category: "data_processing",
-    avg_duration: "2m 15s"
-  },
-  {
-    id: "WF-002", 
-    name: "Email Campaign",
-    description: "Automated email marketing workflow with analytics and customer segmentation",
-    status: "active",
-    created_at: "2024-01-12T09:15:00Z",
-    last_run: "2024-01-15T12:45:00Z",
-    success_rate: 98.2,
-    total_runs: 89,
-    nodes_count: 8,
-    category: "communication",
-    avg_duration: "1m 30s"
-  },
-  {
-    id: "WF-003",
-    name: "Database Maintenance",
-    description: "Scheduled database cleanup and optimization tasks",
-    status: "deactivated",
-    created_at: "2024-01-10T11:45:00Z",
-    last_run: "2024-01-14T02:00:00Z",
-    success_rate: 100.0,
-    total_runs: 12,
-    nodes_count: 3,
-    category: "maintenance",
-    avg_duration: "5m 45s"
-  },
-  {
-    id: "WF-004",
-    name: "Report Generation",
-    description: "Daily analytics reports with automated distribution to stakeholders",
-    status: "draft",
-    created_at: "2024-01-20T15:30:00Z",
-    last_run: null,
-    success_rate: 0,
-    total_runs: 0,
-    nodes_count: 6,
-    category: "reporting",
-    avg_duration: "N/A"
-  },
-  {
-    id: "WF-005",
-    name: "User Onboarding",
-    description: "Welcome email sequence and account setup automation for new users",
-    status: "active", 
-    created_at: "2024-01-18T11:20:00Z",
-    last_run: "2024-01-20T09:15:00Z",
-    success_rate: 94.5,
-    total_runs: 67,
-    nodes_count: 4,
-    category: "communication",
-    avg_duration: "45s"
-  }
-];
-
+// Status badge helper
 const getStatusBadge = (status) => {
-  switch (status) {
-    case "active":
-      return <Badge variant="success" className="font-medium">Active</Badge>;
-    case "draft":
-      return <Badge variant="secondary" className="font-medium">Draft</Badge>;
-    case "deactivated":
-      return <Badge variant="destructive" className="font-medium">Deactivated</Badge>;
-    case "paused":
-      return <Badge variant="warning" className="font-medium">Paused</Badge>;
-    case "failed":
-      return <Badge variant="destructive" className="font-medium">Failed</Badge>;
-    default:
-      return <Badge variant="outline" className="font-medium">{status}</Badge>;
-  }
+  const statusMap = {
+    "ACTIVE": <Badge variant="success" className="font-medium">Aktif</Badge>,
+    "INACTIVE": <Badge variant="destructive" className="font-medium">Pasif</Badge>,
+    "DRAFT": <Badge variant="secondary" className="font-medium">Taslak</Badge>,
+    "PAUSED": <Badge variant="warning" className="font-medium">Duraklatıldı</Badge>,
+    "FAILED": <Badge variant="destructive" className="font-medium">Başarısız</Badge>,
+  };
+  return statusMap[status] || <Badge variant="outline" className="font-medium">{status}</Badge>;
 };
 
+
 const getCategoryIcon = (category) => {
-  switch (category) {
-    case "data_processing":
-      return <Database className="w-4 h-4" />;
-    case "communication":
-      return <Mail className="w-4 h-4" />;
-    case "maintenance":
-      return <Settings className="w-4 h-4" />;
-    default:
-      return <Workflow className="w-4 h-4" />;
-  }
+  const categoryMap = {
+    "data_processing": <Database className="w-4 h-4" />,
+    "communication": <Mail className="w-4 h-4" />,
+    "maintenance": <Settings className="w-4 h-4" />,
+    "reporting": <FileText className="w-4 h-4" />,
+  };
+  return categoryMap[category] || <Workflow className="w-4 h-4" />;
 };
 
 const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString() + " " + new Date(dateString).toLocaleTimeString();
+  if (!dateString) return "N/A";
+  return new Date(dateString).toLocaleDateString('tr-TR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 };
 
 export default function Workflows() {
@@ -239,18 +176,36 @@ export default function Workflows() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showBuilder, setShowBuilder] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [editingWorkflow, setEditingWorkflow] = useState(null);
+  const [statsWorkflow, setStatsWorkflow] = useState(null);
+  const [deletingWorkflow, setDeletingWorkflow] = useState(null);
+  
+  // API hooks
+  const { data: workflowsData, isLoading, error } = useWorkflows();
+  const executeWorkflow = useExecuteWorkflow();
 
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
 
+  const workflows = workflowsData?.data?.items || [];
+  
   const filteredWorkflows = workflows.filter(workflow => {
-    const matchesSearch = workflow.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         workflow.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = workflow.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         workflow.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || workflow.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const handleExecuteWorkflow = async (workflowId) => {
+    try {
+      await executeWorkflow.mutateAsync({ workflowId });
+    } catch (error) {
+      // Error handled by hook
+    }
+  };
 
   if (showBuilder) {
     return (
@@ -312,7 +267,7 @@ export default function Workflows() {
       <div className="max-w-7xl mx-auto space-y-8">
         <PageHeader
           title="Workflows"
-          description="Create, manage, and monitor your automation workflows"
+          description="Otomasyon workflow'larınızı oluşturun, yönetin ve izleyin"
           icon={Workflow}
           actions={[
             <Button 
@@ -321,15 +276,15 @@ export default function Workflows() {
               className="bg-background/50 backdrop-blur-sm hover:bg-background/80 hover:scale-105 transition-all duration-300 shadow-soft"
             >
               <FileText className="w-4 h-4 mr-2" />
-              Templates
+              Şablonlar
             </Button>,
             <Button 
               key="new-workflow"
-              onClick={() => setShowBuilder(true)} 
+              onClick={() => setShowCreateDialog(true)} 
               className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-glow hover:shadow-strong transition-all duration-300 hover:scale-105"
             >
               <Plus className="w-4 h-4 mr-2" />
-              New Workflow
+              Yeni Workflow
             </Button>
           ]}
         />
@@ -341,7 +296,7 @@ export default function Workflows() {
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search workflows..."
+                  placeholder="Workflow'ları ara..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/50 focus:border-primary transition-all duration-300"
@@ -353,12 +308,12 @@ export default function Workflows() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="deactivated">Deactivated</SelectItem>
-                  <SelectItem value="paused">Paused</SelectItem>
-                  <SelectItem value="failed">Failed</SelectItem>
+                  <SelectItem value="all">Tüm Durumlar</SelectItem>
+                  <SelectItem value="ACTIVE">Aktif</SelectItem>
+                  <SelectItem value="DRAFT">Taslak</SelectItem>
+                  <SelectItem value="INACTIVE">Pasif</SelectItem>
+                  <SelectItem value="PAUSED">Duraklatıldı</SelectItem>
+                  <SelectItem value="FAILED">Başarısız</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -382,7 +337,29 @@ export default function Workflows() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {filteredWorkflows.map((workflow) => (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin" />
+              <span className="ml-2">Workflow'lar yükleniyor...</span>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Workflow'lar yüklenirken bir hata oluştu: {error.message}</p>
+            </div>
+          ) : filteredWorkflows.length === 0 ? (
+            <div className="text-center py-8">
+              <Workflow className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">Henüz workflow bulunamadı.</p>
+              <Button 
+                onClick={() => setShowCreateDialog(true)}
+                className="mt-4"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                İlk Workflow'unuzu Oluşturun
+              </Button>
+            </div>
+          ) : (
+            filteredWorkflows.map((workflow) => (
             <div 
               key={workflow.id} 
               className="group p-6 rounded-xl bg-gradient-to-r from-background via-background/95 to-background/90 border border-border/50 hover:border-primary/30 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
@@ -412,31 +389,35 @@ export default function Workflows() {
                 {/* Middle Section - Stats */}
                 <div className="hidden lg:flex items-center gap-8 px-6">
                   <div className="text-center relative">
-                    <div className="text-lg font-bold text-success">{workflow.success_rate}%</div>
+                    <div className="text-lg font-bold text-success">
+                      {workflow.success_rate ? `${workflow.success_rate.toFixed(1)}%` : 'N/A'}
+                    </div>
                     <div className="text-xs text-muted-foreground flex items-center gap-1">
-                      Success Rate
-                      <HelpTooltip content="Percentage of successful workflow runs" iconSize="w-3 h-3" />
+                      Başarı Oranı
+                      <HelpTooltip content="Başarılı workflow çalıştırmalarının yüzdesi" iconSize="w-3 h-3" />
                     </div>
                   </div>
                   <div className="text-center relative">
-                    <div className="text-lg font-bold text-primary">{workflow.total_runs}</div>
+                    <div className="text-lg font-bold text-primary">{workflow.total_executions || 0}</div>
                     <div className="text-xs text-muted-foreground flex items-center gap-1">
-                      Total Runs
-                      <HelpTooltip content="Number of times this workflow has been executed" iconSize="w-3 h-3" />
+                      Toplam Çalıştırma
+                      <HelpTooltip content="Bu workflow'un kaç kez çalıştırıldığı" iconSize="w-3 h-3" />
                     </div>
                   </div>
                   <div className="text-center relative">
-                    <div className="text-lg font-bold text-warning">{workflow.nodes_count}</div>
+                    <div className="text-lg font-bold text-warning">{workflow.priority || 50}</div>
                     <div className="text-xs text-muted-foreground flex items-center gap-1">
-                      Nodes
-                      <HelpTooltip content="Number of processing nodes in this workflow" iconSize="w-3 h-3" />
+                      Öncelik
+                      <HelpTooltip content="Workflow öncelik seviyesi (0-100)" iconSize="w-3 h-3" />
                     </div>
                   </div>
                   <div className="text-center relative">
-                    <div className="text-lg font-bold text-secondary">{workflow.avg_duration}</div>
+                    <div className="text-lg font-bold text-secondary">
+                      {formatDate(workflow.created_at)}
+                    </div>
                     <div className="text-xs text-muted-foreground flex items-center gap-1">
-                      Avg Duration
-                      <HelpTooltip content="Average execution time for this workflow" iconSize="w-3 h-3" />
+                      Oluşturulma
+                      <HelpTooltip content="Workflow'un oluşturulma tarihi" iconSize="w-3 h-3" />
                     </div>
                   </div>
                 </div>
@@ -447,16 +428,17 @@ export default function Workflows() {
                     variant="ghost"
                     size="sm"
                     className="h-10 w-10 p-0 rounded-xl hover:bg-primary/10 hover:scale-110 transition-all duration-300"
-                    title="View Info"
+                    onClick={() => setStatsWorkflow({ id: workflow.id, name: workflow.name })}
+                    title="İstatistikleri Gör"
                   >
-                    <Info className="w-4 h-4 text-primary" />
+                    <BarChart3 className="w-4 h-4 text-primary" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     className="h-10 w-10 p-0 rounded-xl hover:bg-success/10 hover:scale-110 transition-all duration-300"
-                    onClick={() => setShowBuilder(true)}
-                    title="Edit Workflow"
+                    onClick={() => setEditingWorkflow(workflow.id)}
+                    title="Workflow Düzenle"
                   >
                     <Edit className="w-4 h-4 text-success" />
                   </Button>
@@ -464,16 +446,22 @@ export default function Workflows() {
                     variant="ghost"
                     size="sm"
                     className="h-10 w-10 p-0 rounded-xl hover:bg-warning/10 hover:scale-110 transition-all duration-300"
-                    disabled={workflow.status === 'draft' || workflow.status === 'deactivated'}
-                    title="Run Workflow"
+                    disabled={workflow.status === 'DRAFT' || workflow.status === 'INACTIVE' || executeWorkflow.isPending}
+                    onClick={() => handleExecuteWorkflow(workflow.id)}
+                    title="Workflow Çalıştır"
                   >
-                    <Play className="w-4 h-4 text-warning" />
+                    {executeWorkflow.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-warning" />
+                    ) : (
+                      <Play className="w-4 h-4 text-warning" />
+                    )}
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     className="h-10 w-10 p-0 rounded-xl hover:bg-destructive/10 hover:scale-110 transition-all duration-300"
-                    title="Delete Workflow"
+                    onClick={() => setDeletingWorkflow({ id: workflow.id, name: workflow.name })}
+                    title="Workflow Sil"
                   >
                     <Trash2 className="w-4 h-4 text-destructive" />
                   </Button>
@@ -481,30 +469,61 @@ export default function Workflows() {
               </div>
 
               {/* Mobile Stats - Visible only on smaller screens */}
+              {/* Mobile Stats - Visible only on smaller screens */}
               <div className="lg:hidden mt-4 pt-4 border-t border-border/30">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                   <div>
-                    <div className="text-sm font-bold text-success">{workflow.success_rate}%</div>
-                    <div className="text-xs text-muted-foreground">Success Rate</div>
+                    <div className="text-sm font-bold text-success">
+                      {workflow.success_rate ? `${workflow.success_rate.toFixed(1)}%` : 'N/A'}
+                    </div>
+                    <div className="text-xs text-muted-foreground">Başarı Oranı</div>
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-primary">{workflow.total_runs}</div>
-                    <div className="text-xs text-muted-foreground">Total Runs</div>
+                    <div className="text-sm font-bold text-primary">{workflow.total_executions || 0}</div>
+                    <div className="text-xs text-muted-foreground">Toplam Çalıştırma</div>
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-warning">{workflow.nodes_count}</div>
-                    <div className="text-xs text-muted-foreground">Nodes</div>
+                    <div className="text-sm font-bold text-warning">{workflow.priority || 50}</div>
+                    <div className="text-xs text-muted-foreground">Öncelik</div>
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-secondary">{workflow.avg_duration}</div>
-                    <div className="text-xs text-muted-foreground">Avg Duration</div>
+                    <div className="text-sm font-bold text-secondary">
+                      {formatDate(workflow.created_at).split(' ')[0]}
+                    </div>
+                    <div className="text-xs text-muted-foreground">Oluşturulma</div>
                   </div>
                 </div>
               </div>
             </div>
-          ))}
+          )))}
         </CardContent>
       </Card>
+
+      {/* Dialogs */}
+      <CreateWorkflowDialog 
+        open={showCreateDialog} 
+        onOpenChange={setShowCreateDialog} 
+      />
+      
+      <EditWorkflowDialog 
+        open={!!editingWorkflow} 
+        onOpenChange={(open) => !open && setEditingWorkflow(null)}
+        workflowId={editingWorkflow}
+      />
+      
+      <WorkflowStatsDialog 
+        open={!!statsWorkflow} 
+        onOpenChange={(open) => !open && setStatsWorkflow(null)}
+        workflowId={statsWorkflow?.id}
+        workflowName={statsWorkflow?.name}
+      />
+      
+      <DeleteWorkflowDialog 
+        open={!!deletingWorkflow} 
+        onOpenChange={(open) => !open && setDeletingWorkflow(null)}
+        workflowId={deletingWorkflow?.id}
+        workflowName={deletingWorkflow?.name}
+      />
     </div>
   </div>
   );

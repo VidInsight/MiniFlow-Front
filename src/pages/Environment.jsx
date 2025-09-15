@@ -3,8 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { helpContent } from "@/data/help-content";
 import {
@@ -15,15 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Table,
   TableBody,
   TableCell,
@@ -32,6 +21,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PageHeader } from "@/components/ui/page-header";
+import { CreateEnvironmentDialog } from "@/components/environment/CreateEnvironmentDialog";
+import { EditEnvironmentDialog } from "@/components/environment/EditEnvironmentDialog";
+import { DeleteEnvironmentDialog } from "@/components/environment/DeleteEnvironmentDialog";
+import { useEnvironmentVariables } from "@/hooks/useEnvironment";
 import { 
   Plus, 
   Search, 
@@ -43,69 +36,30 @@ import {
   Globe,
   User,
   Clock,
-  Filter
+  Filter,
+  Loader2,
+  Server,
+  Workflow as WorkflowIcon
 } from "lucide-react";
 
-// Mock data
-const environmentVariables = [
-  {
-    id: "EV-001",
-    name: "DATABASE_URL",
-    value: "postgresql://localhost:5432/miniflow",
-    description: "Main database connection string",
-    type: "URL",
-    scope: "GLOBAL",
-    created_at: "2024-01-15T10:00:00Z",
-    last_accessed_at: "2024-01-15T12:00:00Z",
-    access_count: 25,
-    last_modified_by: "admin@miniflow.dev"
-  },
-  {
-    id: "EV-002", 
-    name: "API_SECRET_KEY",
-    value: "sk-1234567890abcdef",
-    description: "External API authentication key",
-    type: "STRING",
-    scope: "USER",
-    created_at: "2024-01-14T09:30:00Z",
-    last_accessed_at: "2024-01-15T11:45:00Z",
-    access_count: 12,
-    last_modified_by: "dev@miniflow.dev"
-  },
-  {
-    id: "EV-003",
-    name: "MAX_RETRY_COUNT",
-    value: "3",
-    description: "Maximum number of retries for failed operations",
-    type: "INTEGER",
-    scope: "GLOBAL",
-    created_at: "2024-01-13T14:20:00Z",
-    last_accessed_at: "2024-01-15T10:15:00Z",
-    access_count: 45,
-    last_modified_by: "admin@miniflow.dev"
-  },
-];
-
+// Helper functions
 const getScopeIcon = (scope) => {
-  switch (scope) {
-    case "GLOBAL":
-      return <Globe className="w-4 h-4" />;
-    case "USER":
-      return <User className="w-4 h-4" />;
-    default:
-      return <Shield className="w-4 h-4" />;
-  }
+  const scopeIcons = {
+    "GLOBAL": <Globe className="w-4 h-4" />,
+    "WORKFLOW": <WorkflowIcon className="w-4 h-4" />,
+    "EXECUTION": <Server className="w-4 h-4" />,
+  };
+  return scopeIcons[scope] || <Shield className="w-4 h-4" />;
 };
 
+
 const getScopeBadge = (scope) => {
-  switch (scope) {
-    case "GLOBAL":
-      return <Badge variant="success">Global</Badge>;
-    case "USER":
-      return <Badge variant="secondary">User</Badge>;
-    default:
-      return <Badge variant="outline">{scope}</Badge>;
-  }
+  const scopeBadges = {
+    "GLOBAL": <Badge variant="success">Global</Badge>,
+    "WORKFLOW": <Badge variant="warning">Workflow</Badge>,
+    "EXECUTION": <Badge variant="secondary">Execution</Badge>,
+  };
+  return scopeBadges[scope] || <Badge variant="outline">{scope}</Badge>;
 };
 
 const getTypeBadge = (type) => {
@@ -113,29 +67,47 @@ const getTypeBadge = (type) => {
     "STRING": "outline",
     "INTEGER": "secondary", 
     "URL": "success",
-    "BOOLEAN": "warning"
+    "BOOLEAN": "warning",
+    "SECRET": "destructive",
+    "JSON": "default",
+    "FLOAT": "secondary",
+    "FILE_PATH": "outline"
   };
   
   return <Badge variant={variants[type] || "outline"}>{type}</Badge>;
 };
 
 const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString() + " " + new Date(dateString).toLocaleTimeString();
+  if (!dateString) return "N/A";
+  return new Date(dateString).toLocaleDateString('tr-TR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 };
 
 export default function Environment() {
   const [searchTerm, setSearchTerm] = useState("");
   const [scopeFilter, setScopeFilter] = useState("all");
   const [showValues, setShowValues] = useState({});
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [editingEnvar, setEditingEnvar] = useState(null);
+  const [deletingEnvar, setDeletingEnvar] = useState(null);
+  
+  // API hooks
+  const { data: envarsData, isLoading, error } = useEnvironmentVariables();
 
   const toggleValueVisibility = (id) => {
     setShowValues(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const environmentVariables = envarsData?.data?.items || [];
+  
   const filteredVariables = environmentVariables.filter(variable => {
-    const matchesSearch = variable.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         variable.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = variable.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         variable.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesScope = scopeFilter === "all" || variable.scope === scopeFilter;
     return matchesSearch && matchesScope;
   });
@@ -144,80 +116,18 @@ export default function Environment() {
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/5 to-accent/5 -m-6 p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         <PageHeader
-          title="Environment Variables"
-          description="Manage secure configuration variables for your workflows and scripts"
+          title="Ortam Değişkenleri"
+          description="Workflow'larınız ve scriptleriniz için güvenli yapılandırma değişkenlerini yönetin"
           icon={Shield}
           actions={[
-            <Dialog key="create-dialog" open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-glow hover:shadow-strong transition-all duration-300 hover:scale-105">
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Variable
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>Create Environment Variable</DialogTitle>
-                  <DialogDescription>
-                    Add a new environment variable to your MiniFlow workspace
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Variable Name</Label>
-                      <Input id="name" placeholder="DATABASE_URL" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="type">Type</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="STRING">String</SelectItem>
-                          <SelectItem value="INTEGER">Integer</SelectItem>
-                          <SelectItem value="FLOAT">Float</SelectItem>
-                          <SelectItem value="BOOLEAN">Boolean</SelectItem>
-                          <SelectItem value="URL">URL</SelectItem>
-                          <SelectItem value="JSON">JSON</SelectItem>
-                          <SelectItem value="FILE_PATH">File Path</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="value">Value</Label>
-                    <Input id="value" type="password" placeholder="Enter value" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea id="description" placeholder="Describe this variable's purpose" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="scope">Scope</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select scope" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="GLOBAL">Global</SelectItem>
-                        <SelectItem value="USER">User</SelectItem>
-                        <SelectItem value="SESSION">Session</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={() => setIsCreateDialogOpen(false)}>
-                    Create Variable
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <Button 
+              key="new-variable"
+              onClick={() => setShowCreateDialog(true)} 
+              className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-glow hover:shadow-strong transition-all duration-300 hover:scale-105"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Yeni Değişken
+            </Button>
           ]}
         />
 
@@ -228,7 +138,7 @@ export default function Environment() {
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search variables..."
+                  placeholder="Değişkenleri ara..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/50 focus:border-primary transition-all duration-300"
@@ -240,10 +150,10 @@ export default function Environment() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Scopes</SelectItem>
+                  <SelectItem value="all">Tüm Kapsamlar</SelectItem>
                   <SelectItem value="GLOBAL">Global</SelectItem>
-                  <SelectItem value="USER">User</SelectItem>
-                  <SelectItem value="SESSION">Session</SelectItem>
+                  <SelectItem value="WORKFLOW">Workflow</SelectItem>
+                  <SelectItem value="EXECUTION">Execution</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -257,48 +167,70 @@ export default function Environment() {
               <div className="p-2 rounded-xl bg-primary/10">
                 <Shield className="w-6 h-6 text-primary" />
               </div>
-              Environment Variables ({filteredVariables.length})
+              Ortam Değişkenleri ({filteredVariables.length})
             </CardTitle>
             <CardDescription className="text-lg">
-              Secure storage for configuration data and secrets
+              Yapılandırma verileri ve gizli bilgiler için güvenli depolama
             </CardDescription>
           </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="flex items-center gap-2">
-                  Name
-                  <HelpTooltip content={helpContent.environment.name} iconSize="w-3 h-3" />
-                </TableHead>
-                <TableHead className="flex items-center gap-2">
-                  Value
-                  <HelpTooltip content="The variable value (click eye to show/hide)" iconSize="w-3 h-3" />
-                </TableHead>
-                <TableHead className="flex items-center gap-2">
-                  Type
-                  <HelpTooltip content={helpContent.environment.type} iconSize="w-3 h-3" />
-                </TableHead>
-                <TableHead className="flex items-center gap-2">
-                  Scope
-                  <HelpTooltip content={helpContent.environment.scope} iconSize="w-3 h-3" />
-                </TableHead>
-                <TableHead className="flex items-center gap-2">
-                  Access Count
-                  <HelpTooltip content={helpContent.environment.accessCount} iconSize="w-3 h-3" />
-                </TableHead>
-                <TableHead className="flex items-center gap-2">
-                  Last Used
-                  <HelpTooltip content={helpContent.environment.lastUsed} iconSize="w-3 h-3" />
-                </TableHead>
-                <TableHead className="text-right flex items-center gap-2 justify-end">
-                  Actions
-                  <HelpTooltip content={helpContent.environment.actions} iconSize="w-3 h-3" />
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredVariables.map((variable) => (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin" />
+              <span className="ml-2">Ortam değişkenleri yükleniyor...</span>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Ortam değişkenleri yüklenirken bir hata oluştu: {error.message}</p>
+            </div>
+          ) : filteredVariables.length === 0 ? (
+            <div className="text-center py-8">
+              <Shield className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">Henüz ortam değişkeni bulunamadı.</p>
+              <Button 
+                onClick={() => setShowCreateDialog(true)}
+                className="mt-4"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                İlk Değişkeninizi Oluşturun
+              </Button>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="flex items-center gap-2">
+                    Ad
+                    <HelpTooltip content={helpContent.environment.name} iconSize="w-3 h-3" />
+                  </TableHead>
+                  <TableHead className="flex items-center gap-2">
+                    Değer
+                    <HelpTooltip content="Değişken değeri (göstermek/gizlemek için göz simgesine tıklayın)" iconSize="w-3 h-3" />
+                  </TableHead>
+                  <TableHead className="flex items-center gap-2">
+                    Tür
+                    <HelpTooltip content={helpContent.environment.type} iconSize="w-3 h-3" />
+                  </TableHead>
+                  <TableHead className="flex items-center gap-2">
+                    Kapsam
+                    <HelpTooltip content={helpContent.environment.scope} iconSize="w-3 h-3" />
+                  </TableHead>
+                  <TableHead className="flex items-center gap-2">
+                    Erişim Sayısı
+                    <HelpTooltip content={helpContent.environment.accessCount} iconSize="w-3 h-3" />
+                  </TableHead>
+                  <TableHead className="flex items-center gap-2">
+                    Son Kullanım
+                    <HelpTooltip content={helpContent.environment.lastUsed} iconSize="w-3 h-3" />
+                  </TableHead>
+                  <TableHead className="text-right flex items-center gap-2 justify-end">
+                    İşlemler
+                    <HelpTooltip content={helpContent.environment.actions} iconSize="w-3 h-3" />
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredVariables.map((variable) => (
                 <TableRow key={variable.id}>
                   <TableCell className="font-medium">
                     <div>
@@ -326,7 +258,7 @@ export default function Environment() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    {getTypeBadge(variable.type)}
+                    {getTypeBadge(variable.variable_type)}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -345,20 +277,55 @@ export default function Environment() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => setEditingEnvar(variable.id)}
+                        title="Düzenle"
+                      >
                         <Edit className="w-3 h-3" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => setDeletingEnvar({ 
+                          id: variable.id, 
+                          name: variable.name,
+                          usageCount: variable.access_count 
+                        })}
+                        title="Sil"
+                      >
                         <Trash2 className="w-3 h-3" />
                       </Button>
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
+
+      {/* Dialogs */}
+      <CreateEnvironmentDialog 
+        open={showCreateDialog} 
+        onOpenChange={setShowCreateDialog} 
+      />
+      
+      <EditEnvironmentDialog 
+        open={!!editingEnvar} 
+        onOpenChange={(open) => !open && setEditingEnvar(null)}
+        envarId={editingEnvar}
+      />
+      
+      <DeleteEnvironmentDialog 
+        open={!!deletingEnvar} 
+        onOpenChange={(open) => !open && setDeletingEnvar(null)}
+        envarId={deletingEnvar?.id}
+        envarName={deletingEnvar?.name}
+        usageCount={deletingEnvar?.usageCount}
+      />
     </div>
   </div>
   );
