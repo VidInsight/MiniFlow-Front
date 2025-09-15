@@ -117,16 +117,6 @@ const getExtensionBadge = (extension) => {
   </Badge>;
 };
 
-const formatFileSize = (bytes) => {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-};
-
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString();
-};
-
 export default function Scripts() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
