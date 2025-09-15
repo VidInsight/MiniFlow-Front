@@ -150,11 +150,8 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
               <Code2 className="w-4 h-4 mr-2" />
               Kod
             </Button>
-            
-            <div className="h-6 w-px bg-border mx-2" />
-            
             <Button
-              variant="secondary"
+              variant="outline"
               size="sm"
               onClick={handleTestStatsClick}
               disabled={isLoadingTestStats}
@@ -164,10 +161,10 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
               ) : (
                 <TestTube className="w-4 h-4 mr-2" />
               )}
-              Test İstatistikleri Al
+              Test İstatistikleri
             </Button>
             <Button
-              variant="secondary"
+              variant="outline"
               size="sm"
               onClick={handlePerformanceStatsClick}
               disabled={isLoadingPerformanceStats}
@@ -177,7 +174,7 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
               ) : (
                 <BarChart3 className="w-4 h-4 mr-2" />
               )}
-              Performans İstatistikleri Al
+              Performans
             </Button>
           </div>
         </DialogHeader>
