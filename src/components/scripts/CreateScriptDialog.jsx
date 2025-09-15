@@ -422,18 +422,13 @@ export function CreateScriptDialog({ open, onOpenChange }) {
                       Kategori *
                       <HelpTooltip content="Script kategorisi" />
                     </Label>
-                    <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Kategori seçin" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover border border-border shadow-md z-50">
-                        {CATEGORIES.map(category => (
-                          <SelectItem key={category.value} value={category.value}>
-                            {category.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Input
+                      id="category"
+                      value={formData.category}
+                      onChange={(e) => handleInputChange("category", e.target.value)}
+                      placeholder="data_processing, communication, automation..."
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="subcategory">Alt Kategori</Label>
