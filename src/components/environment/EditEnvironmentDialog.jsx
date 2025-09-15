@@ -33,13 +33,10 @@ import { Loader2 } from "lucide-react";
 
 const environmentSchema = z.object({
   name: z.string().min(1, "Değişken adı gereklidir").max(100, "Değişken adı 100 karakterden fazla olamaz"),
-  value: z.string().min(1, "Değer gereklidir"),
+  value: z.string().optional(),
   description: z.string().optional(),
   variable_type: z.enum(["STRING", "INTEGER", "FLOAT", "BOOLEAN", "URL", "JSON", "FILE_PATH", "SECRET"]),
   scope: z.enum(["GLOBAL", "WORKFLOW", "EXECUTION"]),
-  workflow_id: z.string().optional(),
-  category: z.string().optional(),
-  metadata: z.string().optional(),
 });
 
 export function EditEnvironmentDialog({ open, onOpenChange, envarId }) {
@@ -54,13 +51,9 @@ export function EditEnvironmentDialog({ open, onOpenChange, envarId }) {
       description: "",
       variable_type: "STRING",
       scope: "GLOBAL",
-      workflow_id: "",
-      category: "",
-      metadata: "",
     },
   });
 
-  const watchScope = form.watch("scope");
   const watchVariableType = form.watch("variable_type");
 
   useEffect(() => {
@@ -71,30 +64,12 @@ export function EditEnvironmentDialog({ open, onOpenChange, envarId }) {
         description: envar.data.description || "",
         variable_type: envar.data.variable_type || "STRING",
         scope: envar.data.scope || "GLOBAL",
-        workflow_id: envar.data.workflow_id || "",
-        category: envar.data.category || "",
-        metadata: envar.data.metadata ? JSON.stringify(envar.data.metadata, null, 2) : "",
       });
     }
   }, [envar, form]);
 
   const onSubmit = async (data) => {
     try {
-      // Parse metadata if provided
-      if (data.metadata) {
-        try {
-          data.metadata = JSON.parse(data.metadata);
-        } catch (e) {
-          form.setError("metadata", { message: "Geçersiz JSON formatı" });
-          return;
-        }
-      }
-      
-      // Remove workflow_id if scope is not WORKFLOW
-      if (data.scope !== "WORKFLOW") {
-        delete data.workflow_id;
-      }
-      
       await updateEnvironmentVariable.mutateAsync({ envarId, data });
       onOpenChange(false);
     } catch (error) {
@@ -178,7 +153,7 @@ export function EditEnvironmentDialog({ open, onOpenChange, envarId }) {
               name="value"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Değer *</FormLabel>
+                  <FormLabel>Değer</FormLabel>
                   <FormControl>
                     <Input
                       type={watchVariableType === "SECRET" ? "password" : "text"}
@@ -209,80 +184,24 @@ export function EditEnvironmentDialog({ open, onOpenChange, envarId }) {
               )}
             />
             
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="scope"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Kapsam</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Kapsam seçin" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="GLOBAL">Global</SelectItem>
-                        <SelectItem value="WORKFLOW">Workflow</SelectItem>
-                        <SelectItem value="EXECUTION">Execution</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Kategori</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="ör: database, api, config"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            
-            {watchScope === "WORKFLOW" && (
-              <FormField
-                control={form.control}
-                name="workflow_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Workflow ID</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Workflow ID'si girin"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-            
             <FormField
               control={form.control}
-              name="metadata"
+              name="scope"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Metadata (JSON)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder='{"key": "value"}'
-                      rows={3}
-                      {...field}
-                    />
-                  </FormControl>
+                  <FormLabel>Kapsam</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Kapsam seçin" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="GLOBAL">Global</SelectItem>
+                      <SelectItem value="WORKFLOW">Workflow</SelectItem>
+                      <SelectItem value="EXECUTION">Execution</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

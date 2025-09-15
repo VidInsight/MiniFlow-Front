@@ -15,8 +15,7 @@ export function DeleteEnvironmentDialog({
   open, 
   onOpenChange, 
   envarId, 
-  envarName,
-  usageCount = 0 
+  envarName
 }) {
   const deleteEnvironmentVariable = useDeleteEnvironmentVariable();
 
@@ -41,17 +40,6 @@ export function DeleteEnvironmentDialog({
             <p>
               <strong>"{envarName}"</strong> ortam değişkenini silmek istediğinizden emin misiniz?
             </p>
-            
-            {usageCount > 0 && (
-              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-                <p className="text-sm text-destructive font-medium">
-                  ⚠️ Uyarı: Bu değişken {usageCount} kez kullanılmış durumda.
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Değişken silindiğinde bu değişkeni kullanan workflow'lar hata verebilir.
-                </p>
-              </div>
-            )}
             
             <p className="text-sm text-muted-foreground">
               Bu işlem geri alınamaz. Ortam değişkeni kalıcı olarak silinecektir.

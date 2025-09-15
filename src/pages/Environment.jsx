@@ -215,14 +215,6 @@ export default function Environment() {
                     Kapsam
                     <HelpTooltip content={helpContent.environment.scope} iconSize="w-3 h-3" />
                   </TableHead>
-                  <TableHead className="flex items-center gap-2">
-                    Erişim Sayısı
-                    <HelpTooltip content={helpContent.environment.accessCount} iconSize="w-3 h-3" />
-                  </TableHead>
-                  <TableHead className="flex items-center gap-2">
-                    Son Kullanım
-                    <HelpTooltip content={helpContent.environment.lastUsed} iconSize="w-3 h-3" />
-                  </TableHead>
                   <TableHead className="text-right flex items-center gap-2 justify-end">
                     İşlemler
                     <HelpTooltip content={helpContent.environment.actions} iconSize="w-3 h-3" />
@@ -266,15 +258,6 @@ export default function Environment() {
                       {getScopeBadge(variable.scope)}
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 text-sm">
-                      <Clock className="w-3 h-3" />
-                      {variable.access_count}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {formatDate(variable.last_accessed_at)}
-                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Button 
@@ -290,8 +273,7 @@ export default function Environment() {
                         size="sm"
                         onClick={() => setDeletingEnvar({ 
                           id: variable.id, 
-                          name: variable.name,
-                          usageCount: variable.access_count 
+                          name: variable.name
                         })}
                         title="Sil"
                       >
@@ -324,7 +306,6 @@ export default function Environment() {
         onOpenChange={(open) => !open && setDeletingEnvar(null)}
         envarId={deletingEnvar?.id}
         envarName={deletingEnvar?.name}
-        usageCount={deletingEnvar?.usageCount}
       />
     </div>
   </div>
