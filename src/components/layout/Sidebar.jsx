@@ -11,7 +11,8 @@ import {
   FileText,
   GitBranch,
   Upload,
-  TestTube
+  TestTube,
+  ArrowLeftRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -57,6 +58,12 @@ const navigation = [
     name: "Executions",
     href: "/executions",
     icon: Play,
+    badge: null,
+  },
+  {
+    name: "Execution I/O",
+    href: "/execution-io",
+    icon: ArrowLeftRight,
     badge: null,
   },
   {
