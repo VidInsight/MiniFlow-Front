@@ -6,9 +6,17 @@ import { useToast } from '@/hooks/use-toast';
 export const useExecutions = (params = {}, options = {}) => {
   const { enabled = true, refetchInterval } = options;
   
+  // Clean up params to remove null/empty values
+  const cleanParams = Object.entries(params).reduce((acc, [key, value]) => {
+    if (value !== null && value !== undefined && value !== '') {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
+  
   return useQuery({
-    queryKey: ['executions', params],
-    queryFn: () => executionService.getAll(params),
+    queryKey: ['executions', cleanParams],
+    queryFn: () => executionService.getAll(cleanParams),
     enabled,
     refetchInterval,
     staleTime: 30000, // 30 seconds
@@ -36,9 +44,17 @@ export const useExecution = (executionId, options = {}) => {
 
 // Hook for execution count and statistics
 export const useExecutionCount = (params = {}) => {
+  // Clean up params to remove null/empty values
+  const cleanParams = Object.entries(params).reduce((acc, [key, value]) => {
+    if (value !== null && value !== undefined && value !== '') {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
+
   return useQuery({
-    queryKey: ['execution-count', params],
-    queryFn: () => executionService.getCount(params),
+    queryKey: ['execution-count', cleanParams],
+    queryFn: () => executionService.getCount(cleanParams),
     staleTime: 30000,
     select: (data) => data.data
   });
@@ -46,9 +62,17 @@ export const useExecutionCount = (params = {}) => {
 
 // Hook for execution statistics
 export const useExecutionStats = (params = {}) => {
+  // Clean up params to remove null/empty values
+  const cleanParams = Object.entries(params).reduce((acc, [key, value]) => {
+    if (value !== null && value !== undefined && value !== '') {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
+
   return useQuery({
-    queryKey: ['execution-stats', params],
-    queryFn: () => executionService.getStats(params),
+    queryKey: ['execution-stats', cleanParams],
+    queryFn: () => executionService.getStats(cleanParams),
     staleTime: 30000,
     select: (data) => data.data
   });

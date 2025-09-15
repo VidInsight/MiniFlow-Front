@@ -167,15 +167,15 @@ export const ExecutionFilters = ({ onFiltersChange, initialFilters = {}, isLoadi
           <div>
             <Label htmlFor="status">Durum</Label>
             <Select 
-              value={filters.status} 
-              onValueChange={(value) => handleFilterChange('status', value)}
+              value={filters.status || "all"} 
+              onValueChange={(value) => handleFilterChange('status', value === "all" ? "" : value)}
               disabled={isLoading}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Durum seç..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tümü</SelectItem>
+                <SelectItem value="all">Tümü</SelectItem>
                 {EXECUTION_STATUSES.map((status) => (
                   <SelectItem key={status} value={status}>
                     {status}
