@@ -50,7 +50,8 @@ const ExecutionIOMonitoring = () => {
   const outputs = outputsData?.data?.items || [];
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/5 to-accent/5">
+      <div className="max-w-7xl mx-auto space-y-8 p-6">
       {/* Header */}
       <PageHeader
         title="Execution I/O Monitoring"
@@ -181,6 +182,7 @@ const ExecutionIOMonitoring = () => {
             </ScrollArea>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

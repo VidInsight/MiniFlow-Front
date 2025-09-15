@@ -6,9 +6,7 @@ export const Layout = () => {
     <div className="min-h-screen flex flex-col w-full">
       <Header />
       <main className="flex-1 overflow-auto">
-        <div className="p-6">
-          <Outlet />
-        </div>
+        <Outlet />
       </main>
     </div>
   );

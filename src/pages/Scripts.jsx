@@ -251,8 +251,8 @@ export default function Scripts() {
   const isLoadingData = isLoading || filterMutation.isPending;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/5 to-accent/5 -m-6 p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/5 to-accent/5">
+      <div className="max-w-7xl mx-auto space-y-8 p-6">
         <PageHeader
           title="Script Yönetimi"
           description="Workflow automation scriptlerinizi oluşturun, düzenleyin ve yönetin"

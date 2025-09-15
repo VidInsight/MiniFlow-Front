@@ -169,7 +169,8 @@ export default function ExecutionMonitoring() {
   const isLoading = isExecutionsLoading || filterMutation.isPending || isFiltering;
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/5 to-accent/5">
+      <div className="max-w-7xl mx-auto space-y-8 p-6">
       {/* Page Header */}
       <PageHeader
         title="Execution Monitoring"
@@ -313,6 +314,7 @@ export default function ExecutionMonitoring() {
         onClose={handleCloseModal}
         onNavigateToWorkflow={handleNavigateToWorkflow}
       />
+      </div>
     </div>
   );
 }
