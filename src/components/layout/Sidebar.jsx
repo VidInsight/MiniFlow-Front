@@ -10,7 +10,8 @@ import {
   Zap,
   FileText,
   GitBranch,
-  Upload
+  Upload,
+  TestTube
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +45,12 @@ const navigation = [
     name: "Files",
     href: "/files",
     icon: Upload,
+    badge: null,
+  },
+  {
+    name: "Schema & Test",
+    href: "/schema-test",
+    icon: TestTube,
     badge: null,
   },
   {
