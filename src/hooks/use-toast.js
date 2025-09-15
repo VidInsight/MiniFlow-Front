@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react"
+import * as React from "react";
+const { useState, useEffect } = React;
 
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 1000000
