@@ -287,19 +287,11 @@ export function CreateScriptDialog({ open, onOpenChange }) {
       submitData.author = formData.author.trim();
     }
     
-    // Only add JSON schemas if they're not empty
-    if (formData.input_schema && formData.input_schema !== "{}") {
-      submitData.input_schema = formData.input_schema;
-    }
-    if (formData.output_schema && formData.output_schema !== "{}") {
-      submitData.output_schema = formData.output_schema;
-    }
-    if (formData.test_input_params && formData.test_input_params !== "{}") {
-      submitData.test_input_params = formData.test_input_params;
-    }
-    if (formData.test_output_params && formData.test_output_params !== "{}") {
-      submitData.test_output_params = formData.test_output_params;
-    }
+    // Parse JSON schemas as objects (API expects objects, not strings)
+    submitData.input_schema = formData.input_schema ? JSON.parse(formData.input_schema) : {};
+    submitData.output_schema = formData.output_schema ? JSON.parse(formData.output_schema) : {};
+    submitData.test_input_params = formData.test_input_params ? JSON.parse(formData.test_input_params) : {};
+    submitData.test_output_params = formData.test_output_params ? JSON.parse(formData.test_output_params) : {};
 
     console.log('📤 Sending to API:', submitData);
 
