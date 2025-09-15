@@ -215,6 +215,10 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-3">
+                        <div className="flex justify-between">
+                          <span className="font-medium">ID:</span>
+                          <span className="font-mono">{script.id}</span>
+                        </div>
                         {script.file_path && (
                           <div className="space-y-1">
                             <span className="font-medium">Dosya Yolu:</span>
