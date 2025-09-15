@@ -293,6 +293,36 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
                         </Card>
                       )}
                     </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                      {(script.test_input_params && JSON.stringify(script.test_input_params) !== "{}") && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                              <TestTube className="w-4 h-4" />
+                              Test Girdi Parametreleri
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <JsonViewer data={script.test_input_params} title="" />
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {(script.test_output_params && JSON.stringify(script.test_output_params) !== "{}") && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                              <TestTube className="w-4 h-4" />
+                              Test Çıktı Parametreleri
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <JsonViewer data={script.test_output_params} title="" />
+                          </CardContent>
+                        </Card>
+                      )}
+                    </div>
                 </div>
               )}
 
