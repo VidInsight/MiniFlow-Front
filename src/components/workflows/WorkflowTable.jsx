@@ -60,9 +60,7 @@ const getPriorityDisplay = (priority) => {
 
   return (
     <div className="flex items-center gap-2">
-      <div className={`w-3 h-3 rounded-full ${color}`} />
       <span className="text-sm font-medium">{priorityValue}</span>
-      <span className="text-xs text-muted-foreground">({label})</span>
     </div>
   );
 };
