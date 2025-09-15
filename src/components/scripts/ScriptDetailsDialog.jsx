@@ -12,12 +12,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Label } from "@/components/ui/label";
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from "@/components/ui/tabs";
 import { useScript, useScriptTestStats, useScriptPerformanceStats } from "@/hooks/useScripts";
 import { formatFileSize, formatDate } from "@/lib/fileUtils";
 import {
@@ -169,131 +163,132 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
             <div className="mt-4 flex-1 overflow-hidden">
               {activeView === "details" && (
                 <div className="space-y-4 h-full overflow-y-auto">
-                <div className="grid grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Tag className="w-4 h-4" />
-                        Temel Bilgiler
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="font-medium">Ad:</span>
-                        <span className="font-mono">{script.name}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium">Kategori:</span>
-                        {getCategoryBadge(script.category)}
-                      </div>
-                      {script.subcategory && (
-                        <div className="flex justify-between">
-                          <span className="font-medium">Alt Kategori:</span>
-                          <span>{script.subcategory}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between">
-                        <span className="font-medium">Versiyon:</span>
-                        <Badge variant="outline">{script.version}</Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium">Dosya Uzantısı:</span>
-                        {getExtensionBadge(script.file_extension)}
-                      </div>
-                      {script.author && (
-                        <div className="flex justify-between">
-                          <span className="font-medium">Yazar:</span>
-                          <span>{script.author}</span>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        Dosya Bilgileri
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {script.file_path && (
-                        <div className="space-y-1">
-                          <span className="font-medium">Dosya Yolu:</span>
-                          <p className="text-sm font-mono bg-muted p-2 rounded break-all">
-                            {script.file_path}
-                          </p>
-                        </div>
-                      )}
-                      {script.file_size && (
-                        <div className="flex justify-between">
-                          <span className="font-medium">Dosya Boyutu:</span>
-                          <span>{formatFileSize(script.file_size)}</span>
-                        </div>
-                      )}
-                      {script.checksum && (
-                        <div className="space-y-1">
-                          <span className="font-medium">Checksum:</span>
-                          <p className="text-xs font-mono bg-muted p-2 rounded break-all">
-                            {script.checksum}
-                          </p>
-                        </div>
-                      )}
-                      {script.created_at && (
-                        <div className="flex justify-between">
-                          <span className="font-medium">Oluşturulma:</span>
-                          <span>{formatDate(script.created_at)}</span>
-                        </div>
-                      )}
-                      {script.updated_at && (
-                        <div className="flex justify-between">
-                          <span className="font-medium">Güncelleme:</span>
-                          <span>{formatDate(script.updated_at)}</span>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {script.description && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Açıklama</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">{script.description}</p>
-                    </CardContent>
-                  </Card>
-                )}
-
-                <div className="grid grid-cols-2 gap-6">
-                  {(script.input_schema && script.input_schema !== "{}") && (
+                  <div className="grid grid-cols-2 gap-6">
                     <Card>
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                          <Database className="w-4 h-4" />
-                          Girdi Şeması
+                          <Tag className="w-4 h-4" />
+                          Temel Bilgiler
                         </CardTitle>
                       </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="flex justify-between">
+                          <span className="font-medium">Ad:</span>
+                          <span className="font-mono">{script.name}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="font-medium">Kategori:</span>
+                          {getCategoryBadge(script.category)}
+                        </div>
+                        {script.subcategory && (
+                          <div className="flex justify-between">
+                            <span className="font-medium">Alt Kategori:</span>
+                            <span>{script.subcategory}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between">
+                          <span className="font-medium">Versiyon:</span>
+                          <Badge variant="outline">{script.version}</Badge>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="font-medium">Dosya Uzantısı:</span>
+                          {getExtensionBadge(script.file_extension)}
+                        </div>
+                        {script.author && (
+                          <div className="flex justify-between">
+                            <span className="font-medium">Yazar:</span>
+                            <span>{script.author}</span>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          Dosya Bilgileri
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {script.file_path && (
+                          <div className="space-y-1">
+                            <span className="font-medium">Dosya Yolu:</span>
+                            <p className="text-sm font-mono bg-muted p-2 rounded break-all">
+                              {script.file_path}
+                            </p>
+                          </div>
+                        )}
+                        {script.file_size && (
+                          <div className="flex justify-between">
+                            <span className="font-medium">Dosya Boyutu:</span>
+                            <span>{formatFileSize(script.file_size)}</span>
+                          </div>
+                        )}
+                        {script.checksum && (
+                          <div className="space-y-1">
+                            <span className="font-medium">Checksum:</span>
+                            <p className="text-xs font-mono bg-muted p-2 rounded break-all">
+                              {script.checksum}
+                            </p>
+                          </div>
+                        )}
+                        {script.created_at && (
+                          <div className="flex justify-between">
+                            <span className="font-medium">Oluşturulma:</span>
+                            <span>{formatDate(script.created_at)}</span>
+                          </div>
+                        )}
+                        {script.updated_at && (
+                          <div className="flex justify-between">
+                            <span className="font-medium">Güncelleme:</span>
+                            <span>{formatDate(script.updated_at)}</span>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {script.description && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Açıklama</CardTitle>
+                      </CardHeader>
                       <CardContent>
-                        <JsonViewer data={script.input_schema} title="" />
+                        <p className="text-muted-foreground">{script.description}</p>
                       </CardContent>
                     </Card>
                   )}
 
-                  {(script.output_schema && script.output_schema !== "{}") && (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Database className="w-4 h-4" />
-                          Çıktı Şeması
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <JsonViewer data={script.output_schema} title="" />
-                      </CardContent>
-                    </Card>
-                  )}
+                  <div className="grid grid-cols-2 gap-6">
+                    {(script.input_schema && script.input_schema !== "{}") && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Database className="w-4 h-4" />
+                            Girdi Şeması
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <JsonViewer data={script.input_schema} title="" />
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {(script.output_schema && script.output_schema !== "{}") && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Database className="w-4 h-4" />
+                            Çıktı Şeması
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <JsonViewer data={script.output_schema} title="" />
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -315,158 +310,160 @@ export function ScriptDetailsDialog({ open, onOpenChange, scriptId }) {
 
               {activeView === "test-stats" && (
                 <div className="space-y-4 h-full overflow-y-auto">
-                {isLoadingTestStats ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin" />
-                    <span className="ml-2">Test istatistikleri yükleniyor...</span>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-6">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <TestTube className="w-4 h-4" />
-                          Test Durumu
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          {testStats?.test_status === "passed" ? (
-                            <CheckCircle2 className="w-5 h-5 text-success" />
-                          ) : testStats?.test_status === "failed" ? (
-                            <XCircle className="w-5 h-5 text-destructive" />
-                          ) : (
-                            <AlertTriangle className="w-5 h-5 text-warning" />
-                          )}
-                          <span className="font-medium">
-                            {testStats?.test_status === "passed" ? "Başarılı" :
-                             testStats?.test_status === "failed" ? "Başarısız" : "Belirsiz"}
-                          </span>
-                        </div>
-                        {testStats?.test_coverage && (
-                          <div className="space-y-1">
-                            <span className="text-sm font-medium">Test Kapsamı: %{testStats.test_coverage}</span>
-                            <div className="w-full bg-muted rounded-full h-2">
-                              <div 
-                                className="bg-primary h-2 rounded-full transition-all"
-                                style={{ width: `${testStats.test_coverage}%` }}
-                              />
+                  {isLoadingTestStats ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="w-6 h-6 animate-spin" />
+                      <span className="ml-2">Test istatistikleri yükleniyor...</span>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <TestTube className="w-4 h-4" />
+                            Test Durumu
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            {testStats?.test_status === "PASSED" ? (
+                              <CheckCircle2 className="w-5 h-5 text-success" />
+                            ) : testStats?.test_status === "FAILED" ? (
+                              <XCircle className="w-5 h-5 text-destructive" />
+                            ) : (
+                              <AlertTriangle className="w-5 h-5 text-warning" />
+                            )}
+                            <span className="font-medium">
+                              {testStats?.test_status === "PASSED" ? "Başarılı" :
+                               testStats?.test_status === "FAILED" ? "Başarısız" : "Belirsiz"}
+                            </span>
+                          </div>
+                          {testStats?.test_coverage && (
+                            <div className="space-y-1">
+                              <span className="text-sm font-medium">Test Kapsamı: %{testStats.test_coverage}</span>
+                              <div className="w-full bg-muted rounded-full h-2">
+                                <div 
+                                  className="bg-primary h-2 rounded-full transition-all"
+                                  style={{ width: `${testStats.test_coverage}%` }}
+                                />
+                              </div>
                             </div>
-                          </div>
-                        )}
-                        {testStats?.last_test_run_at && (
-                          <div className="flex justify-between">
-                            <span className="font-medium">Son Test:</span>
-                            <span>{formatDate(testStats.last_test_run_at)}</span>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-
-                    {testStats?.test_results && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Test Sonuçları</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <JsonViewer data={testStats.test_results} title="" />
+                          )}
+                          {testStats?.last_test_run_at && (
+                            <div className="flex justify-between">
+                              <span className="font-medium">Son Test:</span>
+                              <span>{formatDate(testStats.last_test_run_at)}</span>
+                            </div>
+                          )}
                         </CardContent>
                       </Card>
-                    )}
 
-                    {(script.test_input_params && script.test_input_params !== "{}") && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Test Girdi Parametreleri</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <JsonViewer data={script.test_input_params} title="" />
-                        </CardContent>
-                      </Card>
-                    )}
+                      {testStats?.test_results && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Test Sonuçları</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <JsonViewer data={testStats.test_results} title="" />
+                          </CardContent>
+                        </Card>
+                      )}
 
-                    {(script.test_output_params && script.test_output_params !== "{}") && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Beklenen Test Çıktısı</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <JsonViewer data={script.test_output_params} title="" />
-                        </CardContent>
-                      </Card>
-                    )}
-                   </div>
-                )}
+                      {(script.test_input_params && script.test_input_params !== "{}") && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Test Girdi Parametreleri</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <JsonViewer data={script.test_input_params} title="" />
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {(script.test_output_params && script.test_output_params !== "{}") && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Beklenen Test Çıktısı</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <JsonViewer data={script.test_output_params} title="" />
+                          </CardContent>
+                        </Card>
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
 
               {activeView === "performance" && (
                 <div className="space-y-4 h-full overflow-y-auto">
-                {isLoadingPerformanceStats ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin" />
-                    <span className="ml-2">Performans istatistikleri yükleniyor...</span>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-6">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Activity className="w-4 h-4" />
-                          Çalışma İstatistikleri
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        {performanceStats?.avg_execution_time && (
-                          <div className="flex justify-between">
-                            <span className="font-medium">Ortalama Süre:</span>
-                            <span>{performanceStats.avg_execution_time}s</span>
-                          </div>
-                        )}
-                        {performanceStats?.success_rate && (
-                          <div className="flex justify-between">
-                            <span className="font-medium">Başarı Oranı:</span>
-                            <span>%{performanceStats.success_rate}</span>
-                          </div>
-                        )}
-                        {performanceStats?.total_executions && (
-                          <div className="flex justify-between">
-                            <span className="font-medium">Toplam Çalıştırma:</span>
-                            <span>{performanceStats.total_executions}</span>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
+                  {isLoadingPerformanceStats ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="w-6 h-6 animate-spin" />
+                      <span className="ml-2">Performans istatistikleri yükleniyor...</span>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Activity className="w-4 h-4" />
+                            Çalışma İstatistikleri
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          {performanceStats?.avg_execution_time && (
+                            <div className="flex justify-between">
+                              <span className="font-medium">Ortalama Süre:</span>
+                              <span>{performanceStats.avg_execution_time}s</span>
+                            </div>
+                          )}
+                          {performanceStats?.success_rate && (
+                            <div className="flex justify-between">
+                              <span className="font-medium">Başarı Oranı:</span>
+                              <span>%{performanceStats.success_rate}</span>
+                            </div>
+                          )}
+                          {performanceStats?.total_executions && (
+                            <div className="flex justify-between">
+                              <span className="font-medium">Toplam Çalıştırma:</span>
+                              <span>{performanceStats.total_executions}</span>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
 
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Cpu className="w-4 h-4" />
-                          Sistem Kaynakları
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        {performanceStats?.avg_cpu_usage && (
-                          <div className="flex justify-between">
-                            <span className="font-medium">Ortalama CPU:</span>
-                            <span>%{performanceStats.avg_cpu_usage}</span>
-                          </div>
-                        )}
-                        {performanceStats?.avg_memory_usage && (
-                          <div className="flex justify-between">
-                            <span className="font-medium">Ortalama RAM:</span>
-                            <span>{formatFileSize(performanceStats.avg_memory_usage)}</span>
-                          </div>
-                        )}
-                        {performanceStats?.peak_memory_usage && (
-                          <div className="flex justify-between">
-                            <span className="font-medium">En Yüksek RAM:</span>
-                            <span>{formatFileSize(performanceStats.peak_memory_usage)}</span>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </div>
-                )}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Cpu className="w-4 h-4" />
+                            Sistem Kaynakları
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          {performanceStats?.performance_metrics?.cpu_usage?.avg && (
+                            <div className="flex justify-between">
+                              <span className="font-medium">Ortalama CPU:</span>
+                              <span>{performanceStats.performance_metrics.cpu_usage.avg}</span>
+                            </div>
+                          )}
+                          {performanceStats?.performance_metrics?.memory_usage?.avg && (
+                            <div className="flex justify-between">
+                              <span className="font-medium">Ortalama RAM:</span>
+                              <span>{performanceStats.performance_metrics.memory_usage.avg}</span>
+                            </div>
+                          )}
+                          {performanceStats?.performance_metrics?.memory_usage?.peak && (
+                            <div className="flex justify-between">
+                              <span className="font-medium">En Yüksek RAM:</span>
+                              <span>{performanceStats.performance_metrics.memory_usage.peak}</span>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>
