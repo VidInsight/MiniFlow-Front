@@ -37,20 +37,20 @@ const getStatusBadge = (status) => {
 
 // Priority display helper
 const getPriorityDisplay = (priority) => {
-  const priorityValue = priority || 50;
+  const priorityValue = priority || 5;
   let color = "bg-gray-500";
   let label = "Orta";
   
-  if (priorityValue >= 80) {
+  if (priorityValue >= 9) {
     color = "bg-red-500";
     label = "Çok Yüksek";
-  } else if (priorityValue >= 60) {
+  } else if (priorityValue >= 7) {
     color = "bg-orange-500";
     label = "Yüksek";
-  } else if (priorityValue >= 40) {
+  } else if (priorityValue >= 4) {
     color = "bg-yellow-500";
     label = "Orta";
-  } else if (priorityValue >= 20) {
+  } else if (priorityValue >= 2) {
     color = "bg-blue-500";
     label = "Düşük";
   } else {

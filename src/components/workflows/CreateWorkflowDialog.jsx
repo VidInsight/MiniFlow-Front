@@ -28,7 +28,7 @@ import { Loader2 } from "lucide-react";
 const workflowSchema = z.object({
   name: z.string().min(1, "Workflow adı gereklidir").max(100, "Workflow adı 100 karakterden fazla olamaz"),
   description: z.string().optional(),
-  priority: z.number().min(0).max(100).default(50),
+  priority: z.number().min(1).max(10).default(5),
 });
 
 export function CreateWorkflowDialog({ open, onOpenChange }) {
@@ -39,7 +39,7 @@ export function CreateWorkflowDialog({ open, onOpenChange }) {
     defaultValues: {
       name: "",
       description: "",
-      priority: 50,
+      priority: 5,
     },
   });
 
@@ -111,15 +111,15 @@ export function CreateWorkflowDialog({ open, onOpenChange }) {
                       <Slider
                         value={[field.value]}
                         onValueChange={(value) => field.onChange(value[0])}
-                        max={100}
-                        min={0}
-                        step={10}
+                        max={10}
+                        min={1}
+                        step={1}
                         className="w-full"
                       />
                       <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                        <span>Düşük (0)</span>
-                        <span>Orta (50)</span>
-                        <span>Yüksek (100)</span>
+                        <span>En Düşük (1)</span>
+                        <span>Orta (5)</span>
+                        <span>En Yüksek (10)</span>
                       </div>
                     </div>
                   </FormControl>
