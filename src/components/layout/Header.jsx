@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { Bell, Settings, User, LayoutDashboard, Workflow, Code2, Settings2, Upload, Play, BarChart3, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import vidinsightLogo from "@/assets/vidinsight-logo.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,12 +67,11 @@ export const Header = () => {
       <div className="flex h-16 items-center justify-between px-6 max-w-7xl mx-auto">
         {/* Logo */}
         <div className="flex items-center gap-3 flex-shrink-0">
-          <div className="w-9 h-9 bg-gradient-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
-            <div className="w-4 h-4 bg-primary-foreground rounded-sm" />
-          </div>
-          <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            MiniFlow
-          </h1>
+          <img 
+            src={vidinsightLogo} 
+            alt="VidInsight Logo" 
+            className="h-8 w-auto"
+          />
         </div>
 
         {/* Navigation Tabs - Center */}
