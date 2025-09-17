@@ -316,7 +316,8 @@ export default function Workflows() {
       <DeleteWorkflowDialog 
         open={!!deletingWorkflow} 
         onOpenChange={(open) => !open && setDeletingWorkflow(null)}
-        workflow={deletingWorkflow}
+        workflowId={deletingWorkflow?.id}
+        workflowName={deletingWorkflow?.name}
       />
       
       <WorkflowStatsDialog 
