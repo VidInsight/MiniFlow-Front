@@ -42,15 +42,11 @@ export const WorkflowFilters = ({
 
   const [localSearchTerm, setLocalSearchTerm] = useState(filters.name || '');
 
-  // Debounce search term
+  // Debounce search term - don't auto-apply, wait for user action
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (localSearchTerm !== filters.name) {
-        handleFilterChange('name', localSearchTerm);
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
+    if (localSearchTerm !== filters.name) {
+      setFilters(prev => ({ ...prev, name: localSearchTerm }));
+    }
   }, [localSearchTerm]);
 
   const handleFilterChange = (key, value) => {
@@ -59,7 +55,11 @@ export const WorkflowFilters = ({
       [key]: value
     };
     setFilters(newFilters);
-    onFiltersChange(newFilters);
+    // Don't auto-apply, just update local state
+  };
+
+  const handleApplyFilters = () => {
+    onFiltersChange(filters);
   };
 
   const handleReset = () => {
@@ -135,15 +135,15 @@ export const WorkflowFilters = ({
             <Label htmlFor="minPriority" className="text-sm font-medium">
               <div className="flex items-center gap-2">
                 Min. Öncelik
-                <HelpTooltip content="Minimum öncelik değeri (0-100)" />
+                <HelpTooltip content="Minimum öncelik değeri (1-10)" />
               </div>
             </Label>
             <Input
               id="minPriority"
               type="number"
-              min="0"
-              max="100"
-              placeholder="0"
+              min="1"
+              max="10"
+              placeholder="1"
               value={filters.minPriority}
               onChange={(e) => handleFilterChange('minPriority', e.target.value)}
             />
@@ -154,15 +154,15 @@ export const WorkflowFilters = ({
             <Label htmlFor="maxPriority" className="text-sm font-medium">
               <div className="flex items-center gap-2">
                 Maks. Öncelik
-                <HelpTooltip content="Maksimum öncelik değeri (0-100)" />
+                <HelpTooltip content="Maksimum öncelik değeri (1-10)" />
               </div>
             </Label>
             <Input
               id="maxPriority"
               type="number"
-              min="0"
-              max="100"
-              placeholder="100"
+              min="1"
+              max="10"
+              placeholder="10"
               value={filters.maxPriority}
               onChange={(e) => handleFilterChange('maxPriority', e.target.value)}
             />
@@ -172,6 +172,14 @@ export const WorkflowFilters = ({
         {/* Filter Actions */}
         <div className="flex items-center justify-between pt-4 border-t">
           <div className="flex items-center gap-2">
+            <Button
+              onClick={handleApplyFilters}
+              disabled={isLoading}
+              className="bg-primary hover:bg-primary/90"
+            >
+              <Filter className="w-4 h-4 mr-2" />
+              Filtreleri Uygula
+            </Button>
             {hasActiveFilters && (
               <Button
                 variant="outline"

@@ -88,7 +88,7 @@ export default function Workflows() {
     setSearchParams(params);
   }, [currentPage, filters, setSearchParams]);
 
-  // Filter handling
+  // Filter handling - manual application only
   const handleFiltersChange = useCallback((newFilters) => {
     setFilters(newFilters);
     setCurrentPage(1);
@@ -121,9 +121,11 @@ export default function Workflows() {
         onSettled: () => setIsFiltering(false)
       });
     } else {
+      // If no filters, refetch all workflows
+      refetchWorkflows();
       setIsFiltering(false);
     }
-  }, [filterMutation]);
+  }, [filterMutation, refetchWorkflows]);
 
   // Pagination
   const totalPages = Math.ceil((workflowsData?.total || 0) / ITEMS_PER_PAGE);
