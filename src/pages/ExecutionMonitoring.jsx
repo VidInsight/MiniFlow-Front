@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,21 +15,16 @@ import {
   Pagination
 } from '@/components/ui/pagination';
 import { PageHeader } from '@/components/ui/page-header';
-import { ExecutionFilters } from '@/components/executions/ExecutionFilters';
 import { ExecutionTable } from '@/components/executions/ExecutionTable';
 import { ExecutionDetailModal } from '@/components/executions/ExecutionDetailModal';
 import { 
-  useExecutions, 
-  useExecutionMonitoring, 
-  useFilterExecutions 
+  useExecutionMonitoring
 } from '@/hooks/useExecutions';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Activity, 
   RefreshCw, 
-  Filter, 
-  Play, 
-  Pause
+  Play
 } from 'lucide-react';
 import { HelpTooltip } from '@/components/ui/help-tooltip';
 
@@ -44,21 +39,9 @@ export default function ExecutionMonitoring() {
   const [currentPage, setCurrentPage] = useState(
     parseInt(searchParams.get('page')) || 1
   );
-  const [filters, setFilters] = useState({
-    workflowId: searchParams.get('workflowId') || '',
-    status: searchParams.get('status') || '',
-    success: searchParams.get('success') ? searchParams.get('success') === 'true' : null,
-    startedAtFrom: null,
-    startedAtTo: null,
-    completedAtFrom: null,
-    completedAtTo: null,
-    minDuration: searchParams.get('minDuration') || '',
-    maxDuration: searchParams.get('maxDuration') || ''
-  });
   const [isRealTimeEnabled, setIsRealTimeEnabled] = useState(true);
   const [selectedExecutionId, setSelectedExecutionId] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [isFiltering, setIsFiltering] = useState(false);
 
   // Data fetching
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -66,59 +49,21 @@ export default function ExecutionMonitoring() {
   // Use real-time monitoring when enabled, otherwise use normal fetching
   const {
     data: executionsData,
-    isLoading: isExecutionsLoading,
+    isLoading: isExecutionsLoading,  
     error: executionsError,
     refetch: refetchExecutions
   } = useExecutionMonitoring(
-    { ...filters, skip, limit: ITEMS_PER_PAGE },
+    { skip, limit: ITEMS_PER_PAGE },
     isRealTimeEnabled
   );
-
-  // Filter mutation for advanced filtering
-  const filterMutation = useFilterExecutions();
 
   // URL state synchronization
   useEffect(() => {
     const params = new URLSearchParams();
     if (currentPage > 1) params.set('page', currentPage.toString());
-    if (filters.workflowId) params.set('workflowId', filters.workflowId);
-    if (filters.status) params.set('status', filters.status);
-    if (filters.success !== null) params.set('success', filters.success.toString());
-    if (filters.minDuration) params.set('minDuration', filters.minDuration);
-    if (filters.maxDuration) params.set('maxDuration', filters.maxDuration);
     
     setSearchParams(params);
-  }, [currentPage, filters, setSearchParams]);
-
-  // Filter handling
-  const handleFiltersChange = useCallback((newFilters) => {
-    setFilters(newFilters);
-    setCurrentPage(1);
-    setIsFiltering(true);
-    
-    // Use filter mutation for complex filters
-    const hasAdvancedFilters = 
-      newFilters.startedAtFrom || 
-      newFilters.startedAtTo || 
-      newFilters.completedAtFrom || 
-      newFilters.completedAtTo ||
-      newFilters.minDuration ||
-      newFilters.maxDuration;
-    
-    if (hasAdvancedFilters) {
-      const filterPayload = {
-        ...newFilters,
-        skip: 0,
-        limit: ITEMS_PER_PAGE
-      };
-      
-      filterMutation.mutate(filterPayload, {
-        onSettled: () => setIsFiltering(false)
-      });
-    } else {
-      setIsFiltering(false);
-    }
-  }, [filterMutation]);
+  }, [currentPage, setSearchParams]);
 
   // Pagination
   const totalPages = Math.ceil((executionsData?.total || 0) / ITEMS_PER_PAGE);
@@ -164,9 +109,9 @@ export default function ExecutionMonitoring() {
   };
 
   // Get current data
-  const currentExecutions = filterMutation.data?.items || executionsData?.items || [];
-  const currentTotal = filterMutation.data?.total || executionsData?.total || 0;
-  const isLoading = isExecutionsLoading || filterMutation.isPending || isFiltering;
+  const currentExecutions = executionsData?.items || [];
+  const currentTotal = executionsData?.total || 0;
+  const isLoading = isExecutionsLoading;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/5 to-accent/5">
@@ -213,19 +158,12 @@ export default function ExecutionMonitoring() {
         }
       />
 
-      {/* Filters */}
-      <ExecutionFilters
-        onFiltersChange={handleFiltersChange}
-        initialFilters={filters}
-        isLoading={isLoading}
-      />
-
       {/* Results */}
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" />
+              <Activity className="h-5 w-5" />
               Execution Listesi
               {currentTotal > 0 && (
                 <Badge variant="outline">

@@ -65,12 +65,17 @@ const STATUS_CONFIG = {
   }
 };
 
-const formatDuration = (seconds) => {
-  if (!seconds || seconds < 0) return '-';
+const formatDuration = (startedAt, endedAt) => {
+  if (!startedAt || !endedAt) return '-';
+  
+  const start = new Date(startedAt).getTime();
+  const end = new Date(endedAt).getTime();
+  const durationMs = end - start;
+  const seconds = Math.floor(durationMs / 1000);
   
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
+  const secs = seconds % 60;
   
   if (hours > 0) {
     return `${hours}s ${minutes}d ${secs}sn`;
@@ -85,10 +90,10 @@ const getProgressValue = (execution) => {
   if (execution.status === 'COMPLETED') return 100;
   if (execution.status === 'FAILED' || execution.status === 'CANCELLED') return 0;
   
-  // Mock progress calculation based on current_node_id or other metrics
-  if (execution.current_node_id) {
-    // This is a simplified calculation - in real implementation you'd have more data
-    return Math.min(75, Math.random() * 75 + 25);
+  // Calculate progress based on executed vs pending nodes
+  const totalNodes = execution.pending_nodes + execution.executed_nodes;
+  if (totalNodes > 0) {
+    return Math.round((execution.executed_nodes / totalNodes) * 100);
   }
   
   return execution.status === 'RUNNING' ? 30 : 0;
@@ -114,15 +119,17 @@ export const ExecutionTable = ({
   };
 
   const sortedExecutions = [...executions].sort((a, b) => {
-    if (sortConfig.key === 'started_at' || sortConfig.key === 'completed_at') {
+    if (sortConfig.key === 'started_at' || sortConfig.key === 'ended_at') {
       const aDate = new Date(a[sortConfig.key] || 0);
       const bDate = new Date(b[sortConfig.key] || 0);
       return sortConfig.direction === 'asc' ? aDate - bDate : bDate - aDate;
     }
     
-    if (sortConfig.key === 'duration_seconds') {
-      const aDuration = a.duration_seconds || 0;
-      const bDuration = b.duration_seconds || 0;
+    if (sortConfig.key === 'duration') {
+      const aDuration = a.started_at && a.ended_at ? 
+        new Date(a.ended_at).getTime() - new Date(a.started_at).getTime() : 0;
+      const bDuration = b.started_at && b.ended_at ? 
+        new Date(b.ended_at).getTime() - new Date(b.started_at).getTime() : 0;
       return sortConfig.direction === 'asc' ? aDuration - bDuration : bDuration - aDuration;
     }
     
@@ -225,11 +232,11 @@ export const ExecutionTable = ({
             </TableHead>
             <TableHead 
               className="cursor-pointer hover:bg-muted"
-              onClick={() => handleSort('completed_at')}
+              onClick={() => handleSort('ended_at')}
             >
               <div className="flex items-center gap-2">
                 Bitiş
-                {sortConfig.key === 'completed_at' && (
+                {sortConfig.key === 'ended_at' && (
                   <span className="text-xs">
                     {sortConfig.direction === 'asc' ? '↑' : '↓'}
                   </span>
@@ -238,18 +245,18 @@ export const ExecutionTable = ({
             </TableHead>
             <TableHead 
               className="cursor-pointer hover:bg-muted"
-              onClick={() => handleSort('duration_seconds')}
+              onClick={() => handleSort('duration')}
             >
               <div className="flex items-center gap-2">
                 Süre
-                {sortConfig.key === 'duration_seconds' && (
+                {sortConfig.key === 'duration' && (
                   <span className="text-xs">
                     {sortConfig.direction === 'asc' ? '↑' : '↓'}
                   </span>
                 )}
               </div>
             </TableHead>
-            <TableHead>Başarı</TableHead>
+            <TableHead>Node Durumu</TableHead>
             <TableHead>İlerleme</TableHead>
             <TableHead>İşlemler</TableHead>
           </TableRow>
@@ -297,11 +304,11 @@ export const ExecutionTable = ({
                   )}
                 </TableCell>
                 <TableCell className="text-sm">
-                  {execution.completed_at ? (
+                  {execution.ended_at ? (
                     <div>
-                      <div>{format(new Date(execution.completed_at), 'dd/MM/yyyy HH:mm', { locale: tr })}</div>
+                      <div>{format(new Date(execution.ended_at), 'dd/MM/yyyy HH:mm', { locale: tr })}</div>
                       <div className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(execution.completed_at), { 
+                        {formatDistanceToNow(new Date(execution.ended_at), { 
                           addSuffix: true, 
                           locale: tr 
                         })}
@@ -312,36 +319,23 @@ export const ExecutionTable = ({
                   )}
                 </TableCell>
                 <TableCell className="text-sm font-mono">
-                  {formatDuration(execution.duration_seconds)}
+                  {formatDuration(execution.started_at, execution.ended_at)}
                 </TableCell>
                 <TableCell>
-                  {execution.success !== null ? (
-                    <Badge variant={execution.success ? "default" : "destructive"}>
-                      {execution.success ? (
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                      ) : (
-                        <XCircle className="h-3 w-3 mr-1" />
-                      )}
-                      {execution.success ? 'Başarılı' : 'Başarısız'}
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">
+                      {execution.executed_nodes} / {execution.executed_nodes + execution.pending_nodes}
                     </Badge>
-                  ) : (
-                    <span className="text-muted-foreground text-sm">-</span>
-                  )}
+                    <span className="text-xs text-muted-foreground">node</span>
+                  </div>
                 </TableCell>
                 <TableCell>
-                  {execution.status === 'RUNNING' || execution.status === 'PENDING' ? (
-                    <div className="space-y-1">
-                      <Progress value={progressValue} className="h-2" />
-                      <div className="text-xs text-muted-foreground">
-                        {execution.current_node_id ? 
-                          `Node: ${execution.current_node_id.slice(-6)}` : 
-                          `%${Math.round(progressValue)}`
-                        }
-                      </div>
+                  <div className="space-y-1">
+                    <Progress value={progressValue} className="h-2" />
+                    <div className="text-xs text-muted-foreground">
+                      %{Math.round(progressValue)} tamamlandı
                     </div>
-                  ) : (
-                    <span className="text-muted-foreground text-sm">-</span>
-                  )}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <Button

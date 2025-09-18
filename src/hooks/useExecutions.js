@@ -31,36 +31,14 @@ export const useExecutions = (params = {}, options = {}) => {
 
 // Hook for fetching single execution details
 export const useExecution = (executionId, options = {}) => {
-  const { enabled = true, includeRelationships = true, excludeFields = [] } = options;
+  const { enabled = true } = options;
   
   return useQuery({
-    queryKey: ['execution', executionId, { includeRelationships, excludeFields }],
-    queryFn: () => executionService.getById(executionId, { includeRelationships, excludeFields }),
+    queryKey: ['execution', executionId],
+    queryFn: () => executionService.getById(executionId),
     enabled: enabled && !!executionId,
     staleTime: 60000, // 1 minute
-    select: (data) => data.data
-  });
-};
-
-// Hook for filtering executions
-export const useFilterExecutions = () => {
-  const { toast } = useToast();
-  
-  return useMutation({
-    mutationFn: (filterData) => executionService.filter(filterData),
-    onError: (error) => {
-      toast({
-        title: "Filtreleme Hatası",
-        description: error.message || "Execution'lar filtrelenemedi",
-        variant: "destructive",
-      });
-    },
-    select: (data) => ({
-      items: data.data?.items || [],
-      total: data.data?.total || 0,
-      skip: data.data?.skip || 0,
-      limit: data.data?.limit || 100
-    })
+    select: (data) => data.data?.data
   });
 };
 

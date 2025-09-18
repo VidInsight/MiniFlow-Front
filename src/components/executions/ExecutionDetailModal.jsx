@@ -53,12 +53,17 @@ const LOG_LEVEL_COLORS = {
   debug: 'text-gray-600'
 };
 
-const formatDuration = (seconds) => {
-  if (!seconds || seconds < 0) return '-';
+const formatDuration = (startedAt, endedAt) => {
+  if (!startedAt || !endedAt) return '-';
+  
+  const start = new Date(startedAt).getTime();
+  const end = new Date(endedAt).getTime();
+  const durationMs = end - start;
+  const seconds = Math.floor(durationMs / 1000);
   
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
+  const secs = seconds % 60;
   
   if (hours > 0) {
     return `${hours}s ${minutes}d ${secs}sn`;
@@ -74,9 +79,10 @@ const getProgressValue = (execution) => {
   if (execution.status === 'COMPLETED') return 100;
   if (execution.status === 'FAILED' || execution.status === 'CANCELLED') return 0;
   
-  // Calculate progress based on result_summary or current_node_id
-  if (execution.result_summary?.processed_nodes && execution.result_summary?.total_nodes) {
-    return Math.min(100, (execution.result_summary.processed_nodes / execution.result_summary.total_nodes) * 100);
+  // Calculate progress based on executed vs pending nodes
+  const totalNodes = execution.pending_nodes + execution.executed_nodes;
+  if (totalNodes > 0) {
+    return Math.round((execution.executed_nodes / totalNodes) * 100);
   }
   
   return execution.status === 'RUNNING' ? 45 : 0;
@@ -109,17 +115,29 @@ export const ExecutionDetailModal = ({
   };
 
   const downloadLogs = () => {
-    if (!execution?.execution_log) return;
+    if (!execution?.results) return;
     
-    const logsText = execution.execution_log
-      .map(log => `[${log.timestamp}] ${log.level?.toUpperCase()} ${log.node_id}: ${log.message}`)
-      .join('\n');
+    const logsText = Object.entries(execution.results)
+      .map(([nodeId, result]) => {
+        const lines = [`Node: ${nodeId}`, `Status: ${result.status}`];
+        if (result.start_time && result.start_time !== 'N/A') {
+          lines.push(`Start: ${result.start_time}`);
+        }
+        if (result.end_time && result.end_time !== 'N/A') {
+          lines.push(`End: ${result.end_time}`);
+        }
+        if (result.result_data) {
+          lines.push(`Data: ${JSON.stringify(result.result_data, null, 2)}`);
+        }
+        return lines.join('\n');
+      })
+      .join('\n\n');
     
     const blob = new Blob([logsText], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `execution-${executionId}-logs.txt`;
+    a.download = `execution-${executionId}-results.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -175,10 +193,9 @@ export const ExecutionDetailModal = ({
           </div>
         ) : execution ? (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="overview">Genel Bakış</TabsTrigger>
-              <TabsTrigger value="logs">Loglar</TabsTrigger>
-              <TabsTrigger value="performance">Performans</TabsTrigger>
+              <TabsTrigger value="logs">Node Sonuçları</TabsTrigger>
               <TabsTrigger value="metadata">Metadata</TabsTrigger>
             </TabsList>
 
@@ -233,7 +250,10 @@ export const ExecutionDetailModal = ({
                   </CardHeader>
                   <CardContent>
                     <div className="text-lg font-semibold">
-                      {formatDuration(execution.duration_seconds)}
+                      {execution.started_at && execution.ended_at ? 
+                        formatDuration(execution.started_at, execution.ended_at) : 
+                        'Devam ediyor'
+                      }
                     </div>
                   </CardContent>
                 </Card>
@@ -249,30 +269,26 @@ export const ExecutionDetailModal = ({
                     <Progress value={getProgressValue(execution)} className="h-3 mb-2" />
                     <div className="flex justify-between text-sm text-muted-foreground">
                       <span>%{Math.round(getProgressValue(execution))}</span>
-                      {execution.current_node_id && (
-                        <span>Geçerli Node: {execution.current_node_id.slice(-8)}</span>
-                      )}
+                      <span>{execution.executed_nodes} / {execution.executed_nodes + execution.pending_nodes} node</span>
                     </div>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Başarı Durumu</CardTitle>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Node Durumu</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {execution.success !== null ? (
-                      <Badge variant={execution.success ? "default" : "destructive"} className="text-sm">
-                        {execution.success ? (
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                        ) : (
-                          <XCircle className="h-4 w-4 mr-1" />
-                        )}
-                        {execution.success ? 'Başarılı' : 'Başarısız'}
-                      </Badge>
-                    ) : (
-                      <span className="text-muted-foreground">Henüz tamamlanmadı</span>
-                    )}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Çalıştırılmış</span>
+                        <Badge variant="default">{execution.executed_nodes}</Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Bekleyen</span>
+                        <Badge variant="outline">{execution.pending_nodes}</Badge>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -305,13 +321,13 @@ export const ExecutionDetailModal = ({
                     
                     <div>
                       <div className="text-sm font-medium text-muted-foreground mb-1">Bitiş</div>
-                      {execution.completed_at ? (
+                      {execution.ended_at ? (
                         <div>
                           <div className="font-medium">
-                            {format(new Date(execution.completed_at), 'dd MMMM yyyy, HH:mm:ss', { locale: tr })}
+                            {format(new Date(execution.ended_at), 'dd MMMM yyyy, HH:mm:ss', { locale: tr })}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            {formatDistanceToNow(new Date(execution.completed_at), { addSuffix: true, locale: tr })}
+                            {formatDistanceToNow(new Date(execution.ended_at), { addSuffix: true, locale: tr })}
                           </div>
                         </div>
                       ) : (
@@ -322,49 +338,43 @@ export const ExecutionDetailModal = ({
                 </CardContent>
               </Card>
 
-              {/* Result Summary */}
-              {execution.result_summary && (
+              {/* Node Results */}
+              {execution.results && Object.keys(execution.results).length > 0 && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Database className="h-4 w-4" />
-                      Sonuç Özeti
+                      Node Sonuçları
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                      {execution.result_summary.processed_nodes && (
-                        <div>
-                          <div className="text-2xl font-bold text-blue-600">
-                            {execution.result_summary.processed_nodes}
+                    <div className="space-y-4">
+                      {Object.entries(execution.results).map(([nodeId, result]) => (
+                        <div key={nodeId} className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-mono text-sm font-medium">{nodeId.slice(-8)}</span>
+                            <Badge 
+                              variant={result.status === 'SUCCESS' ? 'default' : 
+                                     result.status === 'FAILED' ? 'destructive' : 'secondary'}
+                            >
+                              {result.status}
+                            </Badge>
                           </div>
-                          <div className="text-sm text-muted-foreground">İşlenen Node</div>
+                          {result.start_time && result.start_time !== 'N/A' && (
+                            <div className="text-xs text-muted-foreground mb-1">
+                              Başlangıç: {format(new Date(result.start_time), 'HH:mm:ss')}
+                              {result.end_time && result.end_time !== 'N/A' && (
+                                <span> - Bitiş: {format(new Date(result.end_time), 'HH:mm:ss')}</span>
+                              )}
+                            </div>
+                          )}
+                          {result.result_data && Object.keys(result.result_data).length > 0 && (
+                            <pre className="text-xs bg-muted p-2 rounded mt-2 overflow-x-auto">
+                              {JSON.stringify(result.result_data, null, 2)}
+                            </pre>
+                          )}
                         </div>
-                      )}
-                      {execution.result_summary.success_rate && (
-                        <div>
-                          <div className="text-2xl font-bold text-green-600">
-                            %{Math.round(execution.result_summary.success_rate * 100)}
-                          </div>
-                          <div className="text-sm text-muted-foreground">Başarı Oranı</div>
-                        </div>
-                      )}
-                      {execution.result_summary.errors_count !== undefined && (
-                        <div>
-                          <div className="text-2xl font-bold text-red-600">
-                            {execution.result_summary.errors_count}
-                          </div>
-                          <div className="text-sm text-muted-foreground">Hata Sayısı</div>
-                        </div>
-                      )}
-                      {execution.result_summary.warnings_count !== undefined && (
-                        <div>
-                          <div className="text-2xl font-bold text-amber-600">
-                            {execution.result_summary.warnings_count}
-                          </div>
-                          <div className="text-sm text-muted-foreground">Uyarı Sayısı</div>
-                        </div>
-                      )}
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -373,60 +383,64 @@ export const ExecutionDetailModal = ({
 
             <TabsContent value="logs" className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Execution Logları</h3>
+                <h3 className="text-lg font-semibold">Node Sonuçları</h3>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={downloadLogs}
-                  disabled={!execution.execution_log?.length}
+                  disabled={!execution.results || Object.keys(execution.results).length === 0}
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  Logları İndir
+                  Sonuçları İndir
                 </Button>
               </div>
 
               <Card>
                 <CardContent className="p-0">
                   <ScrollArea className="h-96">
-                    {execution.execution_log?.length > 0 ? (
+                    {execution.results && Object.keys(execution.results).length > 0 ? (
                       <div className="p-4 space-y-3">
-                        {execution.execution_log
-                          .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
-                          .map((log, index) => (
-                            <div key={index} className="flex gap-3 text-sm border-l-2 border-gray-200 pl-3">
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-xs text-muted-foreground font-mono">
-                                    {format(new Date(log.timestamp), 'HH:mm:ss.SSS')}
-                                  </span>
-                                  {log.level && (
-                                    <Badge 
-                                      variant="outline" 
-                                      className={cn("text-xs", LOG_LEVEL_COLORS[log.level])}
-                                    >
-                                      {log.level.toUpperCase()}
-                                    </Badge>
-                                  )}
-                                  {log.node_id && (
-                                    <span className="text-xs text-muted-foreground font-mono bg-muted px-1 rounded">
-                                      {log.node_id.slice(-8)}
-                                    </span>
+                        {Object.entries(execution.results)
+                          .sort(([,a], [,b]) => {
+                            if (a.start_time && b.start_time && a.start_time !== 'N/A' && b.start_time !== 'N/A') {
+                              return new Date(a.start_time) - new Date(b.start_time);
+                            }
+                            return 0;
+                          })
+                          .map(([nodeId, result], index) => (
+                            <div key={index} className="border rounded-lg p-3">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="font-mono text-sm font-medium">{nodeId.slice(-12)}</span>
+                                <Badge 
+                                  variant={result.status === 'SUCCESS' ? 'default' : 
+                                          result.status === 'FAILED' ? 'destructive' : 'secondary'}
+                                >
+                                  {result.status}
+                                </Badge>
+                              </div>
+                              {result.start_time && result.start_time !== 'N/A' && (
+                                <div className="text-xs text-muted-foreground mb-2">
+                                  Başlangıç: {format(new Date(result.start_time), 'dd/MM HH:mm:ss')}
+                                  {result.end_time && result.end_time !== 'N/A' && (
+                                    <span> - Bitiş: {format(new Date(result.end_time), 'dd/MM HH:mm:ss')}</span>
                                   )}
                                 </div>
-                                <div className="text-sm">{log.message}</div>
-                                {log.details && (
-                                  <pre className="text-xs text-muted-foreground mt-1 bg-muted p-2 rounded overflow-x-auto">
-                                    {JSON.stringify(log.details, null, 2)}
-                                  </pre>
-                                )}
-                              </div>
+                              )}
+                              {result.result_data && Object.keys(result.result_data).length > 0 && (
+                                <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
+                                  {JSON.stringify(result.result_data, null, 2)}
+                                </pre>
+                              )}
                             </div>
                           ))}
                       </div>
                     ) : (
-                      <div className="p-8 text-center text-muted-foreground">
-                        <FileText className="mx-auto h-12 w-12 mb-4" />
-                        <div>Bu execution için henüz log kaydı bulunmuyor</div>
+                      <div className="text-center py-8">
+                        <Database className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">Node sonucu bulunamadı</h3>
+                        <p className="text-muted-foreground">
+                          Bu execution için henüz node sonucu mevcut değil.
+                        </p>
                       </div>
                     )}
                   </ScrollArea>
