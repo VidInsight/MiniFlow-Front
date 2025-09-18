@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -143,6 +144,9 @@ export const ExecutionDetailModal = ({
               </Badge>
             )}
           </DialogTitle>
+          <DialogDescription>
+            Workflow execution'ının detaylı bilgileri ve node sonuçları
+          </DialogDescription>
         </DialogHeader>
 
         {isLoading ? (
