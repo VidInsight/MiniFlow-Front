@@ -254,7 +254,11 @@ export const ExecutionTable = ({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => onViewDetails?.(execution.id)}
+                    onClick={() => {
+                      console.log('Detay button clicked for execution:', execution);
+                      console.log('Execution ID:', execution.id);
+                      onViewDetails?.(execution.id);
+                    }}
                     className="gap-1"
                   >
                     <Eye className="h-3 w-3" />

@@ -74,6 +74,17 @@ export const ExecutionDetailModal = ({
     enabled: isOpen && !!executionId
   });
 
+  // Debug API request
+  console.log('ExecutionDetailModal render:', {
+    executionId,
+    isOpen,
+    enabled: isOpen && !!executionId,
+    execution,
+    isLoading,
+    error,
+    apiEndpoint: `/api/bff/executions/${executionId}`
+  });
+
   const copyToClipboard = (text, label) => {
     navigator.clipboard.writeText(text);
     toast({
