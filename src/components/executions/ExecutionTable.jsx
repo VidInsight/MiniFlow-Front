@@ -207,45 +207,6 @@ export const ExecutionTable = ({
                 )}
               </div>
             </TableHead>
-            <TableHead 
-              className="cursor-pointer hover:bg-muted"
-              onClick={() => handleSort('started_at')}
-            >
-              <div className="flex items-center gap-2">
-                Başlangıç
-                {sortConfig.key === 'started_at' && (
-                  <span className="text-xs">
-                    {sortConfig.direction === 'asc' ? '↑' : '↓'}
-                  </span>
-                )}
-              </div>
-            </TableHead>
-            <TableHead 
-              className="cursor-pointer hover:bg-muted"
-              onClick={() => handleSort('ended_at')}
-            >
-              <div className="flex items-center gap-2">
-                Bitiş
-                {sortConfig.key === 'ended_at' && (
-                  <span className="text-xs">
-                    {sortConfig.direction === 'asc' ? '↑' : '↓'}
-                  </span>
-                )}
-              </div>
-            </TableHead>
-            <TableHead 
-              className="cursor-pointer hover:bg-muted"
-              onClick={() => handleSort('duration')}
-            >
-              <div className="flex items-center gap-2">
-                Süre
-                {sortConfig.key === 'duration' && (
-                  <span className="text-xs">
-                    {sortConfig.direction === 'asc' ? '↑' : '↓'}
-                  </span>
-                )}
-              </div>
-            </TableHead>
             <TableHead>Node Durumu</TableHead>
             <TableHead>İşlemler</TableHead>
           </TableRow>
@@ -280,39 +241,6 @@ export const ExecutionTable = ({
                       </Badge>
                     );
                   })()}
-                </TableCell>
-                <TableCell className="text-sm">
-                  {execution.started_at ? (
-                    <div>
-                      <div>{format(new Date(execution.started_at), 'dd/MM/yyyy HH:mm', { locale: tr })}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(execution.started_at), { 
-                          addSuffix: true, 
-                          locale: tr 
-                        })}
-                      </div>
-                    </div>
-                  ) : (
-                    <span className="text-muted-foreground">-</span>
-                  )}
-                </TableCell>
-                <TableCell className="text-sm">
-                  {execution.ended_at ? (
-                    <div>
-                      <div>{format(new Date(execution.ended_at), 'dd/MM/yyyy HH:mm', { locale: tr })}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(execution.ended_at), { 
-                          addSuffix: true, 
-                          locale: tr 
-                        })}
-                      </div>
-                    </div>
-                  ) : (
-                    <span className="text-muted-foreground">-</span>
-                  )}
-                </TableCell>
-                <TableCell className="text-sm font-mono">
-                  {formatDuration(execution.started_at, execution.ended_at)}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
