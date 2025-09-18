@@ -178,18 +178,17 @@ export const ExecutionDetailModal = ({
         </DialogHeader>
 
         {isLoading ? (
-          <div className="space-y-4">
+          <div className="space-y-4 p-6">
+            <div className="text-center">
+              <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-2" />
+              <p>Execution detayları yükleniyor...</p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {[...Array(4)].map((_, i) => (
-                <Card key={i}>
-                  <CardContent className="p-4">
-                    <div className="h-4 bg-muted rounded mb-2" />
-                    <div className="h-6 bg-muted rounded w-2/3" />
-                  </CardContent>
-                </Card>
+                <div key={i} className="h-20 bg-muted rounded animate-pulse" />
               ))}
             </div>
-            <div className="h-64 bg-muted rounded" />
+            <div className="h-64 bg-muted rounded animate-pulse" />
           </div>
         ) : execution ? (
           <ScrollArea className="h-[70vh]">
@@ -421,9 +420,45 @@ export const ExecutionDetailModal = ({
                   </div>
                 </>
               )}
+
+              {/* Raw API Response for Debug */}
+              <Separator />
+              <div>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  Ham API Yanıtı
+                </h3>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-xs text-muted-foreground mb-2">
+                      GET /api/bff/executions/{executionId}
+                    </div>
+                    <pre className="text-xs overflow-x-auto bg-muted p-3 rounded border max-h-64 overflow-y-auto">
+                      {JSON.stringify(execution, null, 2)}
+                    </pre>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </ScrollArea>
-        ) : null}
+        ) : (
+          <div className="p-6 text-center">
+            <div className="text-muted-foreground mb-4">
+              {!executionId ? 'Execution ID bulunamadı' : 'Execution verisi yüklenemedi'}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              API Endpoint: <code className="bg-muted px-2 py-1 rounded">/api/bff/executions/{executionId}</code>
+            </div>
+            {error && (
+              <div className="mt-4 p-4 bg-destructive/10 border border-destructive/20 rounded">
+                <p className="text-destructive font-medium">Hata:</p>
+                <pre className="text-xs mt-2 text-left overflow-auto">
+                  {JSON.stringify(error, null, 2)}
+                </pre>
+              </div>
+            )}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
