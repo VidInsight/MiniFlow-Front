@@ -7,10 +7,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -18,13 +15,10 @@ import {
   CheckCircle,
   XCircle,
   PlayCircle,
-  PauseCircle,
   StopCircle,
   Timer,
   Activity,
   Database,
-  Zap,
-  FileText,
   ExternalLink,
   Copy,
   Download
@@ -64,20 +58,6 @@ const formatDuration = (startedAt, endedAt) => {
   }
 };
 
-const getProgressValue = (execution) => {
-  if (!execution) return 0;
-  if (execution.status === 'COMPLETED') return 100;
-  if (execution.status === 'FAILED' || execution.status === 'CANCELED') return 0;
-  
-  // Calculate progress based on executed vs pending nodes
-  const totalNodes = execution.pending_nodes + execution.executed_nodes;
-  if (totalNodes > 0) {
-    return Math.round((execution.executed_nodes / totalNodes) * 100);
-  }
-  
-  return execution.status === 'RUNNING' ? 45 : 0;
-};
-
 export const ExecutionDetailModal = ({ 
   executionId, 
   isOpen, 
@@ -85,7 +65,6 @@ export const ExecutionDetailModal = ({
   onNavigateToWorkflow 
 }) => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('overview');
   
   const { 
     data: execution, 
@@ -168,333 +147,251 @@ export const ExecutionDetailModal = ({
 
         {isLoading ? (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[...Array(6)].map((_, i) => (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {[...Array(4)].map((_, i) => (
                 <Card key={i}>
                   <CardContent className="p-4">
-                    <Skeleton className="h-4 w-full mb-2" />
-                    <Skeleton className="h-6 w-2/3" />
+                    <div className="h-4 bg-muted rounded mb-2" />
+                    <div className="h-6 bg-muted rounded w-2/3" />
                   </CardContent>
                 </Card>
               ))}
             </div>
-            <Skeleton className="h-64 w-full" />
+            <div className="h-64 bg-muted rounded" />
           </div>
         ) : execution ? (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="overview">Genel Bakış</TabsTrigger>
-              <TabsTrigger value="results">Node Sonuçları</TabsTrigger>
-              <TabsTrigger value="metadata">Metadata</TabsTrigger>
-            </TabsList>
+          <ScrollArea className="h-[70vh]">
+            <div className="space-y-6 pb-6">
+              {/* Genel Bilgiler */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  Genel Bilgiler
+                </h3>
+                
+                {/* Status, Workflow, Duration */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="text-xs font-medium text-muted-foreground mb-2">DURUM</div>
+                      {(() => {
+                        const statusConfig = STATUS_CONFIG[execution.status] || STATUS_CONFIG.PENDING;
+                        const StatusIcon = statusConfig.icon;
+                        return (
+                          <Badge className={cn("gap-1.5", statusConfig.color)}>
+                            <StatusIcon className="h-3 w-3" />
+                            {statusConfig.label}
+                          </Badge>
+                        );
+                      })()}
+                    </CardContent>
+                  </Card>
 
-            <TabsContent value="overview" className="space-y-6">
-              {/* Status and Basic Info */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Durum</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {(() => {
-                      const statusConfig = STATUS_CONFIG[execution.status] || STATUS_CONFIG.PENDING;
-                      const StatusIcon = statusConfig.icon;
-                      return (
-                        <Badge className={cn("gap-1.5 text-sm", statusConfig.color)}>
-                          <StatusIcon className="h-4 w-4" />
-                          {statusConfig.label}
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="text-xs font-medium text-muted-foreground mb-2">WORKFLOW</div>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="link"
+                          className="p-0 h-auto font-mono text-sm"
+                          onClick={() => onNavigateToWorkflow?.(execution.workflow_id)}
+                        >
+                          {execution.workflow_id?.slice(-12)}
+                          <ExternalLink className="ml-1 h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="p-1 h-auto"
+                          onClick={() => copyToClipboard(execution.workflow_id, 'Workflow ID')}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="text-xs font-medium text-muted-foreground mb-2">SÜRE</div>
+                      <div className="text-sm font-semibold">
+                        {execution.started_at && execution.ended_at ? 
+                          formatDuration(execution.started_at, execution.ended_at) : 
+                          'Devam ediyor'
+                        }
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="text-xs font-medium text-muted-foreground mb-2">NODE DURUMU</div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="default" className="text-xs">
+                          {execution.executed_nodes}
                         </Badge>
-                      );
-                    })()}
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Workflow</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Button
-                      variant="link"
-                      className="p-0 h-auto font-mono text-sm"
-                      onClick={() => onNavigateToWorkflow?.(execution.workflow_id)}
-                    >
-                      {execution.workflow_id?.slice(-12)}
-                      <ExternalLink className="ml-1 h-3 w-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="ml-2 p-1 h-auto"
-                      onClick={() => copyToClipboard(execution.workflow_id, 'Workflow ID')}
-                    >
-                      <Copy className="h-3 w-3" />
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Süre</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-lg font-semibold">
-                      {execution.started_at && execution.ended_at ? 
-                        formatDuration(execution.started_at, execution.ended_at) : 
-                        'Devam ediyor'
-                      }
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Progress and Node Status */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">İlerleme</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Progress value={getProgressValue(execution)} className="h-3 mb-2" />
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>%{Math.round(getProgressValue(execution))}</span>
-                      <span>{execution.executed_nodes} / {execution.executed_nodes + execution.pending_nodes} node</span>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Node Durumu</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Çalıştırılmış</span>
-                        <Badge variant="default">{execution.executed_nodes}</Badge>
+                        <span className="text-xs text-muted-foreground">/</span>
+                        <Badge variant="outline" className="text-xs">
+                          {execution.executed_nodes + execution.pending_nodes}
+                        </Badge>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Bekleyen</span>
-                        <Badge variant="outline">{execution.pending_nodes}</Badge>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+                    </CardContent>
+                  </Card>
+                </div>
 
-              {/* Timestamps */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    Zaman Bilgileri
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <div className="text-sm font-medium text-muted-foreground mb-1">Başlangıç</div>
+                {/* Timestamps */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="text-xs font-medium text-muted-foreground mb-2">BAŞLANGIÇ</div>
                       {execution.started_at ? (
                         <div>
-                          <div className="font-medium">
+                          <div className="text-sm font-medium">
                             {format(new Date(execution.started_at), 'dd MMMM yyyy, HH:mm:ss', { locale: tr })}
                           </div>
-                          <div className="text-sm text-muted-foreground">
+                          <div className="text-xs text-muted-foreground">
                             {formatDistanceToNow(new Date(execution.started_at), { addSuffix: true, locale: tr })}
                           </div>
                         </div>
                       ) : (
-                        <span className="text-muted-foreground">-</span>
+                        <span className="text-muted-foreground text-sm">-</span>
                       )}
-                    </div>
-                    
-                    <div>
-                      <div className="text-sm font-medium text-muted-foreground mb-1">Bitiş</div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="text-xs font-medium text-muted-foreground mb-2">BİTİŞ</div>
                       {execution.ended_at ? (
                         <div>
-                          <div className="font-medium">
+                          <div className="text-sm font-medium">
                             {format(new Date(execution.ended_at), 'dd MMMM yyyy, HH:mm:ss', { locale: tr })}
                           </div>
-                          <div className="text-sm text-muted-foreground">
+                          <div className="text-xs text-muted-foreground">
                             {formatDistanceToNow(new Date(execution.ended_at), { addSuffix: true, locale: tr })}
                           </div>
                         </div>
                       ) : (
-                        <span className="text-muted-foreground">Devam ediyor</span>
+                        <span className="text-muted-foreground text-sm">Devam ediyor</span>
                       )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="results" className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Node Sonuçları</h3>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={downloadResults}
-                  disabled={!execution.results || Object.keys(execution.results).length === 0}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Sonuçları İndir
-                </Button>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
 
-              <Card>
-                <CardContent className="p-0">
-                  <ScrollArea className="h-96">
-                    {execution.results && Object.keys(execution.results).length > 0 ? (
-                      <div className="p-4 space-y-3">
-                        {Object.entries(execution.results)
-                          .sort(([,a], [,b]) => {
-                            if (a.start_time && b.start_time && a.start_time !== 'N/A' && b.start_time !== 'N/A') {
-                              return new Date(a.start_time) - new Date(b.start_time);
-                            }
-                            return 0;
-                          })
-                          .map(([nodeId, result], index) => (
-                            <div key={index} className="border rounded-lg p-3">
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="font-mono text-sm font-medium">{nodeId.slice(-12)}</span>
-                                <Badge 
-                                  variant={result.status === 'SUCCESS' ? 'default' : 
-                                          result.status === 'FAILED' ? 'destructive' : 'secondary'}
-                                >
-                                  {result.status}
-                                </Badge>
-                              </div>
-                              {result.start_time && result.start_time !== 'N/A' && (
-                                <div className="text-xs text-muted-foreground mb-2">
-                                  Başlangıç: {format(new Date(result.start_time), 'dd/MM HH:mm:ss')}
-                                  {result.end_time && result.end_time !== 'N/A' && (
-                                    <span> - Bitiş: {format(new Date(result.end_time), 'dd/MM HH:mm:ss')}</span>
-                                  )}
+              <Separator />
+
+              {/* Node Sonuçları */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <Database className="h-5 w-5" />
+                    Node Sonuçları
+                  </h3>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={downloadResults}
+                    disabled={!execution.results || Object.keys(execution.results).length === 0}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    İndir
+                  </Button>
+                </div>
+
+                {execution.results && Object.keys(execution.results).length > 0 ? (
+                  <div className="space-y-4">
+                    {Object.entries(execution.results)
+                      .sort(([,a], [,b]) => {
+                        if (a.start_time && b.start_time && a.start_time !== 'N/A' && b.start_time !== 'N/A') {
+                          return new Date(a.start_time) - new Date(b.start_time);
+                        }
+                        return 0;
+                      })
+                      .map(([nodeId, result], index) => (
+                        <Card key={index} className="border-l-4 border-l-primary">
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between mb-3">
+                              <div>
+                                <div className="font-mono text-sm font-semibold mb-1">{nodeId}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  Node ID: {nodeId.slice(-12)}
                                 </div>
-                              )}
-                              {result.result_data && Object.keys(result.result_data).length > 0 && (
-                                <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
-                                  {JSON.stringify(result.result_data, null, 2)}
-                                </pre>
-                              )}
+                              </div>
+                              <Badge 
+                                variant={result.status === 'SUCCESS' ? 'default' : 
+                                        result.status === 'FAILED' ? 'destructive' : 'secondary'}
+                                className="ml-2"
+                              >
+                                {result.status}
+                              </Badge>
                             </div>
-                          ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
+                            
+                            {(result.start_time && result.start_time !== 'N/A') && (
+                              <div className="text-xs text-muted-foreground mb-3 flex items-center gap-4">
+                                <span>
+                                  <Clock className="inline h-3 w-3 mr-1" />
+                                  Başlangıç: {format(new Date(result.start_time), 'dd/MM HH:mm:ss')}
+                                </span>
+                                {result.end_time && result.end_time !== 'N/A' && (
+                                  <span>
+                                    Bitiş: {format(new Date(result.end_time), 'dd/MM HH:mm:ss')}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                            
+                            {result.result_data && Object.keys(result.result_data).length > 0 && (
+                              <div>
+                                <div className="text-xs font-medium text-muted-foreground mb-2">ÇIKTI VERİLERİ</div>
+                                <div className="bg-muted/50 rounded-md p-3 border">
+                                  <pre className="text-xs overflow-x-auto whitespace-pre-wrap">
+                                    {JSON.stringify(result.result_data, null, 2)}
+                                  </pre>
+                                </div>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                  </div>
+                ) : (
+                  <Card>
+                    <CardContent className="p-8">
+                      <div className="text-center">
                         <Database className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">Node sonucu bulunamadı</h3>
-                        <p className="text-muted-foreground">
+                        <h4 className="text-sm font-semibold mb-2">Node sonucu bulunamadı</h4>
+                        <p className="text-xs text-muted-foreground">
                           Bu execution için henüz node sonucu mevcut değil.
                         </p>
                       </div>
-                    )}
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
 
-            <TabsContent value="metadata" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    Execution Bilgileri
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div>
-                        <div className="text-sm font-medium text-muted-foreground mb-1">Execution ID</div>
-                        <div className="font-mono text-sm flex items-center gap-2">
-                          {execution.id}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="p-1 h-auto"
-                            onClick={() => copyToClipboard(execution.id, 'Execution ID')}
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-muted-foreground mb-1">Workflow ID</div>
-                        <div className="font-mono text-sm flex items-center gap-2">
-                          {execution.workflow_id}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="p-1 h-auto"
-                            onClick={() => copyToClipboard(execution.workflow_id, 'Workflow ID')}
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-muted-foreground mb-1">Oluşturulma</div>
-                        <div className="text-sm">
-                          {execution.created_at ? 
-                            format(new Date(execution.created_at), 'dd MMMM yyyy, HH:mm:ss', { locale: tr }) : 
-                            '-'
-                          }
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-muted-foreground mb-1">Son Güncelleme</div>
-                        <div className="text-sm">
-                          {execution.updated_at ? 
-                            format(new Date(execution.updated_at), 'dd MMMM yyyy, HH:mm:ss', { locale: tr }) : 
-                            '-'
-                          }
-                        </div>
-                      </div>
-                    </div>
-                    <div className="space-y-4">
-                      <div>
-                        <div className="text-sm font-medium text-muted-foreground mb-1">Çalıştırılmış Node</div>
-                        <div className="text-lg font-semibold text-green-600">{execution.executed_nodes}</div>
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-muted-foreground mb-1">Bekleyen Node</div>
-                        <div className="text-lg font-semibold text-amber-600">{execution.pending_nodes}</div>
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-muted-foreground mb-1">Toplam Node</div>
-                        <div className="text-lg font-semibold">{execution.executed_nodes + execution.pending_nodes}</div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Error Details */}
+              {/* Error Details (if any) */}
               {execution.error_details && Object.keys(execution.error_details).length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base text-destructive">Hata Detayları</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ScrollArea className="h-32">
-                      <pre className="text-xs bg-destructive/10 p-3 rounded border border-destructive/20 overflow-x-auto">
-                        {JSON.stringify(execution.error_details, null, 2)}
-                      </pre>
-                    </ScrollArea>
-                  </CardContent>
-                </Card>
+                <>
+                  <Separator />
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-red-600">
+                      <XCircle className="h-5 w-5" />
+                      Hata Detayları
+                    </h3>
+                    <Card className="border-red-200">
+                      <CardContent className="p-4">
+                        <pre className="text-xs overflow-x-auto bg-red-50 p-3 rounded border">
+                          {JSON.stringify(execution.error_details, null, 2)}
+                        </pre>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </>
               )}
-            </TabsContent>
-          </Tabs>
-        ) : (
-          <div className="text-center py-8">
-            <Activity className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Execution bulunamadı</h3>
-            <p className="text-muted-foreground">Belirtilen execution ID'si ile ilişkili veri bulunamadı.</p>
-          </div>
-        )}
+            </div>
+          </ScrollArea>
+        ) : null}
       </DialogContent>
     </Dialog>
   );
