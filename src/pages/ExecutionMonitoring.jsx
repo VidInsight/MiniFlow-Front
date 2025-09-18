@@ -17,6 +17,7 @@ import {
 import { PageHeader } from '@/components/ui/page-header';
 import { ExecutionTable } from '@/components/executions/ExecutionTable';
 import { ExecutionDetailModal } from '@/components/executions/ExecutionDetailModal';
+import { WorkflowDetailsModal } from '@/components/workflow/WorkflowDetailsModal';
 import { 
   useExecutionMonitoring
 } from '@/hooks/useExecutions';
@@ -42,6 +43,8 @@ export default function ExecutionMonitoring() {
   const [isRealTimeEnabled, setIsRealTimeEnabled] = useState(true);
   const [selectedExecutionId, setSelectedExecutionId] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedWorkflowId, setSelectedWorkflowId] = useState(null);
+  const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
 
   // Data fetching
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -87,7 +90,14 @@ export default function ExecutionMonitoring() {
   };
 
   const handleNavigateToWorkflow = (workflowId) => {
-    navigate(`/workflows?id=${workflowId}`);
+    console.log('Navigate to workflow:', workflowId);
+    setSelectedWorkflowId(workflowId);
+    setIsWorkflowModalOpen(true);
+  };
+
+  const handleCloseWorkflowModal = () => {
+    setIsWorkflowModalOpen(false);
+    setSelectedWorkflowId(null);
   };
 
   // Manual refresh
@@ -253,6 +263,12 @@ export default function ExecutionMonitoring() {
         isOpen={isDetailModalOpen}
         onClose={handleCloseModal}
         onNavigateToWorkflow={handleNavigateToWorkflow}
+      />
+
+      <WorkflowDetailsModal
+        workflowId={selectedWorkflowId}
+        isOpen={isWorkflowModalOpen}
+        onClose={handleCloseWorkflowModal}
       />
       
       {/* Debug Info */}

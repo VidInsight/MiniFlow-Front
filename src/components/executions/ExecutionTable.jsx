@@ -224,7 +224,7 @@ export const ExecutionTable = ({
                   <Button
                     variant="link"
                     className="p-0 h-auto font-mono text-sm"
-                    onClick={() => window.open(`/workflow/${execution.workflow_id}`, '_blank')}
+                    onClick={() => onNavigateToWorkflow?.(execution.workflow_id)}
                   >
                     {execution.workflow_id?.slice(-8) || 'N/A'}
                     <ExternalLink className="ml-1 h-3 w-3" />
