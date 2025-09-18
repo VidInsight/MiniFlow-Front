@@ -36,13 +36,11 @@ import { useExecution } from '@/hooks/useExecutions';
 import { useToast } from '@/hooks/use-toast';
 
 const STATUS_CONFIG = {
-  PENDING: { color: 'bg-amber-500/20 text-amber-700 border-amber-500/30', icon: Timer, label: 'BEKLIYOR' },
-  RUNNING: { color: 'bg-blue-500/20 text-blue-700 border-blue-500/30', icon: PlayCircle, label: 'ÇALIŞIYOR' },
-  COMPLETED: { color: 'bg-green-500/20 text-green-700 border-green-500/30', icon: CheckCircle, label: 'TAMAMLANDI' },
-  FAILED: { color: 'bg-red-500/20 text-red-700 border-red-500/30', icon: XCircle, label: 'BAŞARISIZ' },
-  CANCELLED: { color: 'bg-gray-500/20 text-gray-700 border-gray-500/30', icon: StopCircle, label: 'İPTAL EDİLDİ' },
-  TIMEOUT: { color: 'bg-orange-500/20 text-orange-700 border-orange-500/30', icon: Clock, label: 'ZAMAN AŞIMI' },
-  PAUSED: { color: 'bg-purple-500/20 text-purple-700 border-purple-500/30', icon: PauseCircle, label: 'DURAKLATILDI' }
+  PENDING: { color: 'bg-amber-500/20 text-amber-700 border-amber-500/30', icon: Timer, label: 'PENDING' },
+  RUNNING: { color: 'bg-blue-500/20 text-blue-700 border-blue-500/30', icon: PlayCircle, label: 'RUNNING' },
+  COMPLETED: { color: 'bg-green-500/20 text-green-700 border-green-500/30', icon: CheckCircle, label: 'COMPLETED' },
+  FAILED: { color: 'bg-red-500/20 text-red-700 border-red-500/30', icon: XCircle, label: 'FAILED' },
+  CANCELED: { color: 'bg-gray-500/20 text-gray-700 border-gray-500/30', icon: StopCircle, label: 'CANCELED' }
 };
 
 const LOG_LEVEL_COLORS = {
