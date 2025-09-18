@@ -38,7 +38,17 @@ export const useExecution = (executionId, options = {}) => {
     queryFn: () => executionService.getById(executionId),
     enabled: enabled && !!executionId,
     staleTime: 60000, // 1 minute
-    select: (data) => data.data?.data
+    retry: 2,
+    retryDelay: 1000,
+    select: (data) => {
+      console.log('useExecution: Raw API response', data);
+      console.log('useExecution: Data structure', Object.keys(data || {}));
+      // API interceptor already returns response.data, so we access data.data directly
+      return data?.data;
+    },
+    onError: (error) => {
+      console.error('useExecution: Query failed', error);
+    }
   });
 };
 

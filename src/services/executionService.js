@@ -15,7 +15,15 @@ export const executionService = {
 
   // Get execution by ID
   getById: async (executionId) => {
-    return api.get(`/api/bff/executions/${executionId}`);
+    console.log('API: Making request to /api/bff/executions/' + executionId);
+    try {
+      const response = await api.get(`/api/bff/executions/${executionId}`);
+      console.log('API: Response received', response);
+      return response;
+    } catch (error) {
+      console.error('API: Request failed', error);
+      throw error;
+    }
   },
 
   // Get executions by workflow ID
