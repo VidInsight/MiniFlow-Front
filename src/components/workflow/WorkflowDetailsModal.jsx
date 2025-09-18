@@ -187,6 +187,9 @@ export const WorkflowDetailsModal = ({ workflowId, isOpen, onClose }) => {
                           {trigger.description && (
                             <p className="text-xs text-muted-foreground">{trigger.description}</p>
                           )}
+                          <p className="text-xs text-muted-foreground">
+                            Trigger ID: {trigger.id}
+                          </p>
                         </div>
                         <Badge 
                           className={trigger.status === 'ACTIVE' 
