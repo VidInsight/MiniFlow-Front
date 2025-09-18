@@ -234,7 +234,7 @@ export const WorkflowTable = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => navigate(`/builder/${workflow.id}`)}
+                    onClick={() => navigate(`/builder/${workflow.id}/`)}
                     className="h-8 w-8 p-0"
                     title="Workflow Builder'a Git"
                   >
