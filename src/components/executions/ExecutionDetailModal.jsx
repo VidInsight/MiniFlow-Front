@@ -131,9 +131,37 @@ export const ExecutionDetailModal = ({
     );
   }
 
+  // Test if modal should be open
+  if (isOpen && !executionId) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hata</DialogTitle>
+            <DialogDescription>Execution ID bulunamadı</DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Activity className="h-5 w-5" />
+            Execution Detayları
+            {execution && (
+              <Badge variant="outline" className="font-mono text-xs">
+                {execution.id?.slice(-12)}
+              </Badge>
+            )}
+          </DialogTitle>
+          <DialogDescription>
+            Workflow execution'ının detaylı bilgileri ve node sonuçları
+          </DialogDescription>
+        </DialogHeader>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5" />
