@@ -254,8 +254,6 @@ export const ExecutionTable = ({
         </TableHeader>
         <TableBody>
           {sortedExecutions.map((execution) => {
-            const statusConfig = STATUS_CONFIG[execution.status] || STATUS_CONFIG.PENDING;
-            const StatusIcon = statusConfig.icon;
             const progressValue = getProgressValue(execution);
             
             return (
@@ -318,14 +316,6 @@ export const ExecutionTable = ({
                       {execution.executed_nodes} / {execution.executed_nodes + execution.pending_nodes}
                     </Badge>
                     <span className="text-xs text-muted-foreground">node</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="space-y-1">
-                    <Progress value={progressValue} className="h-2" />
-                    <div className="text-xs text-muted-foreground">
-                      %{Math.round(progressValue)} tamamlandı
-                    </div>
                   </div>
                 </TableCell>
                 <TableCell>
