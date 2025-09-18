@@ -1,155 +1,114 @@
-import { useCallback, useMemo } from 'react';
-import {
-  ReactFlow,
-  Controls,
-  Background,
-  useNodesState,
-  useEdgesState,
-  MarkerType,
-  Position
-} from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useMemo } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Settings, Database } from 'lucide-react';
+import { ArrowRight, Database, Clock, Settings } from 'lucide-react';
 
-const CustomNode = ({ data }) => {
+const NodeConnection = ({ fromNode, toNode, condition }) => {
   return (
-    <Card className="min-w-[280px] shadow-lg border-border">
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium truncate">
-            {data.name}
-          </CardTitle>
-          <Badge variant="secondary" className="text-xs">
-            Node
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0 space-y-2">
-        <p className="text-xs text-muted-foreground line-clamp-2">
-          {data.description}
-        </p>
-        
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <Clock className="h-3 w-3" />
-            <span>{data.timeout_seconds}s</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Settings className="h-3 w-3" />
-            <span>{data.max_retries} retries</span>
-          </div>
-        </div>
-
-        {data.input_params && Object.keys(data.input_params).length > 0 && (
-          <div className="pt-1">
-            <div className="text-xs font-medium text-muted-foreground mb-1">Inputs:</div>
-            <div className="flex flex-wrap gap-1">
-              {Object.keys(data.input_params).slice(0, 3).map((param) => (
-                <Badge key={param} variant="outline" className="text-xs">
-                  {param}
-                </Badge>
-              ))}
-              {Object.keys(data.input_params).length > 3 && (
-                <Badge variant="outline" className="text-xs">
-                  +{Object.keys(data.input_params).length - 3}
-                </Badge>
-              )}
+    <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/20">
+      {/* From Node */}
+      <div className="flex-1">
+        <Card className="min-w-0">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-medium text-sm truncate">{fromNode.name}</h4>
+              <Badge variant="outline" className="text-xs">
+                {fromNode.id.slice(-8)}
+              </Badge>
             </div>
-          </div>
-        )}
-
-        {data.output_params && Object.keys(data.output_params).length > 0 && (
-          <div className="pt-1">
-            <div className="text-xs font-medium text-muted-foreground mb-1">Outputs:</div>
-            <div className="flex flex-wrap gap-1">
-              {Object.keys(data.output_params).slice(0, 3).map((param) => (
-                <Badge key={param} variant="outline" className="text-xs">
-                  {param}
-                </Badge>
-              ))}
-              {Object.keys(data.output_params).length > 3 && (
-                <Badge variant="outline" className="text-xs">
-                  +{Object.keys(data.output_params).length - 3}
-                </Badge>
-              )}
+            {fromNode.description && (
+              <p className="text-xs text-muted-foreground line-clamp-2">
+                {fromNode.description}
+              </p>
+            )}
+            <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+              <Clock className="h-3 w-3" />
+              <span>{fromNode.timeout_seconds}s</span>
+              <Settings className="h-3 w-3 ml-2" />
+              <span>{fromNode.max_retries} retries</span>
             </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Arrow with condition */}
+      <div className="flex flex-col items-center gap-1">
+        <ArrowRight className="h-5 w-5 text-primary" />
+        <Badge 
+          variant="secondary" 
+          className={`text-xs ${
+            condition === 'SUCCESS' 
+              ? 'bg-green-500/20 text-green-700 border-green-500/30' 
+              : 'bg-red-500/20 text-red-700 border-red-500/30'
+          }`}
+        >
+          {condition}
+        </Badge>
+      </div>
+
+      {/* To Node */}
+      <div className="flex-1">
+        <Card className="min-w-0">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-medium text-sm truncate">{toNode.name}</h4>
+              <Badge variant="outline" className="text-xs">
+                {toNode.id.slice(-8)}
+              </Badge>
+            </div>
+            {toNode.description && (
+              <p className="text-xs text-muted-foreground line-clamp-2">
+                {toNode.description}
+              </p>
+            )}
+            <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+              <Clock className="h-3 w-3" />
+              <span>{toNode.timeout_seconds}s</span>
+              <Settings className="h-3 w-3 ml-2" />
+              <span>{toNode.max_retries} retries</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };
 
-const nodeTypes = {
-  custom: CustomNode,
-};
-
 export const WorkflowDAG = ({ workflow }) => {
-  const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
+  const connections = useMemo(() => {
     if (!workflow?.nodes || !workflow?.edges) {
-      return { nodes: [], edges: [] };
+      return [];
     }
 
-    // Create a map for faster lookup
+    // Create a map for faster node lookup
     const nodeMap = new Map(workflow.nodes.map(node => [node.id, node]));
     
-    // Calculate positions using a simple layout algorithm
-    const positions = calculateNodePositions(workflow.nodes, workflow.edges);
-
-    const nodes = workflow.nodes.map((node) => ({
-      id: node.id,
-      type: 'custom',
-      position: positions[node.id] || { x: 0, y: 0 },
-      data: {
-        ...node,
-        label: node.name,
-      },
-      sourcePosition: Position.Right,
-      targetPosition: Position.Left,
-    }));
-
-    const edges = workflow.edges.map((edge) => ({
+    // Build connections array
+    return workflow.edges.map(edge => ({
       id: edge.id,
-      source: edge.from_node_id,
-      target: edge.to_node_id,
-      type: 'smoothstep',
-      animated: true,
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        width: 20,
-        height: 20,
-      },
-      label: edge.condition_type,
-      labelStyle: { 
-        fontSize: 10, 
-        fontWeight: 500,
-        fill: 'hsl(var(--muted-foreground))'
-      },
-      labelBgStyle: { 
-        fill: 'hsl(var(--background))', 
-        fillOpacity: 0.8 
-      },
-      style: {
-        stroke: edge.condition_type === 'SUCCESS' ? 'hsl(var(--primary))' : 'hsl(var(--destructive))',
-        strokeWidth: 2,
-      },
-    }));
-
-    return { nodes, edges };
+      fromNode: nodeMap.get(edge.from_node_id),
+      toNode: nodeMap.get(edge.to_node_id),
+      condition: edge.condition_type,
+    })).filter(conn => conn.fromNode && conn.toNode);
   }, [workflow]);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const isolatedNodes = useMemo(() => {
+    if (!workflow?.nodes || !workflow?.edges) {
+      return workflow?.nodes || [];
+    }
 
-  const onConnect = useCallback(() => {
-    // Prevent connections in view mode
-  }, []);
+    const connectedNodeIds = new Set();
+    workflow.edges.forEach(edge => {
+      connectedNodeIds.add(edge.from_node_id);
+      connectedNodeIds.add(edge.to_node_id);
+    });
+
+    return workflow.nodes.filter(node => !connectedNodeIds.has(node.id));
+  }, [workflow]);
 
   if (!workflow?.nodes?.length) {
     return (
-      <div className="flex items-center justify-center h-96 border rounded-lg">
+      <div className="flex items-center justify-center h-64 border rounded-lg">
         <div className="text-center">
           <Database className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
           <h3 className="text-lg font-semibold mb-2">No workflow data</h3>
@@ -162,95 +121,67 @@ export const WorkflowDAG = ({ workflow }) => {
   }
 
   return (
-    <div className="h-96 border rounded-lg bg-background">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={nodeTypes}
-        fitView
-        attributionPosition="bottom-left"
-        className="bg-background"
-      >
-        <Background />
-        <Controls />
-      </ReactFlow>
+    <div className="space-y-4">
+      {/* Node Connections */}
+      {connections.length > 0 && (
+        <div className="space-y-3">
+          <h4 className="text-sm font-medium text-muted-foreground">
+            Node Connections ({connections.length})
+          </h4>
+          {connections.map((connection) => (
+            <NodeConnection
+              key={connection.id}
+              fromNode={connection.fromNode}
+              toNode={connection.toNode}
+              condition={connection.condition}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Isolated Nodes */}
+      {isolatedNodes.length > 0 && (
+        <div className="space-y-3">
+          <h4 className="text-sm font-medium text-muted-foreground">
+            Isolated Nodes ({isolatedNodes.length})
+          </h4>
+          <div className="grid gap-2">
+            {isolatedNodes.map((node) => (
+              <Card key={node.id} className="bg-muted/20">
+                <CardContent className="p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-sm">{node.name}</h4>
+                    <Badge variant="outline" className="text-xs">
+                      {node.id.slice(-8)}
+                    </Badge>
+                  </div>
+                  {node.description && (
+                    <p className="text-xs text-muted-foreground mb-2">
+                      {node.description}
+                    </p>
+                  )}
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    <span>{node.timeout_seconds}s</span>
+                    <Settings className="h-3 w-3 ml-2" />
+                    <span>{node.max_retries} retries</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* No Connections Message */}
+      {connections.length === 0 && isolatedNodes.length === workflow.nodes.length && (
+        <div className="text-center py-8">
+          <ArrowRight className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+          <p className="text-sm text-muted-foreground">
+            No connections found between nodes
+          </p>
+        </div>
+      )}
     </div>
   );
 };
-
-// Simple layout algorithm for node positioning
-function calculateNodePositions(nodes, edges) {
-  const positions = {};
-  const visited = new Set();
-  const levels = new Map();
-  
-  // Build adjacency list
-  const graph = new Map();
-  const inDegree = new Map();
-  
-  nodes.forEach(node => {
-    graph.set(node.id, []);
-    inDegree.set(node.id, 0);
-  });
-  
-  edges.forEach(edge => {
-    graph.get(edge.from_node_id)?.push(edge.to_node_id);
-    inDegree.set(edge.to_node_id, (inDegree.get(edge.to_node_id) || 0) + 1);
-  });
-  
-  // Find root nodes (nodes with no incoming edges)
-  const rootNodes = nodes.filter(node => inDegree.get(node.id) === 0);
-  
-  // If no root nodes found, pick the first node
-  if (rootNodes.length === 0 && nodes.length > 0) {
-    rootNodes.push(nodes[0]);
-  }
-  
-  // BFS to assign levels
-  const queue = [];
-  rootNodes.forEach(node => {
-    levels.set(node.id, 0);
-    queue.push(node.id);
-  });
-  
-  while (queue.length > 0) {
-    const nodeId = queue.shift();
-    const currentLevel = levels.get(nodeId) || 0;
-    
-    const children = graph.get(nodeId) || [];
-    children.forEach(childId => {
-      const newLevel = currentLevel + 1;
-      if (!levels.has(childId) || levels.get(childId) < newLevel) {
-        levels.set(childId, newLevel);
-        queue.push(childId);
-      }
-    });
-  }
-  
-  // Group nodes by level
-  const nodesByLevel = new Map();
-  levels.forEach((level, nodeId) => {
-    if (!nodesByLevel.has(level)) {
-      nodesByLevel.set(level, []);
-    }
-    nodesByLevel.get(level).push(nodeId);
-  });
-  
-  // Assign positions
-  const LEVEL_WIDTH = 350;
-  const NODE_HEIGHT = 150;
-  
-  nodesByLevel.forEach((nodesAtLevel, level) => {
-    nodesAtLevel.forEach((nodeId, index) => {
-      positions[nodeId] = {
-        x: level * LEVEL_WIDTH,
-        y: index * NODE_HEIGHT + (index * 50), // Add some spacing
-      };
-    });
-  });
-  
-  return positions;
-}
