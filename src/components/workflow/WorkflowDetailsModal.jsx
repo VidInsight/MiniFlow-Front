@@ -226,6 +226,9 @@ export const WorkflowDetailsModal = ({ workflowId, isOpen, onClose }) => {
                           {node.description && (
                             <p className="text-xs text-muted-foreground mt-1">{node.description}</p>
                           )}
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Node ID: {node.id} | Script ID: {node.script_id}
+                          </p>
                         </div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Clock className="h-3 w-3" />
