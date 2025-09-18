@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -113,38 +112,6 @@ export const ExecutionDetailModal = ({
     URL.revokeObjectURL(url);
   };
 
-  if (error) {
-    return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Hata</DialogTitle>
-          </DialogHeader>
-          <div className="text-center py-8">
-            <XCircle className="mx-auto h-16 w-16 text-red-500 mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Execution detayları yüklenemedi</h3>
-            <p className="text-muted-foreground mb-4">{error.message}</p>
-            <Button onClick={onClose}>Kapat</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  // Test if modal should be open
-  if (isOpen && !executionId) {
-    return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Hata</DialogTitle>
-            <DialogDescription>Execution ID bulunamadı</DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
@@ -152,43 +119,36 @@ export const ExecutionDetailModal = ({
           <DialogTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5" />
             Execution Detayları
-            {execution && (
+            {executionId && (
               <Badge variant="outline" className="font-mono text-xs">
-                {execution.id?.slice(-12)}
+                {executionId.slice(-12)}
               </Badge>
             )}
           </DialogTitle>
           <DialogDescription>
-            Workflow execution'ının detaylı bilgileri ve node sonuçları
-          </DialogDescription>
-        </DialogHeader>
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5" />
-            Execution Detayları
-            {execution && (
-              <Badge variant="outline" className="font-mono text-xs">
-                {execution.id?.slice(-12)}
-              </Badge>
-            )}
-          </DialogTitle>
-          <DialogDescription>
-            Workflow execution'ının detaylı bilgileri ve node sonuçları
+            Workflow execution detayları ve API yanıtı
           </DialogDescription>
         </DialogHeader>
 
-        {isLoading ? (
+        {error ? (
+          <div className="p-6 text-center">
+            <XCircle className="mx-auto h-16 w-16 text-red-500 mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Execution detayları yüklenemedi</h3>
+            <p className="text-muted-foreground mb-4">{error.message}</p>
+            <div className="text-sm text-muted-foreground mb-4">
+              API Endpoint: <code className="bg-muted px-2 py-1 rounded">/api/bff/executions/{executionId}</code>
+            </div>
+            <Button onClick={onClose}>Kapat</Button>
+          </div>
+        ) : isLoading ? (
           <div className="space-y-4 p-6">
             <div className="text-center">
               <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-2" />
               <p>Execution detayları yükleniyor...</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                API: /api/bff/executions/{executionId}
+              </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-20 bg-muted rounded animate-pulse" />
-              ))}
-            </div>
-            <div className="h-64 bg-muted rounded animate-pulse" />
           </div>
         ) : execution ? (
           <ScrollArea className="h-[70vh]">
@@ -200,7 +160,6 @@ export const ExecutionDetailModal = ({
                   Genel Bilgiler
                 </h3>
                 
-                {/* Status, Workflow, Duration */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                   <Card>
                     <CardContent className="p-4">
@@ -270,7 +229,6 @@ export const ExecutionDetailModal = ({
                   </Card>
                 </div>
 
-                {/* Timestamps */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Card>
                     <CardContent className="p-4">
@@ -401,7 +359,7 @@ export const ExecutionDetailModal = ({
                 )}
               </div>
 
-              {/* Error Details (if any) */}
+              {/* Error Details */}
               {execution.error_details && Object.keys(execution.error_details).length > 0 && (
                 <>
                   <Separator />
@@ -420,25 +378,6 @@ export const ExecutionDetailModal = ({
                   </div>
                 </>
               )}
-
-              {/* Raw API Response for Debug */}
-              <Separator />
-              <div>
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Activity className="h-5 w-5" />
-                  Ham API Yanıtı
-                </h3>
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="text-xs text-muted-foreground mb-2">
-                      GET /api/bff/executions/{executionId}
-                    </div>
-                    <pre className="text-xs overflow-x-auto bg-muted p-3 rounded border max-h-64 overflow-y-auto">
-                      {JSON.stringify(execution, null, 2)}
-                    </pre>
-                  </CardContent>
-                </Card>
-              </div>
             </div>
           </ScrollArea>
         ) : (
@@ -449,14 +388,6 @@ export const ExecutionDetailModal = ({
             <div className="text-sm text-muted-foreground">
               API Endpoint: <code className="bg-muted px-2 py-1 rounded">/api/bff/executions/{executionId}</code>
             </div>
-            {error && (
-              <div className="mt-4 p-4 bg-destructive/10 border border-destructive/20 rounded">
-                <p className="text-destructive font-medium">Hata:</p>
-                <pre className="text-xs mt-2 text-left overflow-auto">
-                  {JSON.stringify(error, null, 2)}
-                </pre>
-              </div>
-            )}
           </div>
         )}
       </DialogContent>
