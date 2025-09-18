@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -88,6 +89,7 @@ export const WorkflowTable = ({
   onValidate,
   executeLoading = false 
 }) => {
+  const navigate = useNavigate();
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -232,9 +234,9 @@ export const WorkflowTable = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onEdit(workflow)}
+                    onClick={() => navigate(`/builder/${workflow.id}`)}
                     className="h-8 w-8 p-0"
-                    title="Workflow'u Düzenle"
+                    title="Workflow Builder'a Git"
                   >
                     <Edit className="w-4 h-4" />
                   </Button>
