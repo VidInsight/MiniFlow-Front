@@ -247,8 +247,6 @@ export const ExecutionTable = ({
               </div>
             </TableHead>
             <TableHead>Node Durumu</TableHead>
-            <TableHead>İlerleme</TableHead>
-            <TableHead>İşlemler</TableHead>
             <TableHead>İşlemler</TableHead>
           </TableRow>
         </TableHeader>
@@ -272,10 +270,16 @@ export const ExecutionTable = ({
                   </Button>
                 </TableCell>
                 <TableCell>
-                  <Badge className={cn("gap-1.5", statusConfig.color)}>
-                    <StatusIcon className="h-3 w-3" />
-                    {statusConfig.label}
-                  </Badge>
+                  {(() => {
+                    const config = STATUS_CONFIG[execution.status] || STATUS_CONFIG.PENDING;
+                    const StatusIcon = config.icon;
+                    return (
+                      <Badge className={cn("gap-1.5", config.color)}>
+                        <StatusIcon className="h-3 w-3" />
+                        {config.label}
+                      </Badge>
+                    );
+                  })()}
                 </TableCell>
                 <TableCell className="text-sm">
                   {execution.started_at ? (
@@ -317,17 +321,6 @@ export const ExecutionTable = ({
                     </Badge>
                     <span className="text-xs text-muted-foreground">node</span>
                   </div>
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onViewDetails?.(execution.id)}
-                    className="gap-1"
-                  >
-                    <Eye className="h-3 w-3" />
-                    Detay
-                  </Button>
                 </TableCell>
                 <TableCell>
                   <Button
