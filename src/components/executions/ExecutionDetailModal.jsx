@@ -43,14 +43,6 @@ const STATUS_CONFIG = {
   CANCELED: { color: 'bg-gray-500/20 text-gray-700 border-gray-500/30', icon: StopCircle, label: 'CANCELED' }
 };
 
-const LOG_LEVEL_COLORS = {
-  info: 'text-blue-600',
-  success: 'text-green-600',
-  warning: 'text-amber-600',
-  error: 'text-red-600',
-  debug: 'text-gray-600'
-};
-
 const formatDuration = (startedAt, endedAt) => {
   if (!startedAt || !endedAt) return '-';
   
@@ -75,7 +67,7 @@ const formatDuration = (startedAt, endedAt) => {
 const getProgressValue = (execution) => {
   if (!execution) return 0;
   if (execution.status === 'COMPLETED') return 100;
-  if (execution.status === 'FAILED' || execution.status === 'CANCELLED') return 0;
+  if (execution.status === 'FAILED' || execution.status === 'CANCELED') return 0;
   
   // Calculate progress based on executed vs pending nodes
   const totalNodes = execution.pending_nodes + execution.executed_nodes;
@@ -100,8 +92,7 @@ export const ExecutionDetailModal = ({
     isLoading, 
     error 
   } = useExecution(executionId, {
-    enabled: isOpen && !!executionId,
-    includeRelationships: true
+    enabled: isOpen && !!executionId
   });
 
   const copyToClipboard = (text, label) => {
@@ -112,10 +103,10 @@ export const ExecutionDetailModal = ({
     });
   };
 
-  const downloadLogs = () => {
+  const downloadResults = () => {
     if (!execution?.results) return;
     
-    const logsText = Object.entries(execution.results)
+    const resultsText = Object.entries(execution.results)
       .map(([nodeId, result]) => {
         const lines = [`Node: ${nodeId}`, `Status: ${result.status}`];
         if (result.start_time && result.start_time !== 'N/A') {
@@ -131,7 +122,7 @@ export const ExecutionDetailModal = ({
       })
       .join('\n\n');
     
-    const blob = new Blob([logsText], { type: 'text/plain' });
+    const blob = new Blob([resultsText], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -193,7 +184,7 @@ export const ExecutionDetailModal = ({
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="overview">Genel Bakış</TabsTrigger>
-              <TabsTrigger value="logs">Node Sonuçları</TabsTrigger>
+              <TabsTrigger value="results">Node Sonuçları</TabsTrigger>
               <TabsTrigger value="metadata">Metadata</TabsTrigger>
             </TabsList>
 
@@ -257,7 +248,7 @@ export const ExecutionDetailModal = ({
                 </Card>
               </div>
 
-              {/* Progress and Success */}
+              {/* Progress and Node Status */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Card>
                   <CardHeader className="pb-2">
@@ -335,57 +326,15 @@ export const ExecutionDetailModal = ({
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Node Results */}
-              {execution.results && Object.keys(execution.results).length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Database className="h-4 w-4" />
-                      Node Sonuçları
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {Object.entries(execution.results).map(([nodeId, result]) => (
-                        <div key={nodeId} className="border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-mono text-sm font-medium">{nodeId.slice(-8)}</span>
-                            <Badge 
-                              variant={result.status === 'SUCCESS' ? 'default' : 
-                                     result.status === 'FAILED' ? 'destructive' : 'secondary'}
-                            >
-                              {result.status}
-                            </Badge>
-                          </div>
-                          {result.start_time && result.start_time !== 'N/A' && (
-                            <div className="text-xs text-muted-foreground mb-1">
-                              Başlangıç: {format(new Date(result.start_time), 'HH:mm:ss')}
-                              {result.end_time && result.end_time !== 'N/A' && (
-                                <span> - Bitiş: {format(new Date(result.end_time), 'HH:mm:ss')}</span>
-                              )}
-                            </div>
-                          )}
-                          {result.result_data && Object.keys(result.result_data).length > 0 && (
-                            <pre className="text-xs bg-muted p-2 rounded mt-2 overflow-x-auto">
-                              {JSON.stringify(result.result_data, null, 2)}
-                            </pre>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
             </TabsContent>
 
-            <TabsContent value="logs" className="space-y-4">
+            <TabsContent value="results" className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Node Sonuçları</h3>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={downloadLogs}
+                  onClick={downloadResults}
                   disabled={!execution.results || Object.keys(execution.results).length === 0}
                 >
                   <Download className="h-4 w-4 mr-2" />
@@ -446,144 +395,92 @@ export const ExecutionDetailModal = ({
               </Card>
             </TabsContent>
 
-            <TabsContent value="performance" className="space-y-4">
-              <h3 className="text-lg font-semibold">Performans Metrikleri</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Çalışma Süreleri</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Toplam Süre:</span>
-                      <span className="font-mono">{formatDuration(execution.duration_seconds)}</span>
-                    </div>
-                    {execution.started_at && execution.completed_at && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Gerçek Süre:</span>
-                        <span className="font-mono">
-                          {formatDuration(
-                            (new Date(execution.completed_at) - new Date(execution.started_at)) / 1000
-                          )}
-                        </span>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">İşlem İstatistikleri</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {execution.result_summary?.processed_nodes && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">İşlenen Node:</span>
-                        <span className="font-semibold">{execution.result_summary.processed_nodes}</span>
-                      </div>
-                    )}
-                    {execution.result_summary?.total_nodes && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Toplam Node:</span>
-                        <span className="font-semibold">{execution.result_summary.total_nodes}</span>
-                      </div>
-                    )}
-                    {execution.result_summary?.success_rate && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Başarı Oranı:</span>
-                        <span className="font-semibold text-green-600">
-                          %{Math.round(execution.result_summary.success_rate * 100)}
-                        </span>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Resource Usage (if available in metadata) */}
-              {execution.metadata?.resource_usage && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Kaynak Kullanımı</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {execution.metadata.resource_usage.cpu_usage && (
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-blue-600">
-                            %{Math.round(execution.metadata.resource_usage.cpu_usage * 100)}
-                          </div>
-                          <div className="text-sm text-muted-foreground">CPU Kullanımı</div>
-                        </div>
-                      )}
-                      {execution.metadata.resource_usage.memory_usage && (
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-green-600">
-                            {Math.round(execution.metadata.resource_usage.memory_usage / 1024 / 1024)}MB
-                          </div>
-                          <div className="text-sm text-muted-foreground">Bellek Kullanımı</div>
-                        </div>
-                      )}
-                      {execution.metadata.resource_usage.network_io && (
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-purple-600">
-                            {Math.round(execution.metadata.resource_usage.network_io / 1024)}KB
-                          </div>
-                          <div className="text-sm text-muted-foreground">Ağ I/O</div>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </TabsContent>
-
             <TabsContent value="metadata" className="space-y-4">
-              <h3 className="text-lg font-semibold">Metadata</h3>
-              
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Zap className="h-4 w-4" />
-                    Trigger Bilgileri
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Execution Bilgileri
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {execution.metadata?.trigger ? (
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Trigger Tipi:</span>
-                        <Badge variant="outline">{execution.metadata.trigger.type}</Badge>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <div className="text-sm font-medium text-muted-foreground mb-1">Execution ID</div>
+                        <div className="font-mono text-sm flex items-center gap-2">
+                          {execution.id}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="p-1 h-auto"
+                            onClick={() => copyToClipboard(execution.id, 'Execution ID')}
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                        </div>
                       </div>
-                      {execution.metadata.trigger.source && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Kaynak:</span>
-                          <span className="font-mono text-sm">{execution.metadata.trigger.source}</span>
+                      <div>
+                        <div className="text-sm font-medium text-muted-foreground mb-1">Workflow ID</div>
+                        <div className="font-mono text-sm flex items-center gap-2">
+                          {execution.workflow_id}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="p-1 h-auto"
+                            onClick={() => copyToClipboard(execution.workflow_id, 'Workflow ID')}
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
                         </div>
-                      )}
-                      {execution.metadata.trigger.user_id && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Kullanıcı:</span>
-                          <span className="font-mono text-sm">{execution.metadata.trigger.user_id}</span>
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-muted-foreground mb-1">Oluşturulma</div>
+                        <div className="text-sm">
+                          {execution.created_at ? 
+                            format(new Date(execution.created_at), 'dd MMMM yyyy, HH:mm:ss', { locale: tr }) : 
+                            '-'
+                          }
                         </div>
-                      )}
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-muted-foreground mb-1">Son Güncelleme</div>
+                        <div className="text-sm">
+                          {execution.updated_at ? 
+                            format(new Date(execution.updated_at), 'dd MMMM yyyy, HH:mm:ss', { locale: tr }) : 
+                            '-'
+                          }
+                        </div>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="text-muted-foreground">Trigger bilgisi mevcut değil</div>
-                  )}
+                    <div className="space-y-4">
+                      <div>
+                        <div className="text-sm font-medium text-muted-foreground mb-1">Çalıştırılmış Node</div>
+                        <div className="text-lg font-semibold text-green-600">{execution.executed_nodes}</div>
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-muted-foreground mb-1">Bekleyen Node</div>
+                        <div className="text-lg font-semibold text-amber-600">{execution.pending_nodes}</div>
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-muted-foreground mb-1">Toplam Node</div>
+                        <div className="text-lg font-semibold">{execution.executed_nodes + execution.pending_nodes}</div>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
-              {execution.metadata && Object.keys(execution.metadata).length > 0 && (
+              {/* Error Details */}
+              {execution.error_details && Object.keys(execution.error_details).length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base">Tam Metadata</CardTitle>
+                    <CardTitle className="text-base text-destructive">Hata Detayları</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ScrollArea className="h-64">
-                      <pre className="text-xs bg-muted p-4 rounded overflow-x-auto">
-                        {JSON.stringify(execution.metadata, null, 2)}
+                    <ScrollArea className="h-32">
+                      <pre className="text-xs bg-destructive/10 p-3 rounded border border-destructive/20 overflow-x-auto">
+                        {JSON.stringify(execution.error_details, null, 2)}
                       </pre>
                     </ScrollArea>
                   </CardContent>
