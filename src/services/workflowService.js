@@ -18,6 +18,11 @@ export const workflowService = {
     return api.get(`/api/bff/workflows/${workflowId}`);
   },
 
+  // Get workflow by ID with relationships
+  getByIdWithRelationships: async (workflowId) => {
+    return api.get(`/api/bff/workflows/${workflowId}?include_relationships=true&exclude_fields=executions`);
+  },
+
   // Create new workflow
   create: async (workflowData) => {
     return api.post('/api/bff/workflows/', workflowData);

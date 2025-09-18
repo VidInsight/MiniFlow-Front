@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Environment from "./pages/Environment";
 import Scripts from "./pages/Scripts";
 import Workflows from "./pages/Workflows";
+import { WorkflowDetails } from "./pages/WorkflowDetails";
 import Files from "./pages/Files";
 import ExecutionMonitoring from "./pages/ExecutionMonitoring";
 import ExecutionIOMonitoring from "./pages/ExecutionIOMonitoring";
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/" element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path="workflows" element={<Workflows />} />
+            <Route path="workflow/:workflowId" element={<WorkflowDetails />} />
             <Route path="scripts" element={<Scripts />} />
             <Route path="environment" element={<Environment />} />
             <Route path="files" element={<Files />} />
