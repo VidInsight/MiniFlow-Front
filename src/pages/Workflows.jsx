@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/pagination';
 import { PageHeader } from '@/components/ui/page-header';
 import { WorkflowTable } from '@/components/workflows/WorkflowTable';
-import { WorkflowFilters } from '@/components/workflows/WorkflowFilters';
+
 import { CreateWorkflowDialog } from '@/components/workflows/CreateWorkflowDialog';
 import { EditWorkflowDialog } from '@/components/workflows/EditWorkflowDialog';
 import { DeleteWorkflowDialog } from '@/components/workflows/DeleteWorkflowDialog';
@@ -23,15 +23,13 @@ import { WorkflowDetailsDialog } from '@/components/workflows/WorkflowDetailsDia
 import { 
   useWorkflows, 
   useWorkflowCount, 
-  useFilterWorkflows,
   useExecuteWorkflow,
   useValidateWorkflow 
 } from '@/hooks/useWorkflows';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Plus, 
-  Workflow,
-  Filter
+  Workflow
 } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 20;
@@ -44,13 +42,6 @@ export default function Workflows() {
   const [currentPage, setCurrentPage] = useState(
     parseInt(searchParams.get('page')) || 1
   );
-  const [filters, setFilters] = useState({
-    name: searchParams.get('name') || '',
-    status: searchParams.get('status') || '',
-    minPriority: searchParams.get('minPriority') || '',
-    maxPriority: searchParams.get('maxPriority') || ''
-  });
-  const [isFiltering, setIsFiltering] = useState(false);
 
   // Dialog states
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -67,12 +58,9 @@ export default function Workflows() {
     isLoading: isWorkflowsLoading,
     error: workflowsError,
     refetch: refetchWorkflows
-  } = useWorkflows({ ...filters, skip, limit: ITEMS_PER_PAGE });
+  } = useWorkflows({ skip, limit: ITEMS_PER_PAGE });
 
   const { data: totalWorkflows } = useWorkflowCount();
-
-  // Filter mutation for advanced filtering
-  const filterMutation = useFilterWorkflows();
   const executeWorkflow = useExecuteWorkflow();
   const validateWorkflow = useValidateWorkflow();
 
@@ -80,52 +68,9 @@ export default function Workflows() {
   useEffect(() => {
     const params = new URLSearchParams();
     if (currentPage > 1) params.set('page', currentPage.toString());
-    if (filters.name) params.set('name', filters.name);
-    if (filters.status) params.set('status', filters.status);
-    if (filters.minPriority) params.set('minPriority', filters.minPriority);
-    if (filters.maxPriority) params.set('maxPriority', filters.maxPriority);
     
     setSearchParams(params);
-  }, [currentPage, filters, setSearchParams]);
-
-  // Filter handling - manual application only
-  const handleFiltersChange = useCallback((newFilters) => {
-    setFilters(newFilters);
-    setCurrentPage(1);
-    setIsFiltering(true);
-    
-    // Use filter mutation for complex filters
-    const hasAdvancedFilters = 
-      newFilters.name || 
-      (newFilters.status && newFilters.status !== 'all') || 
-      newFilters.minPriority ||
-      newFilters.maxPriority;
-    
-    if (hasAdvancedFilters) {
-      const filterPayload = {
-        ...newFilters,
-        // Don't send 'all' status to API
-        status: newFilters.status === 'all' ? undefined : newFilters.status,
-        skip: 0,
-        limit: ITEMS_PER_PAGE
-      };
-      
-      // Remove undefined values
-      Object.keys(filterPayload).forEach(key => {
-        if (filterPayload[key] === undefined || filterPayload[key] === '') {
-          delete filterPayload[key];
-        }
-      });
-      
-      filterMutation.mutate(filterPayload, {
-        onSettled: () => setIsFiltering(false)
-      });
-    } else {
-      // If no filters, refetch all workflows
-      refetchWorkflows();
-      setIsFiltering(false);
-    }
-  }, [filterMutation, refetchWorkflows]);
+  }, [currentPage, setSearchParams]);
 
   // Pagination
   const totalPages = Math.ceil((workflowsData?.total || 0) / ITEMS_PER_PAGE);
@@ -174,9 +119,9 @@ export default function Workflows() {
   };
 
   // Get current data
-  const currentWorkflows = filterMutation.data?.data?.items || workflowsData?.items || [];
-  const currentTotal = filterMutation.data?.data?.total || workflowsData?.total || 0;
-  const isLoading = isWorkflowsLoading || filterMutation.isPending || isFiltering;
+  const currentWorkflows = workflowsData?.items || [];
+  const currentTotal = workflowsData?.total || 0;
+  const isLoading = isWorkflowsLoading;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/5 to-accent/5">
@@ -197,12 +142,6 @@ export default function Workflows() {
         }
       />
 
-      {/* Filters */}
-      <WorkflowFilters
-        onFiltersChange={handleFiltersChange}
-        initialFilters={filters}
-        isLoading={isLoading}
-      />
 
       {/* Results */}
       <Card>
